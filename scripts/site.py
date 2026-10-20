@@ -33,14 +33,14 @@ OFFICIAL_URL = "https://help.openai.com/ja-jp/articles/20001498-how-banked-codex
 HEALTH_URL = f"https://raw.githubusercontent.com/{REPO}/main/data/health.json"
 JST = timezone(timedelta(hours=9))
 KINDS = {"global": "一斉リセット", "banked": "リセット券の配布"}
-EVIDENCE = {"official": "実施日は公式確認", "quoted": "担当者発言の転載", "third_party": "第三者の記録"}
+EVIDENCE = {"official": "公式本文で日付確認", "quoted": "担当者発言の転載", "third_party": "第三者サイトの記録"}
 REASONS = {
-    "incident": "障害・不具合への対応に伴う記録です。",
-    "compensation": "利用状況の問題への補償に伴う記録です。",
-    "launch": "モデルや機能の公開に伴う記録です。",
-    "milestone": "利用者数などの節目に伴う記録です。",
-    "promotion": "記念・キャンペーンに伴う記録です。",
-    "promo": "記念・キャンペーンに伴う記録です。",
+    "incident": "障害・不具合への対応。",
+    "compensation": "利用制限への補償。",
+    "launch": "モデル・機能の公開に伴う対応。",
+    "milestone": "利用者数の増加を記念。",
+    "promotion": "記念・キャンペーンに伴う対応。",
+    "promo": "記念・キャンペーンに伴う対応。",
 }
 
 
@@ -132,7 +132,7 @@ def normalize_feed(payload, confirmations=None, editorial=None, now=None):
             state = "announced" if upcoming else ("observed" if raw.get("source") == "observed" else "reported")
             audience = raw.get("audience") if isinstance(raw.get("audience"), list) else []
             products = [p for p in audience if p in {"codex", "chatgpt_work"}]
-            note = editorial.get(post_id) or (REASONS[reasons[0]] if reasons else "公開された履歴サイトに記録された回です。対象と詳細は出典をご確認ください。")
+            note = editorial.get(post_id) or (REASONS[reasons[0]] if reasons else "")
             proof_level = proof.get("level", "official") if proof else "third_party"
             if proof_level not in EVIDENCE:
                 proof_level = "third_party"
@@ -245,33 +245,51 @@ def link(url, text, cls=""):
 
 def shell(title, description, active, content, updated):
     canonical = SITE_URL + ("/" if active == "index" else f"/{active}.html")
-    nav = "".join(f'<a href="{href}" {"aria-current=page" if active == key else ""}>{label}</a>' for key, href, label in [("index", "./", "最新・履歴"), ("guide", "guide.html", "リセットの種類"), ("about", "about.html", "根拠と更新方針")])
-    website = json.dumps({"@context": "https://schema.org", "@type": "WebSite", "name": "リセットログ", "url": SITE_URL + "/", "inLanguage": "ja"}, ensure_ascii=False).replace("<", "\\u003c")
+    nav = "".join(f'<a href="{href}" {"aria-current=page" if active == key else ""}>{label}</a>' for key, href, label in [("index", "./", "履歴一覧"), ("guide", "guide.html", "リセットの種類"), ("about", "about.html", "出典について")])
+    website = json.dumps({"@context": "https://schema.org", "@type": "WebSite", "name": "ChatGPT リセット履歴", "url": SITE_URL + "/", "inLanguage": "ja"}, ensure_ascii=False).replace("<", "\\u003c")
+    brand_tag = "h1" if active == "index" else "div"
     return f'''<!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{e(title)}</title><meta name="description" content="{e(description)}"><link rel="canonical" href="{e(canonical)}">
 <meta property="og:type" content="website"><meta property="og:locale" content="ja_JP"><meta property="og:title" content="{e(title)}"><meta property="og:description" content="{e(description)}"><meta property="og:url" content="{e(canonical)}">
-<meta name="theme-color" content="#164b3d"><link rel="icon" href="assets/icon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/style.css"><link rel="alternate" type="application/rss+xml" title="リセットログ 更新情報" href="feed.xml"><link rel="sitemap" type="application/xml" href="sitemap.xml">
+<meta name="theme-color" content="#a22c29"><link rel="icon" href="assets/icon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/style.css"><link rel="alternate" type="application/rss+xml" title="ChatGPT リセット履歴 更新情報" href="feed.xml"><link rel="sitemap" type="application/xml" href="sitemap.xml">
 <script type="application/ld+json">{website}</script><script defer src="assets/app.js"></script></head>
-<body><a class="skip" href="#main">本文へ移動</a><header class="site-header"><div class="container header-inner"><a class="brand" href="./"><span class="brand-icon" aria-hidden="true">↻</span><span>リセットログ<small>ChatGPT / Codex</small></span></a><nav aria-label="メインナビゲーション">{nav}</nav><span class="unofficial">非公式</span></div></header>
+<body><a class="skip" href="#main">本文へ移動</a><header class="site-header container"><div class="masthead"><div><div class="brand-line"><{brand_tag} class="brand"><a href="./">ChatGPT リセット履歴</a></{brand_tag}><span class="unofficial">非公式</span></div><p class="site-subtitle">Codex・Workの臨時リセットを掲載</p></div><p class="site-description">ChatGPT Work・Codexの利用枠に関する臨時リセットを、日時・内容・出典とともに掲載しています。</p></div><nav class="main-nav" aria-label="メインナビゲーション">{nav}</nav></header>
 <main id="main" class="container">{content}</main>
-<footer class="container site-footer"><p>リセットログ — ChatGPT Work・Codexの利用枠の記録</p><p>OpenAIとは関係のない非公式サイトです。公開情報を整理し、根拠の確認状況を表示します。</p><p>データの出典：<a href="{ARCHIVE_URL}">Codex Reset</a>（掲載元の表示：CC BY 4.0）。日時・区分を再構成しています。<a href="about.html">出典・確認方法</a> · <a href="https://github.com/{REPO}">運営・訂正窓口</a> · <a href="data.csv">履歴CSV</a> · <a href="feed.xml">RSS</a></p><p class="muted">履歴ページ生成：{e(jst(updated))} JST</p></footer></body></html>'''
+<footer class="container site-footer"><p class="footer-title">ChatGPT リセット履歴</p><p>OpenAIとは関係のない非公式サイトです。</p><p>履歴データの出典：<a href="{ARCHIVE_URL}">Codex Reset</a>（掲載元のライセンス：CC BY 4.0）。日本時間への換算と分類・説明文の編集を行っています。</p><p class="footer-links"><a href="about.html">出典について</a><a href="https://github.com/{REPO}/issues">訂正の連絡</a><a href="data.csv">履歴データ（CSV）</a><a href="feed.xml">RSS</a></p><p class="muted">ページ更新：{e(jst(updated))}（日本時間）</p></footer></body></html>'''
+
+
+def record_title(record):
+    if record["kind"] == "banked":
+        return "リセット券の配布予告" if record["state"] == "announced" else "リセット券の配布"
+    return {"reported": "一斉リセットの完了報告", "announced": "一斉リセットの実施予告", "observed": "一斉リセットの確認報告"}[record["state"]]
+
+
+def date_label(value):
+    date = parse_time(value).astimezone(JST)
+    return f"{date.year}年{date.month}月{date.day}日 {date:%H:%M}ごろ"
 
 
 def record_row(record):
     proof = record.get("official_confirmation")
     evidence = record["evidence"]
-    state = {"reported": "完了の記録", "announced": "予告の記録", "observed": "観測の記録"}[record["state"]]
-    official = (f'<p class="proof-note">公式記事の日付：{e(proof["official_date"])}。時刻の公式記載なし。</p>' + link(proof["url"], "確認した公式記事")) if proof else ""
+    official = ""
+    if proof:
+        year, month, day = proof["official_date"].split("-")
+        official = f'<p class="proof-note">公式記載日：{e(year)}年{int(month)}月{int(day)}日<br>実施時刻の記載なし</p>'
     quotation = record.get("quotation_confirmation")
-    quoted_source = link(quotation["url"], "確認した転載") if quotation else ""
-    original = link(record.get("original_url"), "元投稿（本文未確認）")
-    products = "・".join({"codex": "Codex", "chatgpt_work": "Work"}[p] for p in record["products"]) or "対象は出典参照"
-    return f'''<tr id="r-{e(record['id'].replace(':', '-'))}" data-record data-kind="{record['kind']}" data-evidence="{evidence}" data-month="{e(parse_time(record['reference_at']).astimezone(JST).strftime('%Y-%m'))}">
-<td data-label="参考日時（日本時間）"><time datetime="{e(record['reference_at'])}">{e(jst(record['reference_at']))}</time><small>JST・履歴サイトの参考時刻</small></td>
-<td data-label="種類・対象"><span class="kind">{KINDS[record['kind']]}</span><small>{e(products)}</small><span class="state">{state}</span></td>
-<td data-label="根拠・内容"><span class="badge {evidence}">{EVIDENCE[evidence]}</span><p>{e(record['note'])}</p>{official}</td>
-<td data-label="出典"><div class="source-links">{quoted_source}{original}{link(record['archive_url'], '掲載元の履歴')}</div></td></tr>'''
+    quoted_source = link(quotation["url"], "発言の転載") if quotation else ""
+    official_source = link(proof["url"], "公式記事") if proof else ""
+    original = link(record.get("original_url"), "元投稿")
+    products = "・".join({"codex": "Codex", "chatgpt_work": "Work"}[p] for p in record["products"])
+    target = f'<small class="record-target">対象：{e(products)}</small>' if products else ""
+    note = f'<p class="record-summary">{e(record["note"])}</p>' if record.get("note") else ""
+    date = parse_time(record["reference_at"]).astimezone(JST)
+    return f'''<tr id="r-{e(record['id'].replace(':', '-'))}" data-record data-kind="{record['kind']}" data-evidence="{evidence}" data-month="{date:%Y-%m}">
+<td class="record-date" data-label="日時（日本時間）"><time datetime="{e(record['reference_at'])}"><span>{date:%Y/%m/%d}</span><span class="record-clock">{date:%H:%M}ごろ</span></time></td>
+<td class="record-content" data-label="内容"><strong class="record-title">{e(record_title(record))}</strong>{target}{note}</td>
+<td class="record-evidence" data-label="確認状況"><span class="badge {evidence}">{EVIDENCE[evidence]}</span>{official}</td>
+<td class="record-source" data-label="出典"><div class="source-links">{official_source}{quoted_source}{original}{link(record['archive_url'], '掲載元')}</div></td></tr>'''
 
 
 def homepage(records, health, updated):
@@ -280,41 +298,53 @@ def homepage(records, health, updated):
     proof_count = sum(r["evidence"] == "official" for r in records)
     months = sorted({parse_time(r["reference_at"]).astimezone(JST).strftime("%Y-%m") for r in records}, reverse=True)
     options = "".join(f'<option value="{m}">{m[:4]}年{int(m[5:])}月</option>' for m in months)
-    rows = "".join(record_row(r) for r in records)
+    years = sorted({m[:4] for m in months}, reverse=True)
+    month_index = '<a href="#history" class="month-all" data-month-link="all" aria-current="true">すべて</a>'
+    for year in years:
+        month_index += f'<h3>{year}年</h3><ul>' + "".join(f'<li><a href="#month-{m}" data-month-link="{m}">{int(m[5:])}月</a></li>' for m in months if m.startswith(year)) + '</ul>'
+    rows = []
+    current_month = None
+    for record in records:
+        month = parse_time(record["reference_at"]).astimezone(JST).strftime("%Y-%m")
+        if month != current_month:
+            rows.append(f'<tr class="month-heading" id="month-{month}" data-month-heading="{month}"><th scope="rowgroup" colspan="4">{month[:4]}年{int(month[5:])}月</th></tr>')
+            current_month = month
+        rows.append(record_row(record))
     check = health.get("checked_at", updated)
     if health.get("feed") == "ok" and health.get("last_success_at"):
-        health_text = "自動取得の最終成功：" + jst(health["last_success_at"]) + " JST。公式本文の確認状況は各行をご覧ください。"
+        health_text = "最終更新：" + jst(health["last_success_at"]) + "（日本時間）"
     elif health.get("feed") == "failed":
-        health_text = "情報の取得に失敗しています。保存済みの履歴を掲載しています。"
+        health_text = "最新情報を取得できません。前回の履歴を表示しています。"
     else:
-        health_text = "初期データ作成：" + jst(check) + " JST。自動更新の初回成功は未確認です。"
-    return f'''<section class="hero"><div class="eyebrow">利用枠の回復を、日本時間と根拠で。</div><h1>ChatGPTの利用枠、<br>いつリセットされた？</h1><p class="hero-lead">ChatGPT Work・Codexの臨時リセットを記録しています。<br class="desktop">過去の日時と、どこまで確認できた情報かを一緒に確認できます。</p><a class="button" href="#history">過去の履歴を見る <span aria-hidden="true">↓</span></a><div class="hero-note">このページは、会話やパスワードの初期化ではなく、利用枠の回復を扱います。</div></section>
-<section class="latest-panel" aria-labelledby="latest-heading"><div><div class="eyebrow light">LATEST RECORD</div><h2 id="latest-heading">直近の一斉リセットの公開記録</h2><p class="latest-time">{e(jst(latest['reference_at']))}<span>ごろ / 日本時間</span></p><p>履歴サイトが掲載する参考時刻です。全アカウントの実施時刻を確認したものではありません。</p></div><div class="latest-side"><span class="badge {latest['evidence']}">{EVIDENCE[latest['evidence']]}</span><p>{e(latest['note'])}</p><a href="#r-{latest['id'].replace(':', '-')}">この記録の出典を見る →</a></div></section>
-<div class="status-line" data-health-url="{HEALTH_URL}"><span class="status-dot" aria-hidden="true"></span><span id="health-text">{e(health_text)}</span></div>
-<section class="reading-note"><strong>時刻と根拠の読み方</strong><p>日時は発表・報告・観測などの参考時刻です。<span class="inline-badge">実施日は公式確認</span>の表示があっても、時刻まで公式に確認できたとは限りません。各行に確認範囲を明記します。<a href="about.html">詳しく見る →</a></p></section>
-<section id="history" class="history-section"><div class="section-heading"><div><div class="eyebrow">RESET HISTORY</div><h2>リセット履歴</h2></div><p>{len(records)}件の記録 / 実施日を公式本文で確認：{proof_count}件</p></div>
-<form class="filters" id="filters" aria-label="履歴の絞り込み"><label>種類<select id="kind-filter"><option value="all">すべて</option><option value="global">一斉リセット</option><option value="banked">リセット券の配布</option></select></label><label>根拠<select id="evidence-filter"><option value="all">すべて</option><option value="official">実施日は公式確認</option><option value="quoted">担当者発言の転載</option><option value="third_party">第三者の記録</option></select></label><label>年月<select id="month-filter"><option value="all">すべての月</option>{options}</select></label><label class="search-label">キーワード<input id="search-filter" type="search" placeholder="モデル名・節目など" autocomplete="off"></label><button class="reset-filter" type="reset">条件をクリア</button></form>
-<p id="result-count" class="result-count" aria-live="polite">{len(records)}件を表示</p><div class="table-wrap"><table><caption class="sr-only">ChatGPT Work・Codexの利用枠リセット履歴</caption><thead><tr><th scope="col">参考日時（日本時間）</th><th scope="col">種類・対象</th><th scope="col">根拠・内容</th><th scope="col">出典</th></tr></thead><tbody>{rows}</tbody></table></div><p id="no-results" hidden>条件に合う記録がありません。絞り込み条件を変えてください。</p><noscript><p>JavaScriptが無効なため絞り込みは使えません。全履歴はそのままお読みいただけます。</p></noscript></section>
-<section class="bottom-guide"><div><div class="eyebrow">BEFORE YOU CHECK</div><h2>自分のリセット時刻と、一斉リセットの違い</h2><p>通常の5時間枠・週間枠の更新はアカウントごとに異なります。この履歴から、あなたの残り枠や次の回復時刻は判定できません。</p></div><a class="text-button" href="guide.html">3種類のリセットを確認 →</a></section>'''
+        health_text = "初期データ掲載：" + jst(check) + "（日本時間）。自動更新は未確認です。"
+    evidence_tabs = "".join(f'<button type="button" data-evidence-option="{key}" aria-pressed="{str(key == "all").lower()}">{label}</button>' for key, label in [("all", "すべて"), ("official", "公式本文で確認"), ("quoted", "発言の転載"), ("third_party", "第三者サイト")])
+    return f'''<div class="archive-layout"><aside class="month-index"><nav aria-label="年月別の履歴"><h2>年月別</h2>{month_index}</nav></aside><div class="archive-main">
+<section class="latest-record" aria-labelledby="latest-heading"><h2 id="latest-heading" class="section-title">直近のリセット</h2><div class="latest-grid"><div><p class="latest-time"><time datetime="{e(latest['reference_at'])}">{e(date_label(latest['reference_at']))}</time></p><p class="date-caption">日本時間・掲載元の参考時刻</p></div><div class="latest-description"><h3>{e(record_title(latest))}</h3><span class="badge {latest['evidence']}">{EVIDENCE[latest['evidence']]}</span><p>{e(latest['note'])}</p><a href="#r-{latest['id'].replace(':', '-')}">詳細・出典</a></div></div></section>
+<p class="status-line" data-health-url="{HEALTH_URL}"><span id="health-text">{e(health_text)}</span></p>
+<p class="time-note">日時は、発表・報告・観測の時刻を日本時間に換算したものです。実際の反映時刻とは異なる場合があります。<a href="about.html#dates">日時の表記について</a></p>
+<section id="history" class="history-section"><div class="section-heading"><h2 class="section-title">過去のリセット</h2><p>{len(records)}件<span class="count-detail"> ／ 公式本文で日付を確認：{proof_count}件</span></p></div>
+<form id="filters" aria-label="履歴の絞り込み"><input type="hidden" id="evidence-filter" value="all"><div class="filter-primary"><div class="evidence-tabs" role="group" aria-label="確認状況で絞り込む">{evidence_tabs}</div><label class="search-label"><span class="sr-only">キーワード</span><input id="search-filter" type="search" placeholder="キーワードで検索" autocomplete="off"></label></div><div class="filter-secondary"><label for="kind-filter">種類</label><select id="kind-filter"><option value="all">すべて</option><option value="global">一斉リセット</option><option value="banked">リセット券の配布</option></select><label for="month-filter">年月</label><select id="month-filter"><option value="all">すべての月</option>{options}</select><button class="reset-filter" type="reset">条件を解除</button></div></form>
+<p id="result-count" class="result-count" aria-live="polite">{len(records)}件を表示</p><div class="table-wrap"><table><caption class="sr-only">ChatGPT Work・Codexの臨時リセット履歴</caption><thead><tr><th scope="col">日時（日本時間）</th><th scope="col">内容</th><th scope="col">確認状況</th><th scope="col">出典</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div><p id="no-results" hidden>条件に一致する履歴はありません。</p><noscript><p>絞り込みにはJavaScriptが必要です。以下に全履歴を掲載しています。</p></noscript></section>
+<section class="related-guide"><h2>通常の利用枠更新との違い</h2><p>通常の5時間枠・週間枠の更新時刻は、アカウントごとに異なります。この履歴から個人の残り枠や回復時刻を確認することはできません。</p><a href="guide.html">リセットの種類</a></section></div></div>'''
 
 
-GUIDE = '''<article class="article"><div class="eyebrow">GUIDE</div><h1>ChatGPTのリセットはいつ？<br>3種類の違い</h1><p class="article-lead">『リセット』という言葉には、通常の利用枠の更新と、OpenAIが臨時に行う回復、保存して使うリセット券があります。</p>
-<h2>1. 通常の利用枠の更新</h2><p>自分のアカウントの利用期間に応じて回復するものです。Work・Codexの現在の残り枠と回復時刻は、ChatGPTの「設定 → 使用状況」で確認します。このサイトは個人の利用状況にはアクセスしません。</p>
-<h2>2. 臨時の一斉リセット</h2><p>障害への対応や記念イベントなどに伴い、OpenAIが対象の利用枠を直接回復するものです。対象プランや対象となる枠は発表ごとに異なります。このサイトの「一斉リセット」は、この公開記録をまとめたものです。</p>
-<h2>3. 保存して使うリセット券</h2><p>アカウントに付与され、使用するか期限が切れるまで保存されるリセットです。付与された日時と、実際に使って利用枠が回復する日時は異なるため、履歴では「リセット券の配布」と表示します。利用条件と期限は自分のアカウントで確認してください。</p>
-<h2>「全員」「ChatGPT」の範囲に注意</h2><p>発表で「全員」と表現されていても、有料プランの対象者やWork・Codex利用者などの範囲を指すことがあります。通常のChatのすべてのモデル、画像生成、APIなどの枠も一緒に回復したとは判断しません。</p>
-<h2>次回の一斉リセットは予測できる？</h2><p>過去の間隔は、次回の実施予定ではありません。このサイトでは、過去の記録から算出した確率やカウントダウンを実施予定として表示しません。</p>
-<div class="article-source"><strong>確認先</strong><p><a href="https://help.openai.com/ja-jp/articles/20001498-how-banked-codex-resets-work">OpenAI公式：保存済みCodexリセットの仕組み ↗</a><br><a href="https://help.openai.com/ja-jp/articles/11369540-using-codex-with-your-chatgpt-plan">OpenAI公式：ChatGPTプランでCodexを使う ↗</a></p></div><a class="text-button" href="./#history">リセット履歴へ戻る →</a></article>'''
+GUIDE = '''<article class="article"><h1 class="section-title">リセットの種類</h1><p class="article-lead">通常の利用枠の更新、一斉リセット、リセット券の違いを説明します。</p>
+<h2>通常の利用枠の更新</h2><p>5時間枠や週間枠は、それぞれの利用期間に応じて回復します。残り枠と回復予定は、利用しているアプリの使用状況で確認してください。</p>
+<h2>臨時の一斉リセット</h2><p>障害への対応や記念イベントなどに伴い、OpenAIが対象の利用枠を回復します。対象プランや回復する枠は、発表ごとに異なります。このサイトでは、こうした臨時リセットの履歴を掲載しています。</p>
+<h2>リセット券の配布</h2><p>公式に「保存済みリセット」と呼ばれる、後から使用できるリセットです。配布された日時と、使用して利用枠が回復する日時は異なります。このサイトでは「リセット券の配布」と表記しています。利用条件や有効期限は、自分のアカウントで確認してください。</p>
+<h2>対象プランと範囲</h2><p>発表で「全員」とされていても、有料プランの利用者やWork・Codexの利用者など、対象が限定される場合があります。ChatGPTの全モデル、画像生成、APIなどの利用枠も回復するとは限りません。</p>
+<h2>次回の実施予定</h2><p>過去の実施間隔から、次回の日時を確定することはできません。予定については、OpenAIの発表を確認してください。</p>
+<section class="article-source"><h2>関連情報</h2><ul><li><a href="https://help.openai.com/ja-jp/articles/20001498-how-banked-codex-resets-work">OpenAI：保存済みCodexリセットの仕組み</a></li><li><a href="https://help.openai.com/ja-jp/articles/11369540-using-codex-with-your-chatgpt-plan">OpenAI：ChatGPTプランでCodexを使う</a></li></ul></section><p class="article-back"><a href="./#history">履歴一覧に戻る</a></p></article>'''
 
 
-ABOUT = f'''<article class="article"><div class="eyebrow">SOURCES & POLICY</div><h1>根拠と更新方針</h1><p class="article-lead">「確認済み」の範囲がわかる、利用枠リセットの記録を目指しています。</p>
-<h2>このサイトについて</h2><p>リセットログは、ChatGPT Work・Codexの利用枠の臨時回復を日本語で整理する非公式の情報サイトです。運営：<a href="https://github.com/mtk-ctrl">mtk-ctrl</a>。OpenAIとは関係ありません。</p>
-<h2>根拠の3区分</h2><dl class="policy-list"><dt>実施日は公式確認</dt><dd>OpenAI公式本文を直接読み、該当の実施を確認した記録です。公式が日付だけを述べている場合、時刻は公式確認済みとは扱いません。</dd><dt>担当者発言の転載</dt><dd>担当者の発言を転載・引用で確認した記録です。元の本文の直接確認とは分けます。公式フォーラム上の一般ユーザーによる投稿も、この基準で区別します。</dd><dt>第三者の記録</dt><dd>独立した履歴サイトの記録を取得したものです。掲載元が「confirmed」としていても、当サイトの「公式確認」に自動昇格させません。</dd></dl>
-<h2>日本時間と時刻の扱い</h2><p>情報源がUTCで記録した時刻を日本時間（JST、UTC+9）に換算します。実施時刻・観測時刻・発表時刻は一致するとは限りません。現在の自動取得データでは発表・報告・観測の区別を原文から一律に確定できないため、「履歴サイトの参考時刻」と表示しています。</p><p>情報源によって時刻が違う場合があります。元投稿の本文と実施時刻を直接確認できるまでは、利用枠がその分に全員一斉に回復したとは断定しません。</p>
-<h2>情報の取得と更新</h2><p>専用のGitHub Actionsで2時間おきに取得する設定です。実行はGitHub側の混雑や制限によって遅れる場合があります。更新があった場合に履歴ページを生成し、取得状況は別途保存します。新しい情報を取得できない場合も、前回の履歴を保持します。</p><p>プログラムで時刻の換算、分類、重複排除を行い、初期の説明文や構築にはAIの支援を利用しています。日々の処理に有料AI APIは使いません。データを取得できたことと、公式本文を直接確認したことは別々に管理します。</p>
-<h2>出典と再利用</h2><p>初期・自動取得の履歴データ：<a href="{ARCHIVE_URL}">Codex Resetの公開データ ↗</a>。掲載元はCC BY 4.0と表示しています。当サイトでは日時・種類・対象・リンクなどの事実項目を再構成し、英文の投稿全文や説明文を一括転載していません。各記録の元投稿と掲載元もリンクします。</p><p>公式確認の根拠：<a href="{OFFICIAL_URL}">OpenAI公式ヘルプ ↗</a>。個別の確認内容はリポジトリの <code>data/official-confirmations.json</code> に記録します。</p>
-<h2>訂正と運営</h2><p>日付、区分、対象、出典に誤りがあれば、<a href="https://github.com/{REPO}/issues">GitHubの訂正窓口 ↗</a>からお知らせください。履歴の訂正はコードと同様に変更履歴へ残します。網羅性や、個人のアカウントへの反映を保証する一覧ではありません。</p>
-<h2>プライバシー</h2><p>当サイト独自のアクセス解析、広告、Cookie、アカウント登録は導入していません。最新の取得状況を表示するため、閲覧時に公開されたGitHub上の状態ファイルへ接続します。ホスティング事業者が技術上取得する接続情報は、各事業者の方針が適用されます。</p><a class="text-button" href="./">最新・履歴へ戻る →</a></article>'''
+ABOUT = f'''<article class="article"><h1 class="section-title">出典について</h1><p class="article-lead">掲載情報の出典、確認状況、日時の表記について説明します。</p>
+<h2>このサイトについて</h2><p>ChatGPT リセット履歴は、ChatGPT Work・Codexの臨時リセットを掲載する非公式サイトです。OpenAIとは関係ありません。運営：<a href="https://github.com/mtk-ctrl">mtk-ctrl</a>。</p>
+<h2>確認状況の区分</h2><dl class="policy-list"><dt>公式本文で日付確認</dt><dd>OpenAIの公式記事で実施日を確認できた履歴です。実施時刻の記載がない場合は、日付のみの確認です。</dd><dt>担当者発言の転載</dt><dd>OpenAI担当者の発言を、他の投稿に転載・引用された文章で確認した履歴です。元の投稿本文を直接確認したものとは区別しています。公式フォーラムの一般ユーザーによる投稿も、この区分に含みます。</dd><dt>第三者サイトの記録</dt><dd>第三者サイトに掲載された履歴です。元投稿の本文は確認できていません。掲載元が「確認済み」としている場合も、公式確認とは区別します。</dd></dl>
+<h2 id="dates">日時の表記</h2><p>日時は出典に記録されたUTC（協定世界時）を日本時間に換算し、分単位で掲載しています。発表・報告・観測の時刻を含むため、実際に利用枠が回復した時刻とは異なる場合があります。</p><p>公式記事で実施日のみ確認できた場合は、その日付を別に記載します。表の日時を公式発表の時刻として扱うものではありません。</p>
+<h2>履歴の更新</h2><p>履歴は2時間おきに自動更新します。取得に失敗した場合は、前回の履歴を表示します。サービス側の混雑などにより、更新が遅れる場合があります。</p><p>履歴の取得と、公式本文の確認は別に行います。サイトの制作と文章の整理にはAIを使用しています。</p>
+<h2>データの出典</h2><p>履歴データは<a href="{ARCHIVE_URL}">Codex Resetの公開データ</a>を利用しています。掲載元のライセンスはCC BY 4.0です。日本時間への換算と分類・説明文の編集を行い、各記録に元投稿と掲載元のリンクを付けています。</p><p>公式確認には<a href="{OFFICIAL_URL}">OpenAI公式ヘルプ</a>を利用しています。確認できた内容は、各記録の「確認状況」に記載しています。</p>
+<h2>訂正の連絡</h2><p>日時、内容、出典に誤りがある場合は、<a href="https://github.com/{REPO}/issues">GitHubの連絡窓口</a>へお知らせください。すべてのリセットを網羅した一覧ではなく、個人のアカウントへの反映を保証するものでもありません。</p>
+<h2>プライバシー</h2><p>独自のアクセス解析、広告、Cookie、会員登録は導入していません。更新状況の表示には、GitHub上の公開ファイルを利用しています。ホスティング事業者が取得する接続情報については、各事業者の方針が適用されます。</p><p class="article-back"><a href="./">履歴一覧に戻る</a></p></article>'''
 
 
 def build():
@@ -325,9 +355,9 @@ def build():
     updated = utcnow()
     OUT.mkdir(parents=True, exist_ok=True)
     pages = {
-        "index": ("ChatGPTのリセット履歴｜利用枠の回復を日本時間と根拠で確認", "ChatGPT Work・Codexの一斉リセットとリセット券の配布履歴。日本時間、対象、公式本文の確認状況、出典を掲載する非公式サイトです。", homepage(records, health, updated)),
-        "guide": ("ChatGPTのリセットはいつ？5時間・週間・一斉回復の違い｜リセットログ", "通常の利用枠更新、一斉リセット、保存して使うリセット券の違いと、自分の回復時刻の確認先を説明します。", GUIDE),
-        "about": ("根拠と更新方針｜ChatGPT・Codexリセットログ", "公式本文の直接確認、担当者発言の転載、第三者記録の区分と、日本時間の扱い、出典、訂正方法を掲載します。", ABOUT),
+        "index": ("ChatGPT リセット履歴｜Codex・Workの臨時リセット", "ChatGPT Work・Codexの一斉リセットとリセット券の配布履歴。日時は日本時間で表記し、内容、確認状況、出典を掲載しています。", homepage(records, health, updated)),
+        "guide": ("リセットの種類｜ChatGPT リセット履歴", "通常の利用枠更新、一斉リセット、リセット券の違いと、自分の残り枠・回復予定の確認先を説明します。", GUIDE),
+        "about": ("出典について｜ChatGPT リセット履歴", "公式本文の確認、担当者発言の転載、第三者サイトの記録の区分と、日時の表記、出典、訂正の連絡先を掲載しています。", ABOUT),
     }
     for key, (title, description, content) in pages.items():
         (OUT / f"{key}.html").write_text(shell(title, description, key, content, updated), encoding="utf-8")
@@ -343,8 +373,8 @@ def build():
         writer.writerow([r["id"], jst(r["reference_at"]), r["time_basis"], KINDS[r["kind"]], EVIDENCE[r["evidence"]], (r.get("official_confirmation") or {}).get("official_date", ""), "いいえ", r.get("original_url") or "", r["archive_url"]])
     (OUT / "data.csv").write_text("\ufeff" + stream.getvalue(), encoding="utf-8")
     items = "".join(f'<item><title>{e(jst(r["reference_at"]))} JST・{KINDS[r["kind"]]}</title><link>{SITE_URL}/#r-{r["id"].replace(":", "-")}</link><guid isPermaLink="false">{e(r["id"])}</guid><description>{e(EVIDENCE[r["evidence"]] + "。" + r["note"])}</description></item>' for r in records[:30])
-    (OUT / "feed.xml").write_text(f'<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>リセットログ</title><link>{SITE_URL}/</link><description>ChatGPT Work・Codexの臨時リセット公開記録</description><language>ja</language>{items}</channel></rss>', encoding="utf-8")
-    (OUT / "404.html").write_text(shell("ページが見つかりません｜リセットログ", "最新の履歴ページへお進みください。", "index", '<article class="article"><h1>ページが見つかりません</h1><p><a href="' + SITE_URL + '/">最新・履歴へ進む →</a></p></article>', updated), encoding="utf-8")
+    (OUT / "feed.xml").write_text(f'<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>ChatGPT リセット履歴</title><link>{SITE_URL}/</link><description>ChatGPT Work・Codexの臨時リセット履歴</description><language>ja</language>{items}</channel></rss>', encoding="utf-8")
+    (OUT / "404.html").write_text(shell("ページが見つかりません｜ChatGPT リセット履歴", "履歴一覧からご確認ください。", "404", '<article class="article"><h1 class="section-title">ページが見つかりません</h1><p><a href="' + SITE_URL + '/">履歴一覧へ</a></p></article>', updated), encoding="utf-8")
     print(f"Built {len(records)} records and 3 public pages in docs/")
 
 
