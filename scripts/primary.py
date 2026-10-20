@@ -98,8 +98,12 @@ def collect_primary(data, fetch, read_json, write_json, utcnow, github_output=No
         try:
             raw = fetch("https://cdn.syndication.twimg.com/tweet-result?id=" + tweet_id + "&lang=en", max_bytes=250000)
             payload = json.loads(raw)
+            status["x_embed_payload_keys"] = list(payload)[:12]
+            status["x_embed_candidate_id"] = tweet_id
             author = (payload.get("user") or {}).get("screen_name", "")
             body = payload.get("text", "")
+            status["x_embed_author"] = author
+            status["x_embed_text_length"] = len(body)
             if author.lower() in ("thsottiaux", "openai") and body:
                 status["x_embed"] = "readable"
                 status["x_embed_example_id"] = tweet_id
