@@ -78,7 +78,7 @@
         button.append(element("span", date, "day-number"));
         const marks = element("span", undefined, "day-marks");
         if (rows.some(row => row.kind === "global" && row.state !== "announced")) marks.append(element("span", "一斉", "day-mark reset-mark"));
-        if (rows.some(row => row.kind === "banked" && row.state !== "announced")) marks.append(element("span", "保存型", "day-mark banked-mark"));
+        if (rows.some(row => row.kind === "banked" && row.state !== "announced")) marks.append(element("span", "チケット", "day-mark banked-mark"));
         if (rows.some(row => row.state === "announced")) marks.append(element("span", "予告", "day-mark announced-mark"));
         if (key === data.predicted) marks.append(element("span", "独自予測", "day-mark predicted-mark"));
         button.append(marks);

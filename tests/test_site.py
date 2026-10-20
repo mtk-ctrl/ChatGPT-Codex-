@@ -77,6 +77,20 @@ class FirstPartyTests(unittest.TestCase):
         self.assertIn("40<small>%</small>", view)
         self.assertNotIn("calendar-layout--full", view)
 
+    def test_ticket_wording_for_public_readers(self):
+        rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
+        ticket_records = [r for r in rows if r["kind"] == "banked"]
+        self.assertGreater(len(ticket_records), 0)
+        self.assertEqual(site.KINDS["banked"], "リセットチケットの配布")
+        self.assertEqual(site.record_title({"kind": "banked", "state": "announced"}), "リセットチケットの配布予告")
+        self.assertEqual(site.record_title({"kind": "banked", "state": "reported"}), "リセットチケットを配布")
+        self.assertIn("チケット", site.GUIDE)
+        self.assertIn("有効期限", site.GUIDE)
+        self.assertIn("チケット", site.calendar_overview(rows, {"status": "stale", "generated_at": "2026-10-20T12:00:00Z", "horizons": {}}))
+        self.assertNotIn("保存型", site.GUIDE)
+        self.assertNotIn("保存型", site.KINDS["banked"])
+        self.assertTrue(all("保存型" not in (r.get("note") or "") for r in rows))
+
     def test_x_requires_original_text(self):
         markup = '<meta property="og:description" content="We have now reset usage limits for Codex.">'
         post = primary.x_record("thsottiaux", "2111492738025959922", markup)
