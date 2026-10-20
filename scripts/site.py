@@ -289,7 +289,6 @@ def forecast_results(history):
 
 
 def homepage(records, updated, forecast, forecast_history):
-    proof_count = sum(r["evidence"] == "official" for r in records)
     months = sorted({record_day(r)[:7] for r in records}, reverse=True)
     options = "".join(f'<option value="{m}">{m[:4]}年{int(m[5:])}月</option>' for m in months)
     rows = []
@@ -300,7 +299,7 @@ def homepage(records, updated, forecast, forecast_history):
             rows.append(f'<tr class="month-heading" id="month-{month}" data-month-heading="{month}"><th scope="rowgroup" colspan="4">{month[:4]}年{int(month[5:])}月</th></tr>')
             current_month = month
         rows.append(record_row(record))
-    evidence_tabs = "".join(f'<button type="button" data-evidence-option="{key}" aria-pressed="{str(key == "all").lower()}">{label}</button>' for key, label in [("all", "すべて"), ("official", "OpenAI公式"), ("staff_x", "担当者のX投稿")])
+    evidence_tabs = "".join(f'<button type="button" data-evidence-option="{key}" aria-pressed="{str(key == "all").lower()}">{label}</button>' for key, label in [("all", "すべて"), ("official", "公式サイト"), ("staff_x", "Xの投稿")])
     return f'''{calendar_overview(records, forecast)}
 <p class="time-note">Xの投稿時刻は日本時間で表示しています。リセットが実際に反映された時刻ではありません。公式記事の日付は原文どおり掲載します。<a href="about.html#dates">日時の見方</a></p>
 {forecast_results(forecast_history)}
