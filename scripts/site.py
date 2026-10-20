@@ -33,6 +33,7 @@ REPO = "mtk-ctrl/ChatGPT-Codex-"
 SITE_URL = os.environ.get("SITE_URL", "https://mtk-ctrl.github.io/ChatGPT-Codex-").rstrip("/")
 OFFICIAL_URL = "https://help.openai.com/en/articles/20001516-managing-usage-with-gpt-6-astra-in-work-and-codex"
 JST = timezone(timedelta(hours=9))
+# 「チケット」は閲覧者向け表記。種類コード banked は変更しない。
 KINDS = {"global": "一斉リセット", "banked": "リセットチケットの配布"}
 EVIDENCE = {"official": "OpenAI公式", "staff_x": "Tibo氏のX投稿"}
 
