@@ -92,26 +92,6 @@ def collect_primary(data, fetch, read_json, write_json, utcnow, github_output=No
             official_errors.append(origin.split("/")[2] + ":" + type(exc).__name__)
     if not official:
         status["official_errors"] = official_errors
-    # Test X's own embeddable tweet endpoint. It is not a third-party archive.
-    status["x_embed"] = "unavailable"
-    for tweet_id in ("2111492738025959922", "2097043464538264003"):
-        try:
-            raw = fetch("https://cdn.syndication.twimg.com/tweet-result?id=" + tweet_id + "&lang=en", max_bytes=250000)
-            payload = json.loads(raw)
-            status["x_embed_payload_keys"] = list(payload)[:12]
-            status["x_embed_candidate_id"] = tweet_id
-            author = (payload.get("user") or {}).get("screen_name", "")
-            body = payload.get("text", "")
-            status["x_embed_author"] = author
-            status["x_embed_text_length"] = len(body)
-            if author.lower() in ("thsottiaux", "openai") and body:
-                status["x_embed"] = "readable"
-                status["x_embed_example_id"] = tweet_id
-                status["x_embed_example_matches_reset"] = bool(DONE.search(body) and TARGET.search(body))
-                break
-            status["x_embed"] = "unverified"
-        except (RuntimeError, ValueError, OSError, TypeError) as exc:
-            status["x_embed_error"] = type(exc).__name__
     accessible = 0
     newly_added = 0
     for handle in X_HANDLES:
