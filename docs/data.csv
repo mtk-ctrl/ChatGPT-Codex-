@@ -7,6 +7,7 @@
 2106131810921136451:global,2026/10/03 06:18,X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）,一斉リセット,OpenAI関係者のX原投稿,https://x.com/thsottiaux/status/2106131810921136451,一斉リセットが全体に反映されたと報告。
 2103911959544610829:global,2026/09/27 03:17,X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）,一斉リセット,OpenAI関係者のX原投稿,https://x.com/thsottiaux/status/2103911959544610829,リセットの反映完了を報告。
 2102463847714247142:banked,2026/09/23 03:23,X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）,リセット券の配布,OpenAI関係者のX原投稿,https://x.com/thsottiaux/status/2102463847714247142,Plus・Pro・Businessのアカウントに保存型リセットを追加中と発表。
+2098685367058612394:global,2026/09/12 17:09,X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）,一斉リセット,OpenAI関係者のX原投稿,https://x.com/thsottiaux/status/2098685367058612394,Astraの品質に関する説明とともに、利用枠リセットが全体に反映されたと報告。
 openai-2026-09-07-global,2026-09-07,OpenAI公式記載日。日時・日本時間の実施日を示すものではない,一斉リセット,OpenAI公式記事,https://help.openai.com/en/articles/20001516-managing-usage-with-gpt-6-astra-in-work-and-codex,対象となるPlus・Pro・Businessユーザーの利用枠を一斉リセット。実施時刻は公式記事に記載がありません。
 openai-2026-09-04-banked,2026-09-04,OpenAI公式記載日。日時・日本時間の実施日を示すものではない,リセット券の配布,OpenAI公式記事,https://help.openai.com/en/articles/20001516-managing-usage-with-gpt-6-astra-in-work-and-codex,対象となる既存Plus・Pro・Businessユーザーへ保存型リセットを配布。新規利用者には別途条件があります。
 openai-2026-09-03-banked,2026-09-03,OpenAI公式記載日。日時・日本時間の実施日を示すものではない,リセット券の配布,OpenAI公式記事,https://help.openai.com/en/articles/20001516-managing-usage-with-gpt-6-astra-in-work-and-codex,対象となる既存Plus・Pro・Businessユーザーへ保存型リセットを配布。新規利用者には別途条件があります。
@@ -46,6 +47,7 @@ openai-2026-09-03-banked,2026-09-03,OpenAI公式記載日。日時・日本時�
 2039248564967424483:global,2026/04/01 16:48,X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）,一斉リセット,OpenAI関係者のX原投稿,https://x.com/thsottiaux/status/2039248564967424483,利用枠の上限到達者増加を受け、全プランの利用枠をリセットすると発表。
 2037346989244096581:global,2026/03/27 10:52,X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）,一斉リセット,OpenAI関係者のX原投稿,https://x.com/thsottiaux/status/2037346989244096581,新機能の試用を促すため、全プランのCodex利用枠をリセットしたと報告。
 2031605592352313567:global,2026/03/11 14:38,X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）,一斉リセット,OpenAI関係者のX原投稿,https://x.com/thsottiaux/status/2031605592352313567,Codexの復旧後、リセットボタンを押したと報告。アカウントへの反映はこの後と説明。
+2031216405266481489:global,2026/03/10 12:51,X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）,一斉リセット,OpenAI関係者のX原投稿,https://x.com/thsottiaux/status/2031216405266481489,Codexの不具合が解消したため、利用枠をまもなくリセットすると予告。
 2030474136024400173:global,2026/03/08 11:42,X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）,一斉リセット,OpenAI関係者のX原投稿,https://x.com/thsottiaux/status/2030474136024400173,利用枠消費に関する報告を受け、Codexの利用枠をリセットしたと報告。
 2028649088594436225:global,2026/03/03 10:50,X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）,一斉リセット,OpenAI関係者のX原投稿,https://x.com/thsottiaux/status/2028649088594436225,Codex障害の解消後、利用枠をリセットする予定と説明。
 2004100061933064395:global,2025/12/25 17:01,X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）,一斉リセット,OpenAI関係者のX原投稿,https://x.com/thsottiaux/status/2004100061933064395,年末の謝意を込めてCodexの利用枠をリセットしたと報告。
