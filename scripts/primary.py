@@ -9,6 +9,7 @@ import re
 from datetime import datetime, timezone
 
 OFFICIAL_URL = "https://help.openai.com/en/articles/20001516-managing-usage-with-gpt-6-astra-in-work-and-codex"
+OFFICIAL_FALLBACK = "https://help-lb.openai.com/en/articles/20001516-managing-usage-with-gpt-6-astra-in-work-and-codex"
 X_HANDLES = ("thsottiaux", "OpenAI")
 DONE = re.compile(r"(?:we (?:have |just |now )?reset|have now reset|limits? (?:were|have been) reset|full reset (?:done|complete)|reset (?:is )?(?:complete|completed))", re.I)
 TARGET = re.compile(r"(?:codex|work|usage|rate limits?)", re.I)
@@ -79,11 +80,18 @@ def collect_primary(data, fetch, read_json, write_json, utcnow, github_output=No
               "message": "一次資料を確認できません。確認済みの過去データのみ表示中。",
               "source_policy": "OpenAI official and original staff X"}
     official = False
-    try:
-        official = official_verified(fetch(OFFICIAL_URL))
-        status["official_page"] = "verified" if official else "unverified"
-    except (RuntimeError, OSError, ValueError):
-        pass
+    official_errors = []
+    for origin in (OFFICIAL_URL, OFFICIAL_FALLBACK):
+        try:
+            official = official_verified(fetch(origin))
+            status["official_page"] = "verified" if official else "unverified"
+            if official:
+                status["official_source_checked"] = origin
+                break
+        except (RuntimeError, OSError, ValueError) as exc:
+            official_errors.append(origin.split("/")[2] + ":" + type(exc).__name__)
+    if not official:
+        status["official_errors"] = official_errors
     accessible = 0
     newly_added = 0
     for handle in X_HANDLES:
