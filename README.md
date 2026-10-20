@@ -29,3 +29,7 @@ python3 -m unittest discover -s tests -v
 python3 scripts/site.py refresh
 python3 scripts/site.py build
 ```
+
+## 表記
+
+利用者が期限内に自分で適用する「banked reset」は、閲覧者に伝わりやすいよう公開サイトでは「リセットチケット」と呼び、カレンダーの短い表示では「チケット」とする。OpenAIの日本語公式案内では「保存済みリセット」と表記される。運用データ上の種類コード `banked` は変えない。
