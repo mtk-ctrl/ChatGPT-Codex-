@@ -38,6 +38,9 @@ class FirstPartyTests(unittest.TestCase):
         self.assertTrue(all("全文未確認" not in site.record_row(r) for r in indexed))
         self.assertIn("Thibault Sottiaux", site.ABOUT)
         self.assertNotIn("OpenAI関係者のX原投稿", site.ABOUT)
+        self.assertIn("Codex責任者Tibo氏", site.shell("確認", "説明", "about", "本文", "2026-10-20T12:00:00Z"))
+        self.assertIn("情報の確かめ方", site.ABOUT)
+        self.assertNotIn("原投稿の検索表示で確認", site.record_row(indexed[0]))
 
     def test_x_requires_original_text(self):
         markup = '<meta property="og:description" content="We have now reset usage limits for Codex.">'
