@@ -201,7 +201,28 @@ DISCLAIMER = ("この予測は当サイト独自の試算であり、OpenAIが�
               "（法令上、免責が認められない場合を除きます）。")
 
 
-def calendar_overview(records, forecast):
+
+def active_editorial_forecast(records, now, proposal):
+    """A clearly labelled opinion. Remove it when a new reset is reported or it expires."""
+    if not isinstance(proposal, dict) or not proposal.get("date") or not proposal.get("expires_at"):
+        return None
+    baseline = next((r for r in records if r.get("id") == proposal.get("last_report_id")
+                     and r.get("kind") == "global" and r.get("state") in {"reported", "observed"}), None)
+    if baseline is None or now >= parse_time(proposal["expires_at"]):
+        return None
+    baseline_time = parse_time(baseline["reference_at"])
+    for r in records:
+        if r.get("id") == baseline["id"] or r.get("kind") != "global" or r.get("state") not in {"reported", "observed"}:
+            continue
+        if r.get("date_precision") == "day":
+            if r.get("official_date", "") > record_day(baseline):
+                return None
+        elif parse_time(r["reference_at"]) > baseline_time:
+            return None
+    return proposal
+
+
+def calendar_overview(records, forecast, editorial=None):
     today = parse_time(forecast['generated_at']).astimezone(JST).date()
     entries = []
     for r in records:
@@ -214,7 +235,7 @@ def calendar_overview(records, forecast):
     selected = next((r['day'] for r in entries if r['kind'] == 'global' and r['state'] != 'announced'), today.isoformat())
     if not selected.startswith(today.strftime('%Y-%m')):
         selected = today.isoformat()
-    predicted = forecast.get('reference_date')
+    predicted = editorial["date"] if editorial else (forecast.get("reference_date") if forecast["status"] == "ok" else None)
     by_day = {}
     for r in entries:
         by_day.setdefault(r['day'], []).append(r)
@@ -235,9 +256,9 @@ def calendar_overview(records, forecast):
         if pending_reset or pending_ticket:
             marks.append('<span class="day-mark announced-mark">予告</span>')
         if key == predicted:
-            marks.append('<span class="day-mark predicted-mark">独自予測</span>')
+            marks.append('<span class="day-mark predicted-mark">予想</span>')
         classes = 'calendar-day' + (' is-today' if key == today.isoformat() else '')
-        label = f'{today.year}年{today.month}月{day}日、発表記録{len(day_records)}件' + ('、独自予測の参考日' if key == predicted else '')
+        label = f'{today.year}年{today.month}月{day}日、発表記録{len(day_records)}件' + ('、非公式の予想日' if key == predicted else '')
         return f'<button type="button" class="{classes}" data-calendar-day="{key}" aria-label="{e(label)}" aria-pressed="{str(key == selected).lower()}"><span class="day-number">{day}</span><span class="day-marks">{"".join(marks)}</span></button>'
     grid = ''.join(cell(day) for week in calendar.Calendar(firstweekday=6).monthdayscalendar(today.year, today.month) for day in week)
     first = min(r['day'] for r in entries)[:7]
@@ -260,12 +281,22 @@ def calendar_overview(records, forecast):
 <details class="forecast-reasons" open><summary>なぜこの予測？</summary><p>前回の完了報告から<strong>{forecast['elapsed_hours']/24:.1f}日</strong>経過しています。直近90日間に始まった実施間隔<strong>{forecast['sample_size']}件</strong>のうち、これより長かったのは<strong>{forecast['eligible_size']}件</strong>でした。</p><p>その{h24['total']}件では、現在と同じ経過時点から24時間以内の報告が{h24['count']}件、48時間以内が{h48['count']}件でした。この比率を補正して上の数値を出しています。</p><p class="sample-note">少数の履歴による試算です。24時間の集計比率の95%参考区間は{lower}〜{upper}%と幅があり、予測精度はまだ検証できていません。</p></details>'''
     else:
         prediction = ""
-    if forecast["status"] == "ok":
+    if editorial:
+        target_day = datetime.strptime(editorial["date"], "%Y-%m-%d")
+        basis = "・".join(f"{int(d[-2:])}日" for d in editorial["supporting_report_dates"])
+        forecast_panel = f'''<aside class="forecast-panel forecast-editorial" aria-labelledby="forecast-title" data-editorial-expires-at="{e(editorial["expires_at"])}"><div class="forecast-heading"><h2 id="forecast-title">次のリセット予想</h2><span>当サイトの予想・非公式</span></div>
+<p class="editorial-date">{target_day.year}年{target_day.month}月{target_day.day}日（金）</p>
+<p class="editorial-reason-title">23日と予想する理由</p>
+<p class="editorial-reason">{e(editorial["rationale"])}</p>
+<p class="editorial-basis">根拠となる発表：{e(basis)}（<a href="#history">過去の履歴を見る</a>）</p>
+<p class="editorial-caution">{e(editorial["caution"])}</p>
+<p class="editorial-written">予想日を掲載した日：2026年10月20日</p></aside>'''
+    elif forecast["status"] == "ok":
         forecast_panel = f'''<aside class="forecast-panel" aria-labelledby="forecast-title"><div class="forecast-heading"><h2 id="forecast-title">次のリセット予測</h2><span>当サイト独自の試算</span></div><div id="forecast-current" data-generated-at="{forecast['generated_at']}">{prediction}</div><p class="forecast-updated">予測の計算日時：{e(jst(forecast["generated_at"]))}（日本時間）</p><a class="method-link" href="forecast.html">計算方法と検証について →</a><p class="forecast-disclaimer">{DISCLAIMER}</p></aside>'''
     else:
         forecast_panel = ""
     layout_class = "calendar-layout" if forecast_panel else "calendar-layout calendar-layout--full"
-    prediction_legend = '<span><i class="legend-predicted"></i>独自予測</span>' if forecast_panel else ""
+    prediction_legend = '<span><i class="legend-predicted"></i>予想日</span>' if forecast_panel else ""
     return f'''<div class="{layout_class}"><section class="calendar-section" aria-labelledby="calendar-title"><div class="calendar-section-heading"><h2 id="calendar-title">リセットカレンダー</h2><span>投稿時刻は日本時間</span></div><div class="calendar-controls"><div><button id="calendar-prev" type="button" aria-label="前の月">‹</button><label class="sr-only" for="calendar-month">カレンダーの年月</label><select id="calendar-month">{''.join(month_options)}</select><button id="calendar-next" type="button" aria-label="次の月">›</button></div><button id="calendar-today" type="button">今月</button></div><div class="calendar-weekdays" aria-hidden="true"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div><div id="calendar-grid" class="calendar-grid" role="group" aria-label="{today.year}年{today.month}月">{grid}</div><div class="calendar-legend"><span><i class="legend-reset"></i>臨時リセット</span><span><i class="legend-banked"></i>リセットチケット</span><span><i class="legend-announced"></i>予告</span>{prediction_legend}</div><section class="selected-day" aria-live="polite" aria-atomic="true"><h3 id="selected-date">{int(selected[5:7])}月{int(selected[8:])}日の発表</h3><div id="selected-records">{details}</div></section><noscript><p>月の切り替えにはJavaScriptが必要です。全履歴は下の一覧から確認できます。</p></noscript></section>
 {forecast_panel}</div><script id="calendar-data" type="application/json">{payload}</script>'''
 
@@ -288,7 +319,7 @@ def forecast_results(history):
     return f'<section class="forecast-results" aria-labelledby="forecast-results-title"><div class="section-heading"><h2 id="forecast-results-title">予測と結果</h2><p>{status}</p></div><p class="results-description">予測を公開したあと、24時間・48時間以内に次のリセット報告があったかを確認します。公開済みの予測値はあとから変更しません。</p>{body}<p class="results-note">直近7日分を掲載。判定待ち・取得遅延を含みます。履歴の追加・訂正により結果が変わる場合があります。<a href="https://github.com/{REPO}/blob/main/data/forecast-history.json">すべての予測記録</a></p></section>'
 
 
-def homepage(records, updated, forecast, forecast_history):
+def homepage(records, updated, forecast, forecast_history, editorial=None):
     months = sorted({record_day(r)[:7] for r in records}, reverse=True)
     options = "".join(f'<option value="{m}">{m[:4]}年{int(m[5:])}月</option>' for m in months)
     rows = []
@@ -300,7 +331,7 @@ def homepage(records, updated, forecast, forecast_history):
             current_month = month
         rows.append(record_row(record))
     evidence_tabs = "".join(f'<button type="button" data-evidence-option="{key}" aria-pressed="{str(key == "all").lower()}">{label}</button>' for key, label in [("all", "すべて"), ("official", "公式サイト"), ("staff_x", "Xの投稿")])
-    return f'''{calendar_overview(records, forecast)}
+    return f'''{calendar_overview(records, forecast, editorial)}
 <p class="time-note">Xの投稿時刻は日本時間で表示しています。リセットが実際に反映された時刻ではありません。公式記事の日付は原文どおり掲載します。<a href="about.html#dates">日時の見方</a></p>
 {forecast_results(forecast_history)}
 <section id="history" class="history-section"><div class="section-heading"><h2 class="section-title">リセット情報の履歴</h2><p>{len(records)}件<span class="count-detail">（予告を含む発表記録）</span></p></div>
@@ -352,17 +383,18 @@ def build():
     fresh = (health.get("feed") == "ok" and health.get("last_success_at")
              and timedelta(0) <= now - parse_time(health["last_success_at"]) <= timedelta(hours=24))
     forecast = predict(records, now, bool(fresh and health.get("x_status") == "checked"))
+    editorial = active_editorial_forecast(records, now, read_json(DATA / "editorial-forecast.json", None))
     history = update_history(read_json(DATA / "forecast-history.json", []), forecast, records, now, health.get("last_success_at"))
     write_json(DATA / "forecast-history.json", history)
     OUT.mkdir(parents=True, exist_ok=True)
     pages = {
-        "index": ("Codex・ChatGPT Workのリセット履歴｜非公式", "Codex・ChatGPT Workの臨時リセットとリセットチケットの情報を掲載。OpenAI公式発表やCodex責任者の投稿をカレンダーで確認できます。", homepage(records, updated, forecast, history)),
+        "index": ("Codex・ChatGPT Workのリセット履歴｜非公式", "Codex・ChatGPT Workの臨時リセットとリセットチケットの情報を掲載。OpenAI公式発表やCodex責任者の投稿をカレンダーで確認できます。", homepage(records, updated, forecast, history, editorial)),
         "guide": ("リセットの種類｜ChatGPT リセット履歴", "通常の利用枠の回復と、臨時リセット・リセットチケットの違いを説明します。", GUIDE),
         "forecast": ("予測の計算方法｜ChatGPT リセット履歴", "独自予測の計算式、集計対象、検証方法と注意事項を掲載しています。", FORECAST_METHOD),
         "about": ("このサイトについて｜ChatGPT リセット履歴", "サイトの情報源、日時の見方、更新方法をご案内します。", ABOUT),
     }
     for key, (title, description, content) in pages.items():
-        (OUT / f"{key}.html").write_text(shell(title, description, key, content, updated, show_forecast=forecast["status"] == "ok"), encoding="utf-8")
+        (OUT / f"{key}.html").write_text(shell(title, description, key, content, updated, show_forecast=bool(editorial or forecast["status"] == "ok")), encoding="utf-8")
     write_json(OUT / "forecast.json", {**forecast, "scores": scores(history), "source_policy": "OpenAI公式発表・Codex責任者らのX投稿", "disclaimer": DISCLAIMER})
     (OUT / ".nojekyll").write_text("", encoding="utf-8")
     urls = [SITE_URL + "/", SITE_URL + "/guide.html", SITE_URL + "/about.html", SITE_URL + "/forecast.html"]
@@ -380,7 +412,7 @@ def build():
     items = "".join(f'<item><title>{e(record_day(r))}・{e(record_title(r))}</title><link>{SITE_URL}/#r-{r["id"].replace(":", "-")}</link><guid isPermaLink="false">{e(r["id"])}</guid><description>{e(source_name(r) + "。" + r["note"])}</description></item>' for r in records[:30])
     (OUT / "feed.xml").write_text(f'<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>ChatGPT リセット履歴</title><link>{SITE_URL}/</link><description>OpenAIの一次資料で確認した臨時リセット</description><language>ja</language>{items}</channel></rss>', encoding="utf-8")
 
-    (OUT / "404.html").write_text(shell("ページが見つかりません｜ChatGPT リセット履歴", "履歴一覧からご確認ください。", "404", '<article class="article"><h1 class="section-title">ページが見つかりません</h1><p><a href="' + SITE_URL + '/">履歴一覧へ</a></p></article>', updated, show_forecast=forecast["status"] == "ok"), encoding="utf-8")
+    (OUT / "404.html").write_text(shell("ページが見つかりません｜ChatGPT リセット履歴", "履歴一覧からご確認ください。", "404", '<article class="article"><h1 class="section-title">ページが見つかりません</h1><p><a href="' + SITE_URL + '/">履歴一覧へ</a></p></article>', updated, show_forecast=bool(editorial or forecast["status"] == "ok")), encoding="utf-8")
     print(f"Built {len(records)} records and 4 public pages in docs/")
 
 

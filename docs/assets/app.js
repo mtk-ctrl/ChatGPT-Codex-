@@ -26,7 +26,7 @@
       const target = document.getElementById("selected-records");
       target.replaceChildren();
       if (day === data.predicted) {
-        target.append(element("p", "この日は独自予測の参考日です。公式の実施予定ではありません。", "predicted-day-note"));
+        target.append(element("p", "この日は当サイトの予想日です。OpenAIの実施予定ではありません。", "predicted-day-note"));
       }
       const rows = records.get(day) || [];
       if (!rows.length) target.append(element("p", "この日の発表はありません。", "empty-day"));
@@ -74,7 +74,7 @@
         button.type = "button";
         button.dataset.calendarDay = key;
         button.setAttribute("aria-pressed", String(key === selected));
-        button.setAttribute("aria-label", `${year}年${number}月${date}日、発表記録${rows.length}件` + (key === data.predicted ? "、独自予測の参考日" : ""));
+        button.setAttribute("aria-label", `${year}年${number}月${date}日、発表記録${rows.length}件` + (key === data.predicted ? "、非公式の予想日" : ""));
         button.append(element("span", date, "day-number"));
         const marks = element("span", undefined, "day-marks");
         const resetDone = rows.some(row => row.kind === "global" && row.state !== "announced");
@@ -84,7 +84,7 @@
         if (resetDone) marks.append(element("span", "リセット", "day-mark reset-mark"));
         if (ticketDone) marks.append(element("span", "チケット", "day-mark banked-mark"));
         if (resetPending || ticketPending) marks.append(element("span", "予告", "day-mark announced-mark"));
-        if (key === data.predicted) marks.append(element("span", "独自予測", "day-mark predicted-mark"));
+        if (key === data.predicted) marks.append(element("span", "予想", "day-mark predicted-mark"));
         button.append(marks);
         button.addEventListener("click", () => details(key));
         fragment.append(button);
@@ -108,13 +108,16 @@
     });
     render();
     details(selected);
-    const prediction = document.getElementById("forecast-current");
-    if (prediction) {
+    const forecastPanel = document.querySelector(".forecast-panel");
+    if (forecastPanel) {
       const expire = () => {
-        const age = Date.now() - new Date(prediction.dataset.generatedAt).getTime();
-        const expired = age > 24 * 60 * 60 * 1000 || age < -5 * 60 * 1000;
-        const panel = prediction.closest(".forecast-panel");
-        if (panel) panel.hidden = expired;
+        const editorialExpiry = forecastPanel.dataset.editorialExpiresAt;
+        const numericForecast = document.getElementById("forecast-current");
+        const age = numericForecast ? Date.now() - new Date(numericForecast.dataset.generatedAt).getTime() : 0;
+        const expired = editorialExpiry
+          ? Date.now() >= new Date(editorialExpiry).getTime()
+          : age > 24 * 60 * 60 * 1000 || age < -5 * 60 * 1000;
+        forecastPanel.hidden = expired;
         if (expired && data.predicted) {
           data.predicted = null;
           render();
