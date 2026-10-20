@@ -1,6 +1,6 @@
 {
   "model": "interval-90d-laplace-v1",
-  "generated_at": "2026-10-20T12:26:55Z",
+  "generated_at": "2026-10-20T12:58:30Z",
   "window_days": 90,
   "status": "stale",
   "sample_size": 16,
@@ -8,7 +8,7 @@
   "all_completed": 36,
   "horizons": {},
   "last_reset_at": "2026-10-20T06:33:48Z",
-  "elapsed_hours": 5.89,
+  "elapsed_hours": 6.41,
   "median_hours": 76.69,
   "min_hours": 24.99,
   "max_hours": 346.14,
@@ -22,6 +22,6 @@
       "brier": null
     }
   },
-  "source_policy": "OpenAI公式と関係者X原投稿のみ",
-  "disclaimer": "当サイト独自の予測です。OpenAIの公式発表ではなく、的中を保証しません。予測の利用による損害については、法令で認められる範囲で責任を負いません。"
+  "source_policy": "OpenAI公式発表・Codex責任者らのX投稿",
+  "disclaimer": "この予測は当サイト独自の試算であり、OpenAIが発表した予定ではありません。的中を保証するものではなく、予測に基づく判断について責任を負いません（法令上、免責が認められない場合を除きます）。"
 }
