@@ -1231,5 +1231,44 @@
     "reason_tags": [
       "compensation"
     ]
+  },
+  {
+    "id": "1986166501435711936:global",
+    "post_id": "1986166501435711936",
+    "kind": "global",
+    "state": "announced",
+    "reference_at": "2025-11-05T20:19:29Z",
+    "time_basis": "履歴サイトの参考時刻（発表・報告・観測）",
+    "time_officially_verified": false,
+    "evidence": "third_party",
+    "products": [],
+    "note": "障害・不具合への対応に伴う記録です。",
+    "original_url": "https://x.com/thsottiaux/status/1986166501435711936",
+    "archive_url": "https://codex-reset.com/ja/timeline/",
+    "official_confirmation": null,
+    "quotation_confirmation": null,
+    "reason_tags": [
+      "incident"
+    ]
+  },
+  {
+    "id": "1968163721034994139:global",
+    "post_id": "1968163721034994139",
+    "kind": "global",
+    "state": "reported",
+    "reference_at": "2025-09-17T04:02:52Z",
+    "time_basis": "履歴サイトの参考時刻（発表・報告・観測）",
+    "time_officially_verified": false,
+    "evidence": "third_party",
+    "products": [],
+    "note": "障害・不具合への対応に伴う記録です。",
+    "original_url": "https://x.com/thsottiaux/status/1968163721034994139",
+    "archive_url": "https://codex-reset.com/ja/timeline/",
+    "official_confirmation": null,
+    "quotation_confirmation": null,
+    "reason_tags": [
+      "incident",
+      "launch"
+    ]
   }
 ]

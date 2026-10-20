@@ -1,10 +1,10 @@
 {
-  "checked_at": "2026-10-20T00:36:43Z",
-  "last_success_at": null,
-  "feed": "bootstrap",
-  "official_page": "not_checked",
-  "message": "初期データを作成しました。定期更新の初回成功はまだ確認していません。",
-  "imported_records": 61,
+  "checked_at": "2026-10-20T01:22:08Z",
+  "last_success_at": "2026-10-20T01:22:08Z",
+  "feed": "ok",
+  "official_page": "unavailable",
+  "message": "公開された履歴データを確認しました。",
+  "imported_records": 63,
   "rejected_records": 0,
-  "upstream_updated_at": "2026-10-20T00:26:49.176Z"
+  "upstream_updated_at": "2026-10-20T01:21:49.693Z"
 }
