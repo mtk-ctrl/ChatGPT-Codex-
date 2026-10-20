@@ -167,6 +167,8 @@ def record_row(record):
     products = "・".join({"codex": "Codex", "chatgpt_work": "Work"}[p] for p in record["products"])
     target = f'<small class="record-target">対象：{e(products)}</small>' if products else ""
     note = f'<p class="record-summary">{e(record["note"])}</p>' if record.get("note") else ""
+    if record.get("verification_method", "").startswith("X原投稿の検索結果表示"):
+        note += '<p class="proof-note">原投稿の検索表示で確認（全文未確認）</p>'
     day = record_day(record)
     stamp = day if record.get("date_precision") == "day" else record["reference_at"]
     clock = record_clock(record)
@@ -187,7 +189,7 @@ def calendar_overview(records, forecast):
         sources = [(r.get('official_confirmation') or {}).get('url'), r.get('original_url')]
         entries.append({'day': day, 'time': record_clock(r),
                         'id': 'r-' + r['id'].replace(':', '-'), 'kind': r['kind'], 'state': r['state'],
-                        'title': record_title(r), 'evidence': EVIDENCE[r['evidence']], 'note': r.get('note', ''),
+                        'title': record_title(r), 'evidence': EVIDENCE[r['evidence']], 'note': r.get('note', '') + ('【X原投稿の検索表示で確認・全文未確認】' if r.get('verification_method', '').startswith('X原投稿の検索結果表示') else ''),
                         'sources': [{'url': safe_url(url), 'label': label} for url, label in zip(sources, ['OpenAI公式記事', '関係者のX原投稿']) if safe_url(url)]})
     selected = next((r['day'] for r in entries if r['kind'] == 'global' and r['state'] != 'announced'), today.isoformat())
     if not selected.startswith(today.strftime('%Y-%m')):
@@ -295,7 +297,7 @@ FORECAST_METHOD = f'''<article class="article"><h1 class="section-title">予測�
 <h2>数値を表示しない場合</h2><p>過去の間隔が6件未満、または経過時間による絞り込み後が5件未満の場合は、集計不足として表示しません。履歴の取得に失敗している場合や、最終成功から24時間以上経過した場合も予測を休止します。閲覧中の予測も、計算から24時間を超えた場合は数値を隠します。</p>
 <h2>この方法の限界</h2><p>リセットの間隔が一定だという根拠はありません。障害、モデルの公開、キャンペーン、OpenAIの方針変更などで頻度は変わります。「しばらく来ていないから、そろそろ来る」とは限りません。</p><p>集計にはOpenAIの一次資料から直接確認した記録のみを使い、日付しかない記録は時間間隔の予測から除きます。Xの取得制限による記録漏れも予測に影響します。まだ終了していない現在の間隔は過去の標本に含めておらず、長い間隔が集計に入りにくい偏りもあります。90日という期間や最低件数は、実装上の設定であり、精度が実証された値ではありません。</p><p>「95%参考区間」は、集計した比率に対するウィルソン区間です。少数の記録による幅を示すために掲載しており、次回のリセットが95%の確率でその範囲に収まるという意味ではありません。</p>
 <h2>予測を保存して結果を確認する</h2><p>日本時間の各日で最初に公開用の処理が成功した予測を保存します。保存済みの予測値と計算時点は変更せず、24・48時間が経過し、その期限以降に履歴の取得が成功してから結果を判定します。期間内に完了報告の参考時刻があれば「記録あり」、なければ「記録なし」です。取得の遅延や後日の訂正で結果が変わる場合があります。</p><p>判定済みの結果がない間は「検証前」と表示します。結果がある場合は、24時間予測の平均二乗誤差（Brierスコア、0〜1）を掲載します。0に近いほど誤差が小さい指標で、正解率ではありません。毎日の予測は互いに独立した試行ではないため、単純な件数だけで精度を判断することもできません。</p><p>導入前の予測や的中実績は作成していません。<a href="https://github.com/{REPO}/blob/main/data/forecast-history.json">保存された予測記録</a>と<a href="forecast.json">現在の計算結果（JSON）</a>を公開します。計算式を変更する場合は、記録に残すモデルIDも変更します。</p>
-<h2>出典と費用</h2><p>入力する履歴はOpenAI公式記事とOpenAI関係者本人のX原投稿のみです。他サイトの履歴や予測値は使いません。Xが自動取得を拒否した場合は新着を取得したとは扱わず、確認できる履歴が不足すれば予測を休止します。</p>
+<h2>出典と費用</h2><p>入力する履歴はOpenAI公式記事とOpenAI関係者本人のX原投稿のみです。原投稿の検索エンジン登録内容を照合した場合は全文未確認と記録し、第三者による記事や転載を出典にしません。他サイトの履歴や予測値は使いません。Xが自動取得を拒否した場合は新着を取得したとは扱わず、確認できる履歴が不足すれば予測を休止します。</p>
 
 <h2>予測の利用について</h2><p class="method-disclaimer">{DISCLAIMER}</p><p class="article-back"><a href="./">カレンダーに戻る</a></p></article>'''
 
@@ -312,7 +314,7 @@ GUIDE = '''<article class="article"><h1 class="section-title">リセットの種
 ABOUT = f'''<article class="article"><h1 class="section-title">出典について</h1><p class="article-lead">OpenAIの一次資料だけを使う非公式サイトです。</p>
 <h2>このサイトについて</h2><p>ChatGPT Work・Codexの臨時リセットを記録しています。OpenAIとは関係ありません。運営：<a href="https://github.com/mtk-ctrl">mtk-ctrl</a>。</p>
 <h2>情報源</h2><p><a href="{OFFICIAL_URL}">OpenAI公式ヘルプ</a>などOpenAIが発信した公式サイトと、OpenAI関係者本人のX原投稿のみを掲載します。第三者の履歴API、一般ユーザーの転載・引用、ニュース記事は収集元にしません。元投稿へのリンクだけでは確認済みとは扱いません。</p>
-<h2>確認状況</h2><dl class="policy-list"><dt>OpenAI公式記事</dt><dd>OpenAI公式本文から直接確認した事実です。</dd><dt>OpenAI関係者のX原投稿</dt><dd>本人のX投稿本文から直接確認した内容です。OpenAI企業としての正式発表とは区別します。</dd></dl>
+<h2>確認状況</h2><dl class="policy-list"><dt>OpenAI公式記事</dt><dd>OpenAI公式本文から直接確認した事実です。</dd><dt>OpenAI関係者のX原投稿</dt><dd>掲載URLは本人のX原投稿です。投稿ページを直接取得できない場合、検索エンジンに登録されたそのX原投稿の本文抜粋を照合しています。全文を確認したという意味ではなく、原投稿が更新・削除された場合の検出は保証できません。実施予告と完了報告を区別します。</dd></dl>
 <h2 id="dates">日時の表記</h2><p>公式発表に日付しかない場合、その記載日付をそのまま表示し、時刻は未公表とします。米国日付を根拠なく日本時間へ変換しません。X投稿時刻はリセット実施時刻ではありません。</p>
 <h2>更新の方法と限界</h2><p>GitHub Actionsから2時間おきにOpenAI公式ヘルプとX公開プロフィールの直接確認を試みます。X側の閲覧制限や仕様変更により取得できない場合は状態を表示し、第三者サイトから補いません。全件網羅を保証しません。</p>
 <h2>独自予測</h2><p>日時を確認した一次資料のみで計算します。十分なデータがない場合は予測を表示しません。OpenAI公式の予告ではありません。<a href="forecast.html">計算方法</a>をご覧ください。</p>
