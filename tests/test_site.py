@@ -31,9 +31,13 @@ class FirstPartyTests(unittest.TestCase):
         official = [r for r in rows if r["evidence"] == "official"]
         indexed = [r for r in rows if r["evidence"] == "staff_x"]
         self.assertEqual(len(official), 3)
-        self.assertTrue(all(r.get("date_precision") == "day" and "未公表" in site.record_row(r) for r in official))
+        self.assertTrue(all(r.get("date_precision") == "day" and "時刻の記載なし" in site.record_row(r) for r in official))
         self.assertTrue(all(r.get("verification_method", "").startswith("X原投稿の検索結果表示") for r in indexed))
         self.assertTrue(all(r.get("original_url", "").startswith("https://x.com/thsottiaux/status/") for r in indexed))
+        self.assertTrue(all("Tibo氏のX投稿" in site.record_row(r) for r in indexed))
+        self.assertTrue(all("全文未確認" not in site.record_row(r) for r in indexed))
+        self.assertIn("Thibault Sottiaux", site.ABOUT)
+        self.assertNotIn("OpenAI関係者のX原投稿", site.ABOUT)
 
     def test_x_requires_original_text(self):
         markup = '<meta property="og:description" content="We have now reset usage limits for Codex.">'

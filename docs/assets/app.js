@@ -78,7 +78,7 @@
         button.append(element("span", date, "day-number"));
         const marks = element("span", undefined, "day-marks");
         if (rows.some(row => row.kind === "global" && row.state !== "announced")) marks.append(element("span", "一斉", "day-mark reset-mark"));
-        if (rows.some(row => row.kind === "banked" && row.state !== "announced")) marks.append(element("span", "配布", "day-mark banked-mark"));
+        if (rows.some(row => row.kind === "banked" && row.state !== "announced")) marks.append(element("span", "保存型", "day-mark banked-mark"));
         if (rows.some(row => row.state === "announced")) marks.append(element("span", "予告", "day-mark announced-mark"));
         if (key === data.predicted) marks.append(element("span", "独自予測", "day-mark predicted-mark"));
         button.append(marks);
@@ -175,19 +175,19 @@
       const success = new Date(status.last_success_at || "");
       if (!Number.isFinite(checked.getTime())) throw new Error("invalid health date");
       if (status.feed === "bootstrap") {
-        text.textContent = "初期データを掲載しています。自動更新は未確認です。";
+        text.textContent = "確認済みの履歴を掲載しています。新しい発表の確認状況はまだ分かりません。";
         health.classList.add("warn");
       } else if (status.feed === "partial" && Date.now() - checked.getTime() < 24 * 60 * 60 * 1000) {
-        text.textContent = "OpenAI公式の確認済み。Xの直接取得は一部または全部が制限されています。";
+        text.textContent = "一部の投稿を自動確認できません。新しい発表の反映に時間がかかる場合があります。";
         health.classList.add("warn");
       } else if (status.feed === "ok" && Date.now() - checked.getTime() < 24 * 60 * 60 * 1000) {
         text.textContent = `最終更新：${formatter.format(checked)}（日本時間）`;
       } else {
         const last = Number.isFinite(success.getTime()) ? formatter.format(success) + "（日本時間）" : "未確認";
-        text.textContent = `最新情報の取得を確認できません。前回の履歴を表示しています。最終取得：${last}`;
+        text.textContent = `新しい発表の自動確認が一時的にできません。掲載済みの履歴をご覧いただけます。最終確認：${last}`;
         health.classList.add("warn");
       }
     }).catch(() => {
-      text.textContent += " 更新状況を取得できません。";
+      text.textContent += " 新しい発表の確認状況は現在確認できません。";
     }).finally(() => clearTimeout(timer));
 })();

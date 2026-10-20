@@ -34,8 +34,24 @@ SITE_URL = os.environ.get("SITE_URL", "https://mtk-ctrl.github.io/ChatGPT-Codex-
 OFFICIAL_URL = "https://help.openai.com/en/articles/20001516-managing-usage-with-gpt-6-astra-in-work-and-codex"
 HEALTH_URL = f"https://raw.githubusercontent.com/{REPO}/main/data/health.json"
 JST = timezone(timedelta(hours=9))
-KINDS = {"global": "一斉リセット", "banked": "リセット券の配布"}
-EVIDENCE = {"official": "OpenAI公式記事", "staff_x": "OpenAI関係者のX原投稿"}
+KINDS = {"global": "一斉リセット", "banked": "保存型リセットの配布"}
+EVIDENCE = {"official": "OpenAI公式", "staff_x": "Tibo氏のX投稿"}
+
+
+def source_name(record):
+    """Reader-facing label based on the account named in the original URL."""
+    if record["evidence"] == "official":
+        return "OpenAI公式"
+    original = record.get("original_url") or ""
+    if re.search(r"https://(?:x\.com|twitter\.com)/OpenAI/status/", original, re.I):
+        return "OpenAI公式X"
+    if re.search(r"https://(?:x\.com|twitter\.com)/thsottiaux/status/", original, re.I):
+        return "Tibo氏のX投稿"
+    return "OpenAI担当者のX投稿"
+
+
+def source_link_text(record):
+    return "公式発表を見る" if record["evidence"] == "official" else "Xの投稿を見る"
 
 def utcnow():
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -95,8 +111,8 @@ def record_day(record):
 
 def record_clock(record):
     if record.get("date_precision") == "day":
-        return "公式記載日・時刻未公表"
-    return jst(record["reference_at"], short=True)[-5:] + "ごろ"
+        return "時刻の記載なし"
+    return "投稿 " + jst(record["reference_at"], short=True)[-5:]
 
 def fetch(url, max_bytes=2_000_000):
     error = None
@@ -136,7 +152,7 @@ def link(url, text, cls=""):
 
 def shell(title, description, active, content, updated):
     canonical = SITE_URL + ("/" if active == "index" else f"/{active}.html")
-    nav = "".join(f'<a href="{href}" {"aria-current=page" if active == key else ""}>{label}</a>' for key, href, label in [("index", "./", "履歴一覧"), ("guide", "guide.html", "リセットの種類"), ("forecast", "forecast.html", "予測の計算方法"), ("about", "about.html", "出典について")])
+    nav = "".join(f'<a href="{href}" {"aria-current=page" if active == key else ""}>{label}</a>' for key, href, label in [("index", "./", "履歴一覧"), ("guide", "guide.html", "リセットの種類"), ("forecast", "forecast.html", "予測の計算方法"), ("about", "about.html", "このサイトについて")])
     website = json.dumps({"@context": "https://schema.org", "@type": "WebSite", "name": "ChatGPT リセット履歴", "url": SITE_URL + "/", "inLanguage": "ja"}, ensure_ascii=False).replace("<", "\\u003c")
     brand_tag = "h1" if active == "index" else "div"
     return f'''<!doctype html>
@@ -145,40 +161,43 @@ def shell(title, description, active, content, updated):
 <meta property="og:type" content="website"><meta property="og:locale" content="ja_JP"><meta property="og:title" content="{e(title)}"><meta property="og:description" content="{e(description)}"><meta property="og:url" content="{e(canonical)}">
 <meta name="theme-color" content="#245e9b"><link rel="icon" href="assets/icon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/style.css"><link rel="alternate" type="application/rss+xml" title="ChatGPT リセット履歴 更新情報" href="feed.xml"><link rel="sitemap" type="application/xml" href="sitemap.xml">
 <script type="application/ld+json">{website}</script><script defer src="assets/app.js"></script></head>
-<body><a class="skip" href="#main">本文へ移動</a><header class="site-header container"><div class="masthead"><div><div class="brand-line"><{brand_tag} class="brand"><a href="./">ChatGPT リセット履歴</a></{brand_tag}><span class="unofficial">非公式</span></div><p class="site-subtitle">Codex・Workのリセットカレンダーと独自予測</p></div><p class="site-description">ChatGPT Work・Codexの利用枠に関する臨時リセットをカレンダーで確認できます。公式の日付はそのまま表示し、時刻付き記録は日本時間に換算します。一次資料の蓄積から独自予測も試みます。</p></div><nav class="main-nav" aria-label="メインナビゲーション">{nav}</nav></header>
+<body><a class="skip" href="#main">本文へ移動</a><header class="site-header container"><div class="masthead"><div><div class="brand-line"><{brand_tag} class="brand"><a href="./">ChatGPT リセット履歴</a></{brand_tag}><span class="unofficial">非公式</span></div><p class="site-subtitle">Codex・ChatGPT Workの臨時リセット情報</p></div><p class="site-description">CodexやChatGPT Workの利用上限が臨時にリセットされた履歴と今後の予告をまとめています。日時は日本時間で掲載します。</p></div><nav class="main-nav" aria-label="メインナビゲーション">{nav}</nav></header>
 <main id="main" class="container">{content}</main>
-<footer class="container site-footer"><p class="footer-title">ChatGPT リセット履歴</p><p>OpenAIとは関係のない非公式サイトです。</p><p>出典：OpenAI公式発表・OpenAI関係者本人のX原投稿。</p><p class="footer-links"><a href="about.html">出典について</a><a href="https://github.com/{REPO}/issues">訂正の連絡</a><a href="data.csv">履歴データ（CSV）</a><a href="feed.xml">RSS</a></p><p class="muted">ページ更新：{e(jst(updated))}（日本時間）</p></footer></body></html>'''
+<footer class="container site-footer"><p class="footer-title">ChatGPT リセット履歴</p><p>個人が運営する非公式サイトです。OpenAIの公式サイトではありません。</p><p>情報源：OpenAIの公式発表と、Codex責任者Tibo氏などのX投稿。</p><p class="footer-links"><a href="about.html">掲載情報について</a><a href="https://github.com/{REPO}/issues">訂正の連絡</a><a href="data.csv">履歴データ（CSV）</a><a href="feed.xml">RSS</a></p><p class="muted">ページ更新：{e(jst(updated))}（日本時間）</p></footer></body></html>'''
 
 
 def record_title(record):
     if record["kind"] == "banked":
-        return "リセット券の配布予告" if record["state"] == "announced" else "リセット券の配布"
-    return {"reported": "一斉リセットの完了報告", "announced": "一斉リセットの実施予告", "observed": "一斉リセットの確認報告"}[record["state"]]
+        return "保存型リセットを配布予定" if record["state"] == "announced" else "保存型リセットを配布"
+    return {"reported": "一斉リセットを実施", "announced": "一斉リセットを予告",
+            "observed": "一斉リセットを確認"}[record["state"]]
 
 
 def date_label(value):
     date = parse_time(value).astimezone(JST)
-    return f"{date.year}年{date.month}月{date.day}日 {date:%H:%M}ごろ"
+    return f"{date.year}年{date.month}月{date.day}日 {date:%H:%M}"
 
 
 def record_row(record):
     proof = record.get("official_confirmation")
-    source = link(proof["url"], "OpenAI公式記事") if proof else link(record.get("original_url"), "関係者のX原投稿")
-    products = "・".join({"codex": "Codex", "chatgpt_work": "Work"}[p] for p in record["products"])
-    target = f'<small class="record-target">対象：{e(products)}</small>' if products else ""
+    source_url = proof["url"] if proof else record.get("original_url")
+    source = link(source_url, source_link_text(record))
+    products = "・".join({"codex": "Codex", "chatgpt_work": "ChatGPT Work"}[p] for p in record["products"])
+    target = f'<small class="record-target">対象サービス：{e(products)}</small>' if products else ""
     note = f'<p class="record-summary">{e(record["note"])}</p>' if record.get("note") else ""
-    if record.get("verification_method", "").startswith("X原投稿の検索結果表示"):
-        note += '<p class="proof-note">原投稿の検索表示で確認（全文未確認）</p>'
     day = record_day(record)
     stamp = day if record.get("date_precision") == "day" else record["reference_at"]
     clock = record_clock(record)
     return f'''<tr id="r-{e(record['id'].replace(':', '-'))}" data-record data-kind="{record['kind']}" data-evidence="{record['evidence']}" data-month="{day[:7]}">
-<td class="record-date" data-label="日付・日時"><time datetime="{e(stamp)}"><span>{e(day.replace("-", "/"))}</span><span class="record-clock">{e(clock)}</span></time></td>
-<td class="record-content" data-label="内容"><strong class="record-title">{e(record_title(record))}</strong>{target}{note}</td>
-<td class="record-evidence" data-label="確認状況"><span class="badge {record['evidence']}">{EVIDENCE[record['evidence']]}</span></td>
-<td class="record-source" data-label="出典"><div class="source-links">{source}</div></td></tr>'''
+<td class="record-date" data-label="日時"><time datetime="{e(stamp)}"><span>{e(day.replace("-", "/"))}</span><span class="record-clock">{e(clock)}</span></time></td>
+<td class="record-content" data-label="発表内容"><strong class="record-title">{e(record_title(record))}</strong>{target}{note}</td>
+<td class="record-evidence" data-label="発信元"><span class="badge {record['evidence']}">{e(source_name(record))}</span></td>
+<td class="record-source" data-label="元の発表"><div class="source-links">{source}</div></td></tr>'''
 
-DISCLAIMER = "当サイト独自の予測です。OpenAIの公式発表ではなく、的中を保証しません。予測の利用による損害については、法令で認められる範囲で責任を負いません。"
+
+DISCLAIMER = ("この予測は当サイト独自の試算であり、OpenAIが発表した予定ではありません。"
+              "的中を保証するものではなく、予測に基づく判断について責任を負いません"
+              "（法令上、免責が認められない場合を除きます）。")
 
 
 def calendar_overview(records, forecast):
@@ -189,8 +208,8 @@ def calendar_overview(records, forecast):
         sources = [(r.get('official_confirmation') or {}).get('url'), r.get('original_url')]
         entries.append({'day': day, 'time': record_clock(r),
                         'id': 'r-' + r['id'].replace(':', '-'), 'kind': r['kind'], 'state': r['state'],
-                        'title': record_title(r), 'evidence': EVIDENCE[r['evidence']], 'note': r.get('note', '') + ('【X原投稿の検索表示で確認・全文未確認】' if r.get('verification_method', '').startswith('X原投稿の検索結果表示') else ''),
-                        'sources': [{'url': safe_url(url), 'label': label} for url, label in zip(sources, ['OpenAI公式記事', '関係者のX原投稿']) if safe_url(url)]})
+                        'title': record_title(r), 'evidence': source_name(r), 'note': r.get('note', ''),
+                        'sources': [{'url': safe_url(url), 'label': label} for url, label in zip(sources, ['公式発表を見る', 'Xの投稿を見る']) if safe_url(url)]})
     selected = next((r['day'] for r in entries if r['kind'] == 'global' and r['state'] != 'announced'), today.isoformat())
     if not selected.startswith(today.strftime('%Y-%m')):
         selected = today.isoformat()
@@ -207,7 +226,7 @@ def calendar_overview(records, forecast):
         if any(r['kind'] == 'global' and r['state'] != 'announced' for r in day_records):
             marks.append('<span class="day-mark reset-mark">一斉</span>')
         if any(r['kind'] == 'banked' and r['state'] != 'announced' for r in day_records):
-            marks.append('<span class="day-mark banked-mark">配布</span>')
+            marks.append('<span class="day-mark banked-mark">保存型</span>')
         if any(r['state'] == 'announced' for r in day_records):
             marks.append('<span class="day-mark announced-mark">予告</span>')
         if key == predicted:
@@ -231,14 +250,14 @@ def calendar_overview(records, forecast):
         lower, upper = h24['observed_ratio_interval']
         date = datetime.strptime(predicted, '%Y-%m-%d')
         prediction = f'''<div class="forecast-numbers"><div><span>24時間以内</span><strong>{h24['display_percent']}<small>%</small></strong></div><div><span>48時間以内</span><strong>{h48['display_percent']}<small>%</small></strong></div></div>
-<p class="forecast-caption">一斉リセットの参考時刻に基づく試算</p>
+<p class="forecast-caption">過去のリセット報告の間隔から計算</p>
 <p class="reference-date">参考日 <strong>{date.month}月{date.day}日ごろ</strong><span>実施予定日ではありません</span></p>
 <details class="forecast-reasons" open><summary>なぜこの予測？</summary><p>前回の完了報告から<strong>{forecast['elapsed_hours']/24:.1f}日</strong>経過しています。直近90日間に始まった実施間隔<strong>{forecast['sample_size']}件</strong>のうち、これより長かったのは<strong>{forecast['eligible_size']}件</strong>でした。</p><p>その{h24['total']}件では、現在と同じ経過時点から24時間以内の報告が{h24['count']}件、48時間以内が{h48['count']}件でした。この比率を補正して上の数値を出しています。</p><p class="sample-note">少数の履歴による試算です。24時間の集計比率の95%参考区間は{lower}〜{upper}%と幅があり、予測精度はまだ検証できていません。</p></details>'''
     else:
-        message = '最新の履歴を取得できていないため、予測を休止しています。' if forecast['status'] == 'stale' else '計算に必要な履歴が足りないため、予測値を表示していません。'
+        message = '最新情報を継続的に確認できないため、現在は次回のリセットを予測していません。' if forecast['status'] == 'stale' else '予測に十分なデータが集まるまで、数値の公開を見合わせています。'
         prediction = f'<p class="forecast-unavailable">{message}</p>'
-    return f'''<div class="calendar-layout"><section class="calendar-section" aria-labelledby="calendar-title"><div class="calendar-section-heading"><h2 id="calendar-title">リセットカレンダー</h2><span>日本時間</span></div><div class="calendar-controls"><div><button id="calendar-prev" type="button" aria-label="前の月">‹</button><label class="sr-only" for="calendar-month">カレンダーの年月</label><select id="calendar-month">{''.join(month_options)}</select><button id="calendar-next" type="button" aria-label="次の月">›</button></div><button id="calendar-today" type="button">今月</button></div><div class="calendar-weekdays" aria-hidden="true"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div><div id="calendar-grid" class="calendar-grid" role="group" aria-label="{today.year}年{today.month}月">{grid}</div><div class="calendar-legend"><span><i class="legend-reset"></i>一斉リセット</span><span><i class="legend-banked"></i>リセット券の配布</span><span><i class="legend-announced"></i>予告</span><span><i class="legend-predicted"></i>独自予測</span></div><section class="selected-day" aria-live="polite" aria-atomic="true"><h3 id="selected-date">{int(selected[5:7])}月{int(selected[8:])}日の履歴</h3><div id="selected-records">{details}</div></section><noscript><p>月の切り替えにはJavaScriptが必要です。全履歴は下の一覧から確認できます。</p></noscript></section>
-<aside class="forecast-panel" aria-labelledby="forecast-title"><div class="forecast-heading"><h2 id="forecast-title">次のリセット予測</h2><span>独自予測・試験公開</span></div><div id="forecast-current" data-generated-at="{forecast['generated_at']}">{prediction}</div><p id="forecast-expired" hidden>表示中の予測は計算から時間が経過しています。最新の計算結果を取得できるまで数値を非表示にしています。</p><p class="forecast-updated">計算：{e(jst(forecast['generated_at']))}（日本時間）</p><a class="method-link" href="forecast.html">計算方法と検証について →</a><p class="forecast-disclaimer">{DISCLAIMER}</p></aside></div><script id="calendar-data" type="application/json">{payload}</script>'''
+    return f'''<div class="calendar-layout"><section class="calendar-section" aria-labelledby="calendar-title"><div class="calendar-section-heading"><h2 id="calendar-title">リセットカレンダー</h2><span>日本時間</span></div><div class="calendar-controls"><div><button id="calendar-prev" type="button" aria-label="前の月">‹</button><label class="sr-only" for="calendar-month">カレンダーの年月</label><select id="calendar-month">{''.join(month_options)}</select><button id="calendar-next" type="button" aria-label="次の月">›</button></div><button id="calendar-today" type="button">今月</button></div><div class="calendar-weekdays" aria-hidden="true"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div><div id="calendar-grid" class="calendar-grid" role="group" aria-label="{today.year}年{today.month}月">{grid}</div><div class="calendar-legend"><span><i class="legend-reset"></i>一斉リセット</span><span><i class="legend-banked"></i>保存型リセット</span><span><i class="legend-announced"></i>予告</span><span><i class="legend-predicted"></i>独自予測</span></div><section class="selected-day" aria-live="polite" aria-atomic="true"><h3 id="selected-date">{int(selected[5:7])}月{int(selected[8:])}日の履歴</h3><div id="selected-records">{details}</div></section><noscript><p>月の切り替えにはJavaScriptが必要です。全履歴は下の一覧から確認できます。</p></noscript></section>
+<aside class="forecast-panel" aria-labelledby="forecast-title"><div class="forecast-heading"><h2 id="forecast-title">次のリセット予測</h2><span>当サイト独自の試算</span></div><div id="forecast-current" data-generated-at="{forecast['generated_at']}">{prediction}</div><p id="forecast-expired" hidden>予測の有効期間が過ぎたため、最新の結果が出るまで表示していません。</p>{f'<p class="forecast-updated">予測の計算日時：{e(jst(forecast["generated_at"]))}（日本時間）</p>' if forecast["status"] == "ok" else ""}<a class="method-link" href="forecast.html">計算方法と検証について →</a><p class="forecast-disclaimer">{DISCLAIMER}</p></aside></div><script id="calendar-data" type="application/json">{payload}</script>'''
 
 
 def forecast_results(history):
@@ -254,7 +273,7 @@ def forecast_results(history):
         percentages = [int((entry['probabilities'][h]*20 + 0.5)//1)*5 for h in ['24','48']]
         rows.append(f'<tr><th scope="row">{e(jst(entry["issued_at"]))}</th><td>{percentages[0]}% <span>{outcomes[0]}</span></td><td>{percentages[1]}% <span>{outcomes[1]}</span></td></tr>')
     body = '<div class="forecast-table-wrap"><table class="forecast-table"><thead><tr><th scope="col">予測の保存日時（日本時間）</th><th scope="col">24時間以内</th><th scope="col">48時間以内</th></tr></thead><tbody>' + ''.join(rows) + '</tbody></table></div>' if rows else '<p>最初の予測を保存してから、結果を掲載します。</p>'
-    return f'<section class="forecast-results" aria-labelledby="forecast-results-title"><div class="section-heading"><h2 id="forecast-results-title">予測と結果</h2><p>{status}</p></div><p class="results-description">毎日最初の予測を保存し、24・48時間後の履歴と照合します。過去の予測値は書き換えません。結果は出典に記録された参考時刻で判定します。</p>{body}<p class="results-note">直近7日分を掲載。判定待ち・取得遅延を含みます。履歴の追加・訂正により結果が変わる場合があります。<a href="https://github.com/{REPO}/blob/main/data/forecast-history.json">すべての予測記録</a></p></section>'
+    return f'<section class="forecast-results" aria-labelledby="forecast-results-title"><div class="section-heading"><h2 id="forecast-results-title">予測と結果</h2><p>{status}</p></div><p class="results-description">予測を公開したあと、24時間・48時間以内に次のリセット報告があったかを確認します。公開済みの予測値はあとから変更しません。</p>{body}<p class="results-note">直近7日分を掲載。判定待ち・取得遅延を含みます。履歴の追加・訂正により結果が変わる場合があります。<a href="https://github.com/{REPO}/blob/main/data/forecast-history.json">すべての予測記録</a></p></section>'
 
 
 def homepage(records, health, updated, forecast, forecast_history):
@@ -273,20 +292,20 @@ def homepage(records, health, updated, forecast, forecast_history):
     if health.get("feed") == "ok" and health.get("last_success_at"):
         health_text = "最終更新：" + jst(health["last_success_at"]) + "（日本時間）"
     elif health.get("feed") == "failed":
-        health_text = "公式資料を取得できません。確認済みの履歴を表示しています。"
+        health_text = "新しい情報の自動確認が一時的にできません。確認済みの履歴は引き続き掲載しています。"
     elif health.get("feed") == "partial":
-        health_text = "OpenAI公式確認済み。Xの一部または全部が取得制限中です。"
+        health_text = "一部の投稿を自動確認できません。新しい発表が反映されるまで時間がかかる場合があります。"
     else:
-        health_text = "初期データ掲載：" + jst(check) + "（日本時間）。自動更新は未確認です。"
-    evidence_tabs = "".join(f'<button type="button" data-evidence-option="{key}" aria-pressed="{str(key == "all").lower()}">{label}</button>' for key, label in [("all", "すべて"), ("official", "公式本文で確認"), ("staff_x", "関係者のX原投稿")])
+        health_text = "掲載情報の確認：" + jst(check) + "（日本時間）。自動更新は未確認です。"
+    evidence_tabs = "".join(f'<button type="button" data-evidence-option="{key}" aria-pressed="{str(key == "all").lower()}">{label}</button>' for key, label in [("all", "すべて"), ("official", "OpenAI公式"), ("staff_x", "Tibo氏の投稿")])
     return f'''{calendar_overview(records, forecast)}
 <p class="status-line" data-health-url="{HEALTH_URL}"><span id="health-text">{e(health_text)}</span></p>
-<p class="time-note">公式発表が日付だけの場合、時刻は未公表と表示します。X投稿の時刻は実際のリセット時刻ではありません。<a href="about.html#dates">日時の表記について</a></p>
+<p class="time-note">掲載した時刻は発表・投稿の時刻です。実際に各アカウントの利用枠が回復した時刻とは異なる場合があります。<a href="about.html#dates">日時の表記について</a></p>
 {forecast_results(forecast_history)}
-<section id="history" class="history-section"><div class="section-heading"><h2 class="section-title">過去のリセット</h2><p>{len(records)}件<span class="count-detail"> ／ OpenAI公式記事で確認：{proof_count}件</span></p></div>
-<form id="filters" aria-label="履歴の絞り込み"><input type="hidden" id="evidence-filter" value="all"><div class="filter-primary"><div class="evidence-tabs" role="group" aria-label="確認状況で絞り込む">{evidence_tabs}</div><label class="search-label"><span class="sr-only">キーワード</span><input id="search-filter" type="search" placeholder="キーワードで検索" autocomplete="off"></label></div><div class="filter-secondary"><label for="kind-filter">種類</label><select id="kind-filter"><option value="all">すべて</option><option value="global">一斉リセット</option><option value="banked">リセット券の配布</option></select><label for="month-filter">年月</label><select id="month-filter"><option value="all">すべての月</option>{options}</select><button class="reset-filter" type="reset">条件を解除</button></div></form>
-<p id="result-count" class="result-count" aria-live="polite">{len(records)}件を表示</p><div class="table-wrap"><table><caption class="sr-only">ChatGPT Work・Codexの臨時リセット履歴</caption><thead><tr><th scope="col">日付・日時</th><th scope="col">内容</th><th scope="col">確認状況</th><th scope="col">出典</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div><p id="no-results" hidden>条件に一致する履歴はありません。</p><noscript><p>絞り込みにはJavaScriptが必要です。以下に全履歴を掲載しています。</p></noscript></section>
-<section class="related-guide"><h2>通常の利用枠更新との違い</h2><p>通常の5時間枠・週間枠の更新時刻は、アカウントごとに異なります。この履歴から個人の残り枠や回復時刻を確認することはできません。</p><a href="guide.html">リセットの種類</a></section>'''
+<section id="history" class="history-section"><div class="section-heading"><h2 class="section-title">過去のリセット</h2><p>{len(records)}件<span class="count-detail"> ／ 公式サイトで発表：{proof_count}件</span></p></div>
+<form id="filters" aria-label="履歴の絞り込み"><input type="hidden" id="evidence-filter" value="all"><div class="filter-primary"><div class="evidence-tabs" role="group" aria-label="確認状況で絞り込む">{evidence_tabs}</div><label class="search-label"><span class="sr-only">キーワード</span><input id="search-filter" type="search" placeholder="キーワードで検索" autocomplete="off"></label></div><div class="filter-secondary"><label for="kind-filter">種類</label><select id="kind-filter"><option value="all">すべて</option><option value="global">一斉リセット</option><option value="banked">保存型リセット</option></select><label for="month-filter">年月</label><select id="month-filter"><option value="all">すべての月</option>{options}</select><button class="reset-filter" type="reset">条件を解除</button></div></form>
+<p id="result-count" class="result-count" aria-live="polite">{len(records)}件を表示</p><div class="table-wrap"><table><caption class="sr-only">ChatGPT Work・Codexの臨時リセット履歴</caption><thead><tr><th scope="col">日時</th><th scope="col">発表内容</th><th scope="col">発信元</th><th scope="col">元の発表</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div><p id="no-results" hidden>条件に一致する履歴はありません。</p><noscript><p>絞り込みにはJavaScriptが必要です。以下に全履歴を掲載しています。</p></noscript></section>
+<section class="related-guide"><h2>通常の利用枠の更新との違い</h2><p>通常の5時間枠・週間枠の更新時刻は、アカウントごとに異なります。この履歴から個人の残り枠や回復時刻を確認することはできません。</p><a href="guide.html">リセットの種類</a></section>'''
 
 
 FORECAST_METHOD = f'''<article class="article"><h1 class="section-title">予測の計算方法</h1><p class="article-lead">過去のリセット間隔に基づく、当サイト独自の試算です。</p>
@@ -297,29 +316,30 @@ FORECAST_METHOD = f'''<article class="article"><h1 class="section-title">予測�
 <h2>数値を表示しない場合</h2><p>過去の間隔が6件未満、または経過時間による絞り込み後が5件未満の場合は、集計不足として表示しません。履歴の取得に失敗している場合や、最終成功から24時間以上経過した場合も予測を休止します。閲覧中の予測も、計算から24時間を超えた場合は数値を隠します。</p>
 <h2>この方法の限界</h2><p>リセットの間隔が一定だという根拠はありません。障害、モデルの公開、キャンペーン、OpenAIの方針変更などで頻度は変わります。「しばらく来ていないから、そろそろ来る」とは限りません。</p><p>集計にはOpenAIの一次資料から直接確認した記録のみを使い、日付しかない記録は時間間隔の予測から除きます。Xの取得制限による記録漏れも予測に影響します。まだ終了していない現在の間隔は過去の標本に含めておらず、長い間隔が集計に入りにくい偏りもあります。90日という期間や最低件数は、実装上の設定であり、精度が実証された値ではありません。</p><p>「95%参考区間」は、集計した比率に対するウィルソン区間です。少数の記録による幅を示すために掲載しており、次回のリセットが95%の確率でその範囲に収まるという意味ではありません。</p>
 <h2>予測を保存して結果を確認する</h2><p>日本時間の各日で最初に公開用の処理が成功した予測を保存します。保存済みの予測値と計算時点は変更せず、24・48時間が経過し、その期限以降に履歴の取得が成功してから結果を判定します。期間内に完了報告の参考時刻があれば「記録あり」、なければ「記録なし」です。取得の遅延や後日の訂正で結果が変わる場合があります。</p><p>判定済みの結果がない間は「検証前」と表示します。結果がある場合は、24時間予測の平均二乗誤差（Brierスコア、0〜1）を掲載します。0に近いほど誤差が小さい指標で、正解率ではありません。毎日の予測は互いに独立した試行ではないため、単純な件数だけで精度を判断することもできません。</p><p>導入前の予測や的中実績は作成していません。<a href="https://github.com/{REPO}/blob/main/data/forecast-history.json">保存された予測記録</a>と<a href="forecast.json">現在の計算結果（JSON）</a>を公開します。計算式を変更する場合は、記録に残すモデルIDも変更します。</p>
-<h2>出典と費用</h2><p>入力する履歴はOpenAI公式記事とOpenAI関係者本人のX原投稿のみです。X原投稿の検索表示で確認した記録には「全文未確認」と表示します。X投稿の取得状況を確認できない場合や、必要な実施報告が不足する場合は予測を休止します。</p>
+<h2>情報源について</h2><p>計算にはOpenAIの公式発表と、Codex責任者Tibo氏などのX投稿を使用します。新しい発表を十分に確認できない場合は、予測を表示しません。<a href="about.html">掲載情報について</a>もご覧ください。</p>
 
 <h2>予測の利用について</h2><p class="method-disclaimer">{DISCLAIMER}</p><p class="article-back"><a href="./">カレンダーに戻る</a></p></article>'''
 
 
-GUIDE = '''<article class="article"><h1 class="section-title">リセットの種類</h1><p class="article-lead">通常の利用枠の更新、一斉リセット、リセット券の違いを説明します。</p>
+GUIDE = '''<article class="article"><h1 class="section-title">リセットの種類</h1><p class="article-lead">通常の利用枠の更新、臨時リセット、あとから使える保存型リセットの違いを説明します。</p>
 <h2>通常の利用枠の更新</h2><p>5時間枠や週間枠は、それぞれの利用期間に応じて回復します。残り枠と回復予定は、利用しているアプリの使用状況で確認してください。</p>
 <h2>臨時の一斉リセット</h2><p>障害への対応や記念イベントなどに伴い、OpenAIが対象の利用枠を回復します。対象プランや回復する枠は、発表ごとに異なります。このサイトでは、こうした臨時リセットの履歴を掲載しています。</p>
-<h2>リセット券の配布</h2><p>公式に「保存済みリセット」と呼ばれる、後から使用できるリセットです。配布された日時と、使用して利用枠が回復する日時は異なります。このサイトでは「リセット券の配布」と表記しています。利用条件や有効期限は、自分のアカウントで確認してください。</p>
+<h2>あとから使える「保存型リセット」</h2><p>保存型リセット（banked reset）は、利用者が好きなタイミングで利用できる追加のリセットです。付与された時刻と、実際に使用する時刻は異なります。対象となる利用枠や有効期限は、ご自身のアカウントで確認してください。</p>
 <h2>対象プランと範囲</h2><p>発表で「全員」とされていても、有料プランの利用者やWork・Codexの利用者など、対象が限定される場合があります。ChatGPTの全モデル、画像生成、APIなどの利用枠も回復するとは限りません。</p>
-<h2>次回の実施予定と予測</h2><p>当サイトでは過去の実施間隔から独自予測を計算しています。公式の実施予定ではなく、的中を保証するものではありません。<a href="forecast.html">予測の計算方法</a>もご確認ください。</p>
+<h2>次回の実施予定と予測</h2><p>当サイトでは過去のリセット報告をもとに次回の可能性を試算しています。OpenAIによる実施予定の発表ではありません。<a href="forecast.html">予測の計算方法</a>もご確認ください。</p>
 <section class="article-source"><h2>関連情報</h2><ul><li><a href="https://help.openai.com/ja-jp/articles/20001498-how-banked-codex-resets-work">OpenAI：保存済みCodexリセットの仕組み</a></li><li><a href="https://help.openai.com/ja-jp/articles/11369540-using-codex-with-your-chatgpt-plan">OpenAI：ChatGPTプランでCodexを使う</a></li></ul></section><p class="article-back"><a href="./#history">履歴一覧に戻る</a></p></article>'''
 
 
-ABOUT = f'''<article class="article"><h1 class="section-title">出典について</h1><p class="article-lead">OpenAIの一次資料だけを使う非公式サイトです。</p>
-<h2>このサイトについて</h2><p>ChatGPT Work・Codexの臨時リセットを記録しています。OpenAIとは関係ありません。運営：<a href="https://github.com/mtk-ctrl">mtk-ctrl</a>。</p>
-<h2>情報源</h2><p><a href="{OFFICIAL_URL}">OpenAI公式ヘルプ</a>などのOpenAI公式サイトと、OpenAI関係者本人のX原投稿のみを掲載します。X原投稿は内容を確認できた範囲を区別し、元投稿URLだけでは掲載しません。</p>
-<h2>確認状況</h2><dl class="policy-list"><dt>OpenAI公式記事</dt><dd>OpenAI公式本文から直接確認した事実です。</dd><dt>OpenAI関係者のX原投稿</dt><dd>掲載URLは本人のX原投稿です。投稿ページを直接取得できない場合、検索エンジンに登録されたそのX原投稿の本文抜粋を照合しています。全文を確認したという意味ではなく、原投稿が更新・削除された場合の検出は保証できません。実施予告と完了報告を区別します。</dd></dl>
-<h2 id="dates">日時の表記</h2><p>公式発表に日付しかない場合、その記載日付をそのまま表示し、時刻は未公表とします。米国日付を根拠なく日本時間へ変換しません。X投稿時刻はリセット実施時刻ではありません。</p>
-<h2>更新の方法と限界</h2><p>GitHub Actionsから2時間おきにOpenAI公式ヘルプとX公開プロフィールの直接確認を試みます。Xの閲覧制限や仕様変更によって取得できない場合は確認状況を表示します。全件網羅を保証しません。</p>
-<h2>独自予測</h2><p>日時を確認した一次資料のみで計算します。十分なデータがない場合は予測を表示しません。OpenAI公式の予告ではありません。<a href="forecast.html">計算方法</a>をご覧ください。</p>
-<h2>連絡先</h2><p><a href="https://github.com/{REPO}/issues">GitHub Issues</a>で訂正をご連絡ください。</p>
-<h2>プライバシー</h2><p>独自のアクセス解析・広告・Cookie・会員登録を設けていません。</p><p class="article-back"><a href="./">履歴一覧へ</a></p></article>'''
+ABOUT = f'''<article class="article"><h1 class="section-title">このサイトについて</h1><p class="article-lead">Codex・ChatGPT Workの臨時リセット情報をまとめた、非公式の情報サイトです。</p>
+<h2>掲載している情報</h2><p>OpenAIによる臨時の利用枠リセットと、あとから使える保存型リセットの配布について、発表日・対象・内容を時系列で紹介しています。通常の5時間枠・週間枠がいつ回復するかは、個々の利用状況によって異なるため、このサイトでは分かりません。</p>
+<h2>情報の出典</h2><p>情報は<a href="{OFFICIAL_URL}">OpenAIの公式ヘルプ</a>などの公式発表と、OpenAIでCodexを率いる<strong>Tibo（ティボ）氏</strong>（Thibault Sottiaux／<a href="https://x.com/thsottiaux">@thsottiaux</a>）などのX投稿をもとにまとめています。各履歴から、元の発表や投稿に移動できます。</p>
+<h2>情報の確かめ方</h2><p>投稿の内容を日本語で要約しているため、原文と表現が異なる場合があります。また、Xの一部の投稿は検索結果で確認できる文章をもとにしており、投稿全文を確認できていないものもあります。確認できない内容を推測で補わず、「予告」と「実施済み」の報告は分けて掲載します。</p>
+<h2 id="dates">日時について</h2><p>掲載日時は原則として日本時間です。Xの投稿は投稿日時を表示しており、利用枠のリセットが実際に反映された時刻ではありません。OpenAIの公式記事に日付しか書かれていないときは、時刻を表示しません。</p>
+<h2>更新について</h2><p>定期的に新しい発表を確認し、掲載内容を更新しています。Xの閲覧制限などによって情報の確認が遅れる場合があり、すべての発表を網羅できるとは限りません。</p>
+<h2>次回リセットの予測</h2><p>過去の報告間隔から次回のリセットの可能性を試算する機能があります。ただし、予測はOpenAIの公式予定ではありません。新しい発表を十分に確認できない場合は数値を表示しません。詳しくは<a href="forecast.html">予測の計算方法</a>をご覧ください。</p>
+<h2>運営・お問い合わせ</h2><p>このサイトは個人（<a href="https://github.com/mtk-ctrl">mtk-ctrl</a>）が運営しており、OpenAIとは提携していません。情報の訂正やご意見は<a href="https://github.com/{REPO}/issues">GitHubの問い合わせページ</a>からお寄せください。</p>
+<h2>プライバシー</h2><p>独自のアクセス解析・広告・Cookie・会員登録は設けていません。</p><p class="article-back"><a href="./">カレンダーに戻る</a></p></article>'''
+
 
 def build():
     records = read_json(DATA / "events.json", [])
@@ -335,14 +355,14 @@ def build():
     write_json(DATA / "forecast-history.json", history)
     OUT.mkdir(parents=True, exist_ok=True)
     pages = {
-        "index": ("ChatGPT リセット履歴｜Codex・Workの臨時リセット", "OpenAIの一次資料で確認したWork・Codexの臨時リセット履歴。日付のみの記録と時刻付き記録を区別しています。", homepage(records, health, updated, forecast, history)),
-        "guide": ("リセットの種類｜ChatGPT リセット履歴", "通常の利用枠更新、一斉リセット、リセット券の違いと、自分の残り枠・回復予定の確認先を説明します。", GUIDE),
+        "index": ("ChatGPT リセット履歴｜Codex・Workの臨時リセット", "Codex・ChatGPT Workの臨時リセットを一覧とカレンダーで紹介。OpenAIの公式発表やCodex責任者の投稿をもとに最新情報をまとめます。", homepage(records, health, updated, forecast, history)),
+        "guide": ("リセットの種類｜ChatGPT リセット履歴", "通常の利用枠更新、一斉リセット、保存型リセットの違いを分かりやすく説明します。", GUIDE),
         "forecast": ("予測の計算方法｜ChatGPT リセット履歴", "独自予測の計算式、集計対象、検証方法と注意事項を掲載しています。", FORECAST_METHOD),
-        "about": ("出典について｜ChatGPT リセット履歴", "OpenAI公式と関係者本人のX原投稿のみを使用する方針を説明します。", ABOUT),
+        "about": ("このサイトについて｜ChatGPT リセット履歴", "サイトの情報源、日時の見方、更新方法をご案内します。", ABOUT),
     }
     for key, (title, description, content) in pages.items():
         (OUT / f"{key}.html").write_text(shell(title, description, key, content, updated), encoding="utf-8")
-    write_json(OUT / "forecast.json", {**forecast, "scores": scores(history), "source_policy": "OpenAI公式と関係者X原投稿のみ", "disclaimer": DISCLAIMER})
+    write_json(OUT / "forecast.json", {**forecast, "scores": scores(history), "source_policy": "OpenAI公式発表・Codex責任者らのX投稿", "disclaimer": DISCLAIMER})
     (OUT / ".nojekyll").write_text("", encoding="utf-8")
     urls = [SITE_URL + "/", SITE_URL + "/guide.html", SITE_URL + "/about.html", SITE_URL + "/forecast.html"]
     sitemap = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + "".join(f"<url><loc>{e(u)}</loc><lastmod>{updated}</lastmod></url>" for u in urls) + "</urlset>"
@@ -354,9 +374,9 @@ def build():
     for r in records:
         when = r["official_date"] if r.get("date_precision") == "day" else jst(r["reference_at"])
         source = (r.get("official_confirmation") or {}).get("url") or r.get("original_url") or ""
-        writer.writerow([r["id"], when, r["time_basis"], KINDS[r["kind"]], EVIDENCE[r["evidence"]], source, r.get("note", "")])
+        writer.writerow([r["id"], when, r["time_basis"], KINDS[r["kind"]], source_name(r), source, r.get("note", "")])
     (OUT / "data.csv").write_text("\ufeff" + stream.getvalue(), encoding="utf-8")
-    items = "".join(f'<item><title>{e(record_day(r))}・{KINDS[r["kind"]]}</title><link>{SITE_URL}/#r-{r["id"].replace(":", "-")}</link><guid isPermaLink="false">{e(r["id"])}</guid><description>{e(EVIDENCE[r["evidence"]] + "。" + r["note"])}</description></item>' for r in records[:30])
+    items = "".join(f'<item><title>{e(record_day(r))}・{KINDS[r["kind"]]}</title><link>{SITE_URL}/#r-{r["id"].replace(":", "-")}</link><guid isPermaLink="false">{e(r["id"])}</guid><description>{e(source_name(r) + "。" + r["note"])}</description></item>' for r in records[:30])
     (OUT / "feed.xml").write_text(f'<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>ChatGPT リセット履歴</title><link>{SITE_URL}/</link><description>OpenAIの一次資料で確認した臨時リセット</description><language>ja</language>{items}</channel></rss>', encoding="utf-8")
 
     (OUT / "404.html").write_text(shell("ページが見つかりません｜ChatGPT リセット履歴", "履歴一覧からご確認ください。", "404", '<article class="article"><h1 class="section-title">ページが見つかりません</h1><p><a href="' + SITE_URL + '/">履歴一覧へ</a></p></article>', updated), encoding="utf-8")
