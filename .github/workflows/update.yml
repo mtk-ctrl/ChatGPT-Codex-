@@ -42,7 +42,7 @@ jobs:
           ref: main
       - name: Run data and publishing checks
         run: python3 -m unittest discover -s tests -v
-      - name: Collect public data (preserve old records on failure)
+      - name: Collect OpenAI primary data (retain verified history on failure)
         id: collect
         continue-on-error: true
         run: python3 scripts/site.py refresh --github-output "$GITHUB_OUTPUT"
@@ -69,6 +69,7 @@ jobs:
               "",
               f"- 保存済み履歴: {len(records)}件",
               f"- 取得状態: {health.get('feed', 'unknown')}",
+              f"- X取得状態: {health.get('x_status', 'unknown')}",
               f"- 最終取得成功（UTC）: {health.get('last_success_at') or '未確認'}",
               "",
               "初回の配信設定: [Settings → Pages](https://github.com/mtk-ctrl/ChatGPT-Codex-/settings/pages) "
