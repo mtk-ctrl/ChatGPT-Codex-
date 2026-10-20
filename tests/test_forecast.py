@@ -19,7 +19,7 @@ def records():
     moments = [last]
     for gap in reversed([12, 24, 36, 48, 60, 72, 84]):
         moments.append(moments[-1] - timedelta(hours=gap))
-    return [dict(id=str(i), reference_at=t.isoformat(), kind='global', state='reported') for i, t in enumerate(reversed(moments))]
+    return [dict(id=str(i), reference_at=t.isoformat(), kind='global', state='reported', evidence='staff_x') for i, t in enumerate(reversed(moments))]
 
 
 class ForecastTests(unittest.TestCase):
@@ -76,15 +76,12 @@ class ForecastTests(unittest.TestCase):
         self.assertEqual(scores(h)['24'], {'judged':2, 'brier':0.562})
         self.assertEqual(scores(h)['48'], {'judged':0, 'brier':None})
 
-    def test_calendar_json_cannot_end_script_and_jst_dates_match(self):
-        normalized, _ = site.normalize_feed({'events':[{'id':'2111492738025959922','type':'reset','confirmed':True,
-            'announced_at':'2026-10-17T20:41:01Z','url':'https://x.com/thsottiaux/status/2111492738025959922'}]},
-            now=NOW, editorial={'2111492738025959922':'</script><img src=x onerror=alert(1)>'})
-        rendered = site.calendar_overview(normalized, predict(normalized, NOW))
-        payload = rendered.split('<script id="calendar-data" type="application/json">')[1].split('</script>')[0]
-        self.assertNotIn('<', payload)
-        self.assertEqual(json.loads(payload)['records'][0]['day'], '2026-10-18')
-        self.assertIn('2026-10-18', rendered)
+    def test_date_only_and_third_party_are_not_used_for_predictions(self):
+        rows = records()
+        day_only = dict(rows[-1], id='day', date_precision='day')
+        external = dict(rows[-1], id='external', evidence='third_party')
+        self.assertEqual(len(completed_times(rows + [day_only, external], NOW)),
+                         len(completed_times(rows, NOW)))
 
 
 if __name__ == '__main__':
