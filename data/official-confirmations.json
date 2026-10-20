@@ -1,12 +1,26 @@
 [
   {
-    "post_id": "2097043464538264003",
-    "kind": "global",
     "official_date": "2026-09-07",
     "verified_at": "2026-10-20",
-    "url": "https://help.openai.com/ja-jp/articles/20001498-how-banked-codex-resets-work",
-    "title": "OpenAI公式ヘルプ：保存済みCodexリセットの仕組み",
-    "summary": "公式ヘルプに、9月7日にPlus・Pro・Businessを対象とする全世界一斉リセットを実施した旨の記載を直接確認。公式記事には実施時刻と日付の時間帯の明記はない。",
+    "url": "https://help.openai.com/en/articles/20001516-managing-usage-with-gpt-6-astra-in-work-and-codex",
+    "title": "OpenAI公式：Managing usage with GPT-6 Astra in Work and Codex",
+    "summary": "対象となるPlus・Pro・Businessユーザーの利用枠を一斉リセット。実施時刻は公式記事に記載がありません。",
+    "time_verified": false
+  },
+  {
+    "official_date": "2026-09-04",
+    "verified_at": "2026-10-20",
+    "url": "https://help.openai.com/en/articles/20001516-managing-usage-with-gpt-6-astra-in-work-and-codex",
+    "title": "OpenAI公式：Managing usage with GPT-6 Astra in Work and Codex",
+    "summary": "対象となる既存Plus・Pro・Businessユーザーへ保存型リセットを配布。新規利用者には別途条件があります。",
+    "time_verified": false
+  },
+  {
+    "official_date": "2026-09-03",
+    "verified_at": "2026-10-20",
+    "url": "https://help.openai.com/en/articles/20001516-managing-usage-with-gpt-6-astra-in-work-and-codex",
+    "title": "OpenAI公式：Managing usage with GPT-6 Astra in Work and Codex",
+    "summary": "対象となる既存Plus・Pro・Businessユーザーへ保存型リセットを配布。新規利用者には別途条件があります。",
     "time_verified": false
   }
 ]
