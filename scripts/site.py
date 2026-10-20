@@ -145,7 +145,7 @@ def shell(title, description, active, content, updated):
 <meta property="og:type" content="website"><meta property="og:locale" content="ja_JP"><meta property="og:title" content="{e(title)}"><meta property="og:description" content="{e(description)}"><meta property="og:url" content="{e(canonical)}">
 <meta name="theme-color" content="#245e9b"><link rel="icon" href="assets/icon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/style.css"><link rel="alternate" type="application/rss+xml" title="ChatGPT リセット履歴 更新情報" href="feed.xml"><link rel="sitemap" type="application/xml" href="sitemap.xml">
 <script type="application/ld+json">{website}</script><script defer src="assets/app.js"></script></head>
-<body><a class="skip" href="#main">本文へ移動</a><header class="site-header container"><div class="masthead"><div><div class="brand-line"><{brand_tag} class="brand"><a href="./">ChatGPT リセット履歴</a></{brand_tag}><span class="unofficial">非公式</span></div><p class="site-subtitle">Codex・Workのリセットカレンダーと独自予測</p></div><p class="site-description">ChatGPT Work・Codexの利用枠に関する臨時リセットを、日本時間のカレンダーで確認できます。過去の間隔から独自予測も計算しています。</p></div><nav class="main-nav" aria-label="メインナビゲーション">{nav}</nav></header>
+<body><a class="skip" href="#main">本文へ移動</a><header class="site-header container"><div class="masthead"><div><div class="brand-line"><{brand_tag} class="brand"><a href="./">ChatGPT リセット履歴</a></{brand_tag}><span class="unofficial">非公式</span></div><p class="site-subtitle">Codex・Workのリセットカレンダーと独自予測</p></div><p class="site-description">ChatGPT Work・Codexの利用枠に関する臨時リセットをカレンダーで確認できます。公式の日付はそのまま表示し、時刻付き記録は日本時間に換算します。一次資料の蓄積から独自予測も試みます。</p></div><nav class="main-nav" aria-label="メインナビゲーション">{nav}</nav></header>
 <main id="main" class="container">{content}</main>
 <footer class="container site-footer"><p class="footer-title">ChatGPT リセット履歴</p><p>OpenAIとは関係のない非公式サイトです。</p><p>出典はOpenAI公式サイトとOpenAI関係者本人のX原投稿のみです。第三者サイトからの収集は行いません。</p><p class="footer-links"><a href="about.html">出典について</a><a href="https://github.com/{REPO}/issues">訂正の連絡</a><a href="data.csv">履歴データ（CSV）</a><a href="feed.xml">RSS</a></p><p class="muted">ページ更新：{e(jst(updated))}（日本時間）</p></footer></body></html>'''
 
@@ -333,7 +333,7 @@ def build():
     write_json(DATA / "forecast-history.json", history)
     OUT.mkdir(parents=True, exist_ok=True)
     pages = {
-        "index": ("ChatGPT リセット履歴｜Codex・Workの臨時リセット", "ChatGPT Work・Codexの一斉リセットとリセット券の配布履歴。日時は日本時間で表記し、内容、確認状況、出典を掲載しています。", homepage(records, health, updated, forecast, history)),
+        "index": ("ChatGPT リセット履歴｜Codex・Workの臨時リセット", "OpenAIの一次資料で確認したWork・Codexの臨時リセット履歴。日付のみの記録と時刻付き記録を区別しています。", homepage(records, health, updated, forecast, history)),
         "guide": ("リセットの種類｜ChatGPT リセット履歴", "通常の利用枠更新、一斉リセット、リセット券の違いと、自分の残り枠・回復予定の確認先を説明します。", GUIDE),
         "forecast": ("予測の計算方法｜ChatGPT リセット履歴", "独自予測の計算式、集計対象、検証方法と注意事項を掲載しています。", FORECAST_METHOD),
         "about": ("出典について｜ChatGPT リセット履歴", "OpenAI公式と関係者本人のX原投稿のみを使用する方針を説明します。", ABOUT),
