@@ -22,7 +22,9 @@ def iso(value):
 def completed_times(records, now):
     times, ids = set(), set()
     for row in sorted(records, key=lambda r: r.get('reference_at', '')):
-        if row.get('kind') != 'global' or row.get('state') not in {'reported', 'observed'} or row.get('id') in ids:
+        if (row.get('kind') != 'global' or row.get('state') not in {'reported', 'observed'}
+                or row.get('date_precision') == 'day' or row.get('evidence') not in {'official', 'staff_x'}
+                or row.get('id') in ids):
             continue
         try:
             moment = timestamp(row['reference_at'])
