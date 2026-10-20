@@ -1,41 +1,12 @@
 {
   "model": "interval-90d-laplace-v1",
-  "generated_at": "2026-10-20T04:15:01Z",
+  "generated_at": "2026-10-20T06:17:55Z",
   "window_days": 90,
-  "status": "ok",
-  "sample_size": 19,
-  "eligible_size": 11,
-  "all_completed": 46,
-  "horizons": {
-    "24": {
-      "count": 3,
-      "total": 11,
-      "probability": 0.3076923076923077,
-      "display_percent": 30,
-      "observed_ratio_interval": [
-        9,
-        57
-      ],
-      "until": "2026-10-21T04:15:01Z"
-    },
-    "48": {
-      "count": 6,
-      "total": 11,
-      "probability": 0.5384615384615384,
-      "display_percent": 55,
-      "observed_ratio_interval": [
-        28,
-        79
-      ],
-      "until": "2026-10-22T04:15:01Z"
-    }
-  },
-  "last_reset_at": "2026-10-17T20:41:01Z",
-  "elapsed_hours": 55.57,
-  "median_hours": 62.47,
-  "min_hours": 24.99,
-  "max_hours": 346.14,
-  "reference_date": "2026-10-22",
+  "status": "insufficient",
+  "sample_size": 0,
+  "eligible_size": 0,
+  "all_completed": 0,
+  "horizons": {},
   "scores": {
     "24": {
       "judged": 0,
@@ -46,7 +17,6 @@
       "brier": null
     }
   },
-  "historical_data_source": "https://codex-reset.com/",
-  "historical_data_license": "https://creativecommons.org/licenses/by/4.0/",
+  "source_policy": "OpenAI公式と関係者X原投稿のみ",
   "disclaimer": "当サイト独自の予測です。OpenAIの公式発表ではなく、的中を保証しません。予測の利用による損害については、法令で認められる範囲で責任を負いません。"
 }
