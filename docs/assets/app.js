@@ -177,6 +177,9 @@
       if (status.feed === "bootstrap") {
         text.textContent = "初期データを掲載しています。自動更新は未確認です。";
         health.classList.add("warn");
+      } else if (status.feed === "partial" && Date.now() - checked.getTime() < 24 * 60 * 60 * 1000) {
+        text.textContent = "OpenAI公式の確認済み。Xの直接取得は一部または全部が制限されています。";
+        health.classList.add("warn");
       } else if (status.feed === "ok" && Date.now() - checked.getTime() < 24 * 60 * 60 * 1000) {
         text.textContent = `最終更新：${formatter.format(checked)}（日本時間）`;
       } else {
