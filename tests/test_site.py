@@ -26,10 +26,14 @@ class FirstPartyTests(unittest.TestCase):
 
     def test_current_history_has_only_verified_primary_sources(self):
         rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
-        self.assertEqual(len(rows), 3)
+        self.assertGreaterEqual(len(rows), 56)
         self.assertTrue(all(primary.trusted(r) for r in rows))
-        self.assertTrue(all(r.get("date_precision") == "day" for r in rows))
-        self.assertTrue(all("未公表" in site.record_row(r) for r in rows))
+        official = [r for r in rows if r["evidence"] == "official"]
+        indexed = [r for r in rows if r["evidence"] == "staff_x"]
+        self.assertEqual(len(official), 3)
+        self.assertTrue(all(r.get("date_precision") == "day" and "未公表" in site.record_row(r) for r in official))
+        self.assertTrue(all(r.get("verification_method", "").startswith("X原投稿の検索結果表示") for r in indexed))
+        self.assertTrue(all(r.get("original_url", "").startswith("https://x.com/thsottiaux/status/") for r in indexed))
 
     def test_x_requires_original_text(self):
         markup = '<meta property="og:description" content="We have now reset usage limits for Codex.">'
