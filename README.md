@@ -51,6 +51,8 @@ ChatGPT Work・Codexの臨時の利用枠リセットを、日本時間と根拠
 
 出典：Codex Reset（https://codex-reset.com/ja/timeline/、掲載元の表示はCC BY 4.0）。公式確認はOpenAI公式ヘルプを用いる。ライセンス表示と元の出典はサイトに常時掲載する。
 
+データの再利用は[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)と[API利用条件](https://codex-reset.com/developers)に基づく。データを表示する画面にcodex-reset.comへのリンクを掲載し、取得時のUser-Agentで当プロジェクトを識別する。CSV・JSON・RSSでも出典とライセンスを引き継ぎ、日本時間への換算・分類・説明文を編集したことを表示する。これは掲載元のデータに対する許諾であり、X投稿の全文や画像の権利を含むものとして扱わない。
+
 ## ローカル確認（Python標準ライブラリのみ）
 
 ```sh
