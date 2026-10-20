@@ -15,7 +15,7 @@ ChatGPT Work・Codexの臨時の利用枠リセットを、日本時間と根拠
 
 1. Settings → General → Danger Zone → Change repository visibility → Public。
 2. Settings → Pages → Build and deployment → Source → **GitHub Actions**。
-3. Actions → **Collect reset records and publish** → Run workflow。
+3. 次の定期処理を待つ。すぐに公開する場合は、Actions → **Collect reset records and publish** → Run workflow。
 
 ワークフロー成功後の公開URLはPagesの設定画面と、Actionsのdeployment結果で確認する。設定が完了するまで、公開済みとは報告しない。
 
@@ -26,7 +26,7 @@ ChatGPT Work・Codexの臨時の利用枠リセットを、日本時間と根拠
 1. テストを実行。
 2. Codex Resetの公開データを取得し、正規化・重複排除。
 3. 根拠区分を保持し、公式本文の取得状況を別に記録。
-4. 取得状況 `data/health.json` を毎回保存。履歴が変わった場合だけHTMLを再生成して公開。
+4. 取得状況 `data/health.json` を毎回保存し、HTMLを再生成して公開。履歴の追加がなくても公開を再試行するため、初回設定や一時的な配信失敗から次回の処理で復旧できる。
 5. 取得失敗時は前回の履歴を保持し、状態を保存した上でジョブを失敗にする。通常のGitHub通知対象になる。
 
 正常確認の記録を保存するため、履歴の追加が長くない場合もリポジトリに意味のある更新が残る。GitHubの権限変更・スケジュール停止・上流側の仕様変更などによる永久無停止を保証するものではない。サイトは最終成功から24時間を超えた場合に更新確認の表示を出す。

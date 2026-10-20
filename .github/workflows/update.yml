@@ -37,14 +37,16 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v6
+        with:
+          # A manual re-run must also start from the latest saved history.
+          ref: main
       - name: Run data and publishing checks
         run: python3 -m unittest discover -s tests -v
       - name: Collect public data (preserve old records on failure)
         id: collect
         continue-on-error: true
         run: python3 scripts/site.py refresh --github-output "$GITHUB_OUTPUT"
-      - name: Build readable HTML when records or source changed
-        if: steps.collect.outputs.records_changed == 'true' || github.event_name != 'schedule'
+      - name: Build readable HTML and current collection status
         run: python3 scripts/site.py build
       - name: Save records and the meaningful collector health report
         run: |
@@ -77,16 +79,13 @@ jobs:
           Path(os.environ["GITHUB_STEP_SUMMARY"]).write_text("\n".join(summary) + "\n")
           PY
       - name: Configure GitHub Pages
-        if: steps.collect.outputs.records_changed == 'true' || github.event_name != 'schedule'
         uses: actions/configure-pages@v5
       - name: Upload the static website
-        if: steps.collect.outputs.records_changed == 'true' || github.event_name != 'schedule'
         uses: actions/upload-pages-artifact@v4
         with:
           path: docs
           retention-days: 1
       - name: Publish
-        if: steps.collect.outputs.records_changed == 'true' || github.event_name != 'schedule'
         id: deployment
         uses: actions/deploy-pages@v4
       - name: Report a collection failure after preserving the published data
