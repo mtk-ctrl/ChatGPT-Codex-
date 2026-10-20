@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://mtk-ctrl.github.io/ChatGPT-Codex-/sitemap.xml

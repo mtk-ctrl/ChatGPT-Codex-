@@ -1,0 +1,75 @@
+name: Collect reset records and publish
+
+on:
+  schedule:
+    - cron: '17 */2 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/**'
+      - 'tests/**'
+      - 'data/**'
+      - 'docs/assets/**'
+      - '.github/workflows/update.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reset-site-main
+  cancel-in-progress: false
+
+jobs:
+  update:
+    # The owner's requirement is zero additional fees. Never allocate a runner
+    # for the private repository, where the account's paid usage could apply.
+    if: ${{ toJSON(github.event.repository.private) == 'false' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+      - name: Run data and publishing checks
+        run: python3 -m unittest discover -s tests -v
+      - name: Collect public data (preserve old records on failure)
+        id: collect
+        continue-on-error: true
+        run: python3 scripts/site.py refresh --github-output "$GITHUB_OUTPUT"
+      - name: Build readable HTML when records or source changed
+        if: steps.collect.outputs.records_changed == 'true' || github.event_name != 'schedule'
+        run: python3 scripts/site.py build
+      - name: Save records and the meaningful collector health report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/events.json data/health.json docs
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: update reset records and collector health [skip ci]"
+            git push
+          fi
+      - name: Configure GitHub Pages
+        if: steps.collect.outputs.records_changed == 'true' || github.event_name != 'schedule'
+        uses: actions/configure-pages@v5
+      - name: Upload the static website
+        if: steps.collect.outputs.records_changed == 'true' || github.event_name != 'schedule'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: docs
+          retention-days: 1
+      - name: Publish
+        if: steps.collect.outputs.records_changed == 'true' || github.event_name != 'schedule'
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Report a collection failure after preserving the published data
+        if: steps.collect.outcome == 'failure'
+        run: |
+          echo "Collection failed. Saved history has been preserved; see data/health.json."
+          exit 1
