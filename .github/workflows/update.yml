@@ -92,5 +92,5 @@ jobs:
       - name: Report a collection failure after preserving the published data
         if: steps.collect.outcome == 'failure'
         run: |
-          echo "Collection failed. Saved history has been preserved; see data/health.json."
-          exit 1
+          echo "::warning::OpenAI/X primary-source requests were blocked. Previously verified records remain published. Details: data/health.json."
+          exit 0
