@@ -104,20 +104,22 @@
     });
     render();
     details(selected);
-    const expire = () => {
-      const prediction = document.getElementById("forecast-current");
-      const age = Date.now() - new Date(prediction.dataset.generatedAt).getTime();
-      const expired = age > 24 * 60 * 60 * 1000 || age < -5 * 60 * 1000;
-      prediction.hidden = expired;
-      document.getElementById("forecast-expired").hidden = !expired;
-      if (expired && data.predicted) {
-        data.predicted = null;
-        render();
-        details(selected);
-      }
-    };
-    expire();
-    setInterval(expire, 60000);
+    const prediction = document.getElementById("forecast-current");
+    if (prediction) {
+      const expire = () => {
+        const age = Date.now() - new Date(prediction.dataset.generatedAt).getTime();
+        const expired = age > 24 * 60 * 60 * 1000 || age < -5 * 60 * 1000;
+        const panel = prediction.closest(".forecast-panel");
+        if (panel) panel.hidden = expired;
+        if (expired && data.predicted) {
+          data.predicted = null;
+          render();
+          details(selected);
+        }
+      };
+      expire();
+      setInterval(expire, 60000);
+    }
   }
   const form = document.getElementById("filters");
   if (form) {
@@ -162,32 +164,4 @@
       filter();
     });
   }
-  const health = document.querySelector("[data-health-url]");
-  if (!health) return;
-  const text = document.getElementById("health-text");
-  const formatter = new Intl.DateTimeFormat("ja-JP", {timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false});
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 8000);
-  fetch(health.dataset.healthUrl, {cache: "no-store", signal: controller.signal, credentials: "omit"})
-    .then(response => {if (!response.ok) throw new Error("health unavailable"); return response.json();})
-    .then(status => {
-      const checked = new Date(status.checked_at);
-      const success = new Date(status.last_success_at || "");
-      if (!Number.isFinite(checked.getTime())) throw new Error("invalid health date");
-      if (status.feed === "bootstrap") {
-        text.textContent = "確認済みの履歴を掲載しています。新しい発表の確認状況はまだ分かりません。";
-        health.classList.add("warn");
-      } else if (status.feed === "partial" && Date.now() - checked.getTime() < 24 * 60 * 60 * 1000) {
-        text.textContent = "一部の投稿を自動確認できません。新しい発表の反映に時間がかかる場合があります。";
-        health.classList.add("warn");
-      } else if (status.feed === "ok" && Date.now() - checked.getTime() < 24 * 60 * 60 * 1000) {
-        text.textContent = `最終更新：${formatter.format(checked)}（日本時間）`;
-      } else {
-        const last = Number.isFinite(success.getTime()) ? formatter.format(success) + "（日本時間）" : "未確認";
-        text.textContent = `新しい発表の自動確認が一時的にできません。掲載済みの履歴をご覧いただけます。最終確認：${last}`;
-        health.classList.add("warn");
-      }
-    }).catch(() => {
-      text.textContent += " 新しい発表の確認状況は現在確認できません。";
-    }).finally(() => clearTimeout(timer));
 })();

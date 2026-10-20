@@ -32,7 +32,6 @@ OUT = ROOT / "docs"
 REPO = "mtk-ctrl/ChatGPT-Codex-"
 SITE_URL = os.environ.get("SITE_URL", "https://mtk-ctrl.github.io/ChatGPT-Codex-").rstrip("/")
 OFFICIAL_URL = "https://help.openai.com/en/articles/20001516-managing-usage-with-gpt-6-astra-in-work-and-codex"
-HEALTH_URL = f"https://raw.githubusercontent.com/{REPO}/main/data/health.json"
 JST = timezone(timedelta(hours=9))
 KINDS = {"global": "一斉リセット", "banked": "保存型リセットの配布"}
 EVIDENCE = {"official": "OpenAI公式", "staff_x": "Tibo氏のX投稿"}
@@ -150,9 +149,9 @@ def link(url, text, cls=""):
     return f'<a class="{e(cls)}" href="{e(checked)}" target="_blank" rel="noopener noreferrer">{e(text)} ↗</a>' if checked else ""
 
 
-def shell(title, description, active, content, updated):
+def shell(title, description, active, content, updated, show_forecast=True):
     canonical = SITE_URL + ("/" if active == "index" else f"/{active}.html")
-    nav = "".join(f'<a href="{href}" {"aria-current=page" if active == key else ""}>{label}</a>' for key, href, label in [("index", "./", "履歴一覧"), ("guide", "guide.html", "リセットの種類"), ("forecast", "forecast.html", "予測の計算方法"), ("about", "about.html", "このサイトについて")])
+    nav = "".join(f'<a href="{href}" {"aria-current=page" if active == key else ""}>{label}</a>' for key, href, label in [("index", "./", "履歴一覧"), ("guide", "guide.html", "リセットの種類"), ("forecast", "forecast.html", "予測の計算方法"), ("about", "about.html", "このサイトについて")] if key != "forecast" or show_forecast)
     website = json.dumps({"@context": "https://schema.org", "@type": "WebSite", "name": "ChatGPT リセット履歴", "url": SITE_URL + "/", "inLanguage": "ja"}, ensure_ascii=False).replace("<", "\\u003c")
     brand_tag = "h1" if active == "index" else "div"
     return f'''<!doctype html>
@@ -254,13 +253,20 @@ def calendar_overview(records, forecast):
 <p class="reference-date">参考日 <strong>{date.month}月{date.day}日ごろ</strong><span>実施予定日ではありません</span></p>
 <details class="forecast-reasons" open><summary>なぜこの予測？</summary><p>前回の完了報告から<strong>{forecast['elapsed_hours']/24:.1f}日</strong>経過しています。直近90日間に始まった実施間隔<strong>{forecast['sample_size']}件</strong>のうち、これより長かったのは<strong>{forecast['eligible_size']}件</strong>でした。</p><p>その{h24['total']}件では、現在と同じ経過時点から24時間以内の報告が{h24['count']}件、48時間以内が{h48['count']}件でした。この比率を補正して上の数値を出しています。</p><p class="sample-note">少数の履歴による試算です。24時間の集計比率の95%参考区間は{lower}〜{upper}%と幅があり、予測精度はまだ検証できていません。</p></details>'''
     else:
-        message = '最新情報を継続的に確認できないため、現在は次回のリセットを予測していません。' if forecast['status'] == 'stale' else '予測に十分なデータが集まるまで、数値の公開を見合わせています。'
-        prediction = f'<p class="forecast-unavailable">{message}</p>'
-    return f'''<div class="calendar-layout"><section class="calendar-section" aria-labelledby="calendar-title"><div class="calendar-section-heading"><h2 id="calendar-title">リセットカレンダー</h2><span>日本時間</span></div><div class="calendar-controls"><div><button id="calendar-prev" type="button" aria-label="前の月">‹</button><label class="sr-only" for="calendar-month">カレンダーの年月</label><select id="calendar-month">{''.join(month_options)}</select><button id="calendar-next" type="button" aria-label="次の月">›</button></div><button id="calendar-today" type="button">今月</button></div><div class="calendar-weekdays" aria-hidden="true"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div><div id="calendar-grid" class="calendar-grid" role="group" aria-label="{today.year}年{today.month}月">{grid}</div><div class="calendar-legend"><span><i class="legend-reset"></i>一斉リセット</span><span><i class="legend-banked"></i>保存型リセット</span><span><i class="legend-announced"></i>予告</span><span><i class="legend-predicted"></i>独自予測</span></div><section class="selected-day" aria-live="polite" aria-atomic="true"><h3 id="selected-date">{int(selected[5:7])}月{int(selected[8:])}日の履歴</h3><div id="selected-records">{details}</div></section><noscript><p>月の切り替えにはJavaScriptが必要です。全履歴は下の一覧から確認できます。</p></noscript></section>
-<aside class="forecast-panel" aria-labelledby="forecast-title"><div class="forecast-heading"><h2 id="forecast-title">次のリセット予測</h2><span>当サイト独自の試算</span></div><div id="forecast-current" data-generated-at="{forecast['generated_at']}">{prediction}</div><p id="forecast-expired" hidden>予測の有効期間が過ぎたため、最新の結果が出るまで表示していません。</p>{f'<p class="forecast-updated">予測の計算日時：{e(jst(forecast["generated_at"]))}（日本時間）</p>' if forecast["status"] == "ok" else ""}<a class="method-link" href="forecast.html">計算方法と検証について →</a>{f'<p class="forecast-disclaimer">{DISCLAIMER}</p>' if forecast["status"] == "ok" else ""}</aside></div><script id="calendar-data" type="application/json">{payload}</script>'''
+        prediction = ""
+    if forecast["status"] == "ok":
+        forecast_panel = f'''<aside class="forecast-panel" aria-labelledby="forecast-title"><div class="forecast-heading"><h2 id="forecast-title">次のリセット予測</h2><span>当サイト独自の試算</span></div><div id="forecast-current" data-generated-at="{forecast['generated_at']}">{prediction}</div><p class="forecast-updated">予測の計算日時：{e(jst(forecast["generated_at"]))}（日本時間）</p><a class="method-link" href="forecast.html">計算方法と検証について →</a><p class="forecast-disclaimer">{DISCLAIMER}</p></aside>'''
+    else:
+        forecast_panel = ""
+    layout_class = "calendar-layout" if forecast_panel else "calendar-layout calendar-layout--full"
+    prediction_legend = '<span><i class="legend-predicted"></i>独自予測</span>' if forecast_panel else ""
+    return f'''<div class="{layout_class}"><section class="calendar-section" aria-labelledby="calendar-title"><div class="calendar-section-heading"><h2 id="calendar-title">リセットカレンダー</h2><span>日本時間</span></div><div class="calendar-controls"><div><button id="calendar-prev" type="button" aria-label="前の月">‹</button><label class="sr-only" for="calendar-month">カレンダーの年月</label><select id="calendar-month">{''.join(month_options)}</select><button id="calendar-next" type="button" aria-label="次の月">›</button></div><button id="calendar-today" type="button">今月</button></div><div class="calendar-weekdays" aria-hidden="true"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div><div id="calendar-grid" class="calendar-grid" role="group" aria-label="{today.year}年{today.month}月">{grid}</div><div class="calendar-legend"><span><i class="legend-reset"></i>一斉リセット</span><span><i class="legend-banked"></i>保存型リセット</span><span><i class="legend-announced"></i>予告</span>{prediction_legend}</div><section class="selected-day" aria-live="polite" aria-atomic="true"><h3 id="selected-date">{int(selected[5:7])}月{int(selected[8:])}日の履歴</h3><div id="selected-records">{details}</div></section><noscript><p>月の切り替えにはJavaScriptが必要です。全履歴は下の一覧から確認できます。</p></noscript></section>
+{forecast_panel}</div><script id="calendar-data" type="application/json">{payload}</script>'''
 
 
 def forecast_results(history):
+    if not any(any(outcome is not None for outcome in record.get("outcomes", {}).values()) for record in history):
+        return ""
     score = scores(history)['24']
     judged = score['judged']
     status = f'{judged}件を判定済み ／ 24時間予測の誤差スコア {score["brier"]:.3f}' if judged else '検証前'
@@ -276,7 +282,7 @@ def forecast_results(history):
     return f'<section class="forecast-results" aria-labelledby="forecast-results-title"><div class="section-heading"><h2 id="forecast-results-title">予測と結果</h2><p>{status}</p></div><p class="results-description">予測を公開したあと、24時間・48時間以内に次のリセット報告があったかを確認します。公開済みの予測値はあとから変更しません。</p>{body}<p class="results-note">直近7日分を掲載。判定待ち・取得遅延を含みます。履歴の追加・訂正により結果が変わる場合があります。<a href="https://github.com/{REPO}/blob/main/data/forecast-history.json">すべての予測記録</a></p></section>'
 
 
-def homepage(records, health, updated, forecast, forecast_history):
+def homepage(records, updated, forecast, forecast_history):
     proof_count = sum(r["evidence"] == "official" for r in records)
     months = sorted({record_day(r)[:7] for r in records}, reverse=True)
     options = "".join(f'<option value="{m}">{m[:4]}年{int(m[5:])}月</option>' for m in months)
@@ -288,18 +294,8 @@ def homepage(records, health, updated, forecast, forecast_history):
             rows.append(f'<tr class="month-heading" id="month-{month}" data-month-heading="{month}"><th scope="rowgroup" colspan="4">{month[:4]}年{int(month[5:])}月</th></tr>')
             current_month = month
         rows.append(record_row(record))
-    check = health.get("checked_at", updated)
-    if health.get("feed") == "ok" and health.get("last_success_at"):
-        health_text = "最終更新：" + jst(health["last_success_at"]) + "（日本時間）"
-    elif health.get("feed") == "failed":
-        health_text = "新しい情報の自動確認が一時的にできません。確認済みの履歴は引き続き掲載しています。"
-    elif health.get("feed") == "partial":
-        health_text = "一部の投稿を自動確認できません。新しい発表が反映されるまで時間がかかる場合があります。"
-    else:
-        health_text = "掲載情報の確認：" + jst(check) + "（日本時間）。自動更新は未確認です。"
     evidence_tabs = "".join(f'<button type="button" data-evidence-option="{key}" aria-pressed="{str(key == "all").lower()}">{label}</button>' for key, label in [("all", "すべて"), ("official", "OpenAI公式"), ("staff_x", "Tibo氏の投稿")])
     return f'''{calendar_overview(records, forecast)}
-<p class="status-line" data-health-url="{HEALTH_URL}"><span id="health-text">{e(health_text)}</span></p>
 <p class="time-note">掲載した時刻は発表・投稿の時刻です。実際に各アカウントの利用枠が回復した時刻とは異なる場合があります。<a href="about.html#dates">日時の表記について</a></p>
 {forecast_results(forecast_history)}
 <section id="history" class="history-section"><div class="section-heading"><h2 class="section-title">過去のリセット</h2><p>{len(records)}件<span class="count-detail"> ／ 公式サイトで発表：{proof_count}件</span></p></div>
@@ -355,13 +351,13 @@ def build():
     write_json(DATA / "forecast-history.json", history)
     OUT.mkdir(parents=True, exist_ok=True)
     pages = {
-        "index": ("ChatGPT リセット履歴｜Codex・Workの臨時リセット", "Codex・ChatGPT Workの臨時リセットを一覧とカレンダーで紹介。OpenAIの公式発表やCodex責任者の投稿をもとに最新情報をまとめます。", homepage(records, health, updated, forecast, history)),
+        "index": ("ChatGPT リセット履歴｜Codex・Workの臨時リセット", "Codex・ChatGPT Workの臨時リセットを一覧とカレンダーで紹介。OpenAIの公式発表やCodex責任者の投稿をもとに最新情報をまとめます。", homepage(records, updated, forecast, history)),
         "guide": ("リセットの種類｜ChatGPT リセット履歴", "通常の利用枠更新、一斉リセット、保存型リセットの違いを分かりやすく説明します。", GUIDE),
         "forecast": ("予測の計算方法｜ChatGPT リセット履歴", "独自予測の計算式、集計対象、検証方法と注意事項を掲載しています。", FORECAST_METHOD),
         "about": ("このサイトについて｜ChatGPT リセット履歴", "サイトの情報源、日時の見方、更新方法をご案内します。", ABOUT),
     }
     for key, (title, description, content) in pages.items():
-        (OUT / f"{key}.html").write_text(shell(title, description, key, content, updated), encoding="utf-8")
+        (OUT / f"{key}.html").write_text(shell(title, description, key, content, updated, show_forecast=forecast["status"] == "ok"), encoding="utf-8")
     write_json(OUT / "forecast.json", {**forecast, "scores": scores(history), "source_policy": "OpenAI公式発表・Codex責任者らのX投稿", "disclaimer": DISCLAIMER})
     (OUT / ".nojekyll").write_text("", encoding="utf-8")
     urls = [SITE_URL + "/", SITE_URL + "/guide.html", SITE_URL + "/about.html", SITE_URL + "/forecast.html"]
@@ -379,7 +375,7 @@ def build():
     items = "".join(f'<item><title>{e(record_day(r))}・{KINDS[r["kind"]]}</title><link>{SITE_URL}/#r-{r["id"].replace(":", "-")}</link><guid isPermaLink="false">{e(r["id"])}</guid><description>{e(source_name(r) + "。" + r["note"])}</description></item>' for r in records[:30])
     (OUT / "feed.xml").write_text(f'<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>ChatGPT リセット履歴</title><link>{SITE_URL}/</link><description>OpenAIの一次資料で確認した臨時リセット</description><language>ja</language>{items}</channel></rss>', encoding="utf-8")
 
-    (OUT / "404.html").write_text(shell("ページが見つかりません｜ChatGPT リセット履歴", "履歴一覧からご確認ください。", "404", '<article class="article"><h1 class="section-title">ページが見つかりません</h1><p><a href="' + SITE_URL + '/">履歴一覧へ</a></p></article>', updated), encoding="utf-8")
+    (OUT / "404.html").write_text(shell("ページが見つかりません｜ChatGPT リセット履歴", "履歴一覧からご確認ください。", "404", '<article class="article"><h1 class="section-title">ページが見つかりません</h1><p><a href="' + SITE_URL + '/">履歴一覧へ</a></p></article>', updated, show_forecast=forecast["status"] == "ok"), encoding="utf-8")
     print(f"Built {len(records)} records and 4 public pages in docs/")
 
 

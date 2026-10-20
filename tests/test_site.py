@@ -42,6 +42,41 @@ class FirstPartyTests(unittest.TestCase):
         self.assertIn("情報の確かめ方", site.ABOUT)
         self.assertNotIn("原投稿の検索表示で確認", site.record_row(indexed[0]))
 
+    def test_unavailable_forecast_is_not_shown_to_visitors(self):
+        rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
+        states = [
+            {"status": "stale", "generated_at": "2026-10-20T12:00:00Z", "horizons": {}},
+            {"status": "insufficient", "generated_at": "2026-10-20T12:00:00Z", "horizons": {}},
+        ]
+        for forecast in states:
+            with self.subTest(status=forecast["status"]):
+                calendar = site.calendar_overview(rows, forecast)
+                homepage = site.homepage(rows, "2026-10-20T12:00:00Z", forecast, [])
+                self.assertIn("calendar-layout--full", calendar)
+                self.assertNotIn('class="forecast-panel"', calendar)
+                self.assertNotIn("次のリセット予測", homepage)
+                self.assertNotIn("予測と結果", homepage)
+                self.assertNotIn("data-health-url", homepage)
+                self.assertNotIn("自動確認が一時的にできません", homepage)
+                self.assertNotIn("予測の計算方法", site.shell("test", "test", "index", "text", "2026-10-20T12:00:00Z", show_forecast=False))
+        self.assertEqual(site.forecast_results([]), "")
+        self.assertEqual(site.forecast_results([{"outcomes": {}}]), "")
+
+    def test_published_forecast_is_visible(self):
+        rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
+        forecast = {
+            "status": "ok", "generated_at": "2026-10-20T12:00:00Z",
+            "elapsed_hours": 24, "sample_size": 10, "eligible_size": 8,
+            "reference_date": "2026-10-21",
+            "horizons": {"24": {"display_percent": 40, "total": 8, "count": 3, "observed_ratio_interval": [10, 70]},
+                         "48": {"display_percent": 65, "total": 8, "count": 5}}
+        }
+        view = site.calendar_overview(rows, forecast)
+        self.assertIn('class="forecast-panel"', view)
+        self.assertIn("24時間以内", view)
+        self.assertIn("40<small>%</small>", view)
+        self.assertNotIn("calendar-layout--full", view)
+
     def test_x_requires_original_text(self):
         markup = '<meta property="og:description" content="We have now reset usage limits for Codex.">'
         post = primary.x_record("thsottiaux", "2111492738025959922", markup)
