@@ -271,7 +271,9 @@ def homepage(records, health, updated, forecast, forecast_history):
     if health.get("feed") == "ok" and health.get("last_success_at"):
         health_text = "最終更新：" + jst(health["last_success_at"]) + "（日本時間）"
     elif health.get("feed") == "failed":
-        health_text = "最新情報を取得できません。前回の履歴を表示しています。"
+        health_text = "公式資料を取得できません。確認済みの履歴を表示しています。"
+    elif health.get("feed") == "partial":
+        health_text = "OpenAI公式確認済み。Xの一部または全部が取得制限中です。"
     else:
         health_text = "初期データ掲載：" + jst(check) + "（日本時間）。自動更新は未確認です。"
     evidence_tabs = "".join(f'<button type="button" data-evidence-option="{key}" aria-pressed="{str(key == "all").lower()}">{label}</button>' for key, label in [("all", "すべて"), ("official", "公式本文で確認"), ("staff_x", "関係者のX原投稿")])
@@ -307,16 +309,15 @@ GUIDE = '''<article class="article"><h1 class="section-title">リセットの種
 <section class="article-source"><h2>関連情報</h2><ul><li><a href="https://help.openai.com/ja-jp/articles/20001498-how-banked-codex-resets-work">OpenAI：保存済みCodexリセットの仕組み</a></li><li><a href="https://help.openai.com/ja-jp/articles/11369540-using-codex-with-your-chatgpt-plan">OpenAI：ChatGPTプランでCodexを使う</a></li></ul></section><p class="article-back"><a href="./#history">履歴一覧に戻る</a></p></article>'''
 
 
-ABOUT = f'''<article class="article"><h1 class="section-title">出典について</h1><p class="article-lead">掲載情報の出典、確認状況、日時の表記について説明します。</p>
-<h2>このサイトについて</h2><p>ChatGPT リセット履歴は、ChatGPT Work・Codexの臨時リセットを掲載する非公式サイトです。OpenAIとは関係ありません。運営：<a href="https://github.com/mtk-ctrl">mtk-ctrl</a>。</p>
-<h2>確認状況の区分</h2><dl class="policy-list"><dt>公式本文で日付確認</dt><dd>OpenAIの公式記事で実施日を確認できた履歴です。実施時刻の記載がない場合は、日付のみの確認です。</dd><dt>担当者発言の転載</dt><dd>OpenAI担当者の発言を、他の投稿に転載・引用された文章で確認した履歴です。元の投稿本文を直接確認したものとは区別しています。公式フォーラムの一般ユーザーによる投稿も、この区分に含みます。</dd><dt>第三者サイトの記録</dt><dd>第三者サイトに掲載された履歴です。元投稿の本文は確認できていません。掲載元が「確認済み」としている場合も、公式確認とは区別します。</dd></dl>
-<h2 id="dates">日時の表記</h2><p>日時は出典に記録されたUTC（協定世界時）を日本時間に換算し、分単位で掲載しています。発表・報告・観測の時刻を含むため、実際に利用枠が回復した時刻とは異なる場合があります。</p><p>公式記事で実施日のみ確認できた場合は、その日付を別に記載します。表の日時を公式発表の時刻として扱うものではありません。</p>
-<h2>履歴の更新</h2><p>履歴は2時間おきに自動更新します。取得に失敗した場合は、前回の履歴を表示します。サービス側の混雑などにより、更新が遅れる場合があります。</p><p>履歴の取得と、公式本文の確認は別に行います。サイトの制作と文章の整理にはAIを使用しています。</p>
-<h2>データの出典</h2><p>履歴データは<a href="{ARCHIVE_URL}">Codex Resetの公開データ</a>を利用しています。掲載元のライセンスは<a href="{DATA_LICENSE_URL}">CC BY 4.0</a>です。日本時間への換算と分類・説明文の編集を行い、各記録に元投稿と掲載元のリンクを付けています。データの取得については、掲載元の<a href="{DATA_SOURCE_URL}developers">API利用条件</a>に基づいています。</p><p>公式確認には<a href="{OFFICIAL_URL}">OpenAI公式ヘルプ</a>を利用しています。確認できた内容は、各記録の「確認状況」に記載しています。</p>
-<h2>独自予測について</h2><p>入力には上記の履歴を使いますが、他サイトの予測値は利用しません。当サイトのプログラムで過去の間隔から試算し、根拠と結果を公開します。<a href="forecast.html">計算方法と注意事項</a>をご確認ください。</p>
-<h2>訂正の連絡</h2><p>日時、内容、出典に誤りがある場合は、<a href="https://github.com/{REPO}/issues">GitHubの連絡窓口</a>へお知らせください。すべてのリセットを網羅した一覧ではなく、個人のアカウントへの反映を保証するものでもありません。</p>
-<h2>プライバシー</h2><p>独自のアクセス解析、広告、Cookie、会員登録は導入していません。更新状況の表示には、GitHub上の公開ファイルを利用しています。ホスティング事業者が取得する接続情報については、各事業者の方針が適用されます。</p><p class="article-back"><a href="./">履歴一覧に戻る</a></p></article>'''
-
+ABOUT = f'''<article class="article"><h1 class="section-title">出典について</h1><p class="article-lead">OpenAIの一次資料だけを使う非公式サイトです。</p>
+<h2>このサイトについて</h2><p>ChatGPT Work・Codexの臨時リセットを記録しています。OpenAIとは関係ありません。運営：<a href="https://github.com/mtk-ctrl">mtk-ctrl</a>。</p>
+<h2>情報源</h2><p><a href="{OFFICIAL_URL}">OpenAI公式ヘルプ</a>などOpenAIが発信した公式サイトと、OpenAI関係者本人のX原投稿のみを掲載します。第三者の履歴API、一般ユーザーの転載・引用、ニュース記事は収集元にしません。元投稿へのリンクだけでは確認済みとは扱いません。</p>
+<h2>確認状況</h2><dl class="policy-list"><dt>OpenAI公式記事</dt><dd>OpenAI公式本文から直接確認した事実です。</dd><dt>OpenAI関係者のX原投稿</dt><dd>本人のX投稿本文から直接確認した内容です。OpenAI企業としての正式発表とは区別します。</dd></dl>
+<h2 id="dates">日時の表記</h2><p>公式発表に日付しかない場合、その記載日付をそのまま表示し、時刻は未公表とします。米国日付を根拠なく日本時間へ変換しません。X投稿時刻はリセット実施時刻ではありません。</p>
+<h2>更新の方法と限界</h2><p>GitHub Actionsから2時間おきにOpenAI公式ヘルプとX公開プロフィールの直接確認を試みます。X側の閲覧制限や仕様変更により取得できない場合は状態を表示し、第三者サイトから補いません。全件網羅を保証しません。</p>
+<h2>独自予測</h2><p>日時を確認した一次資料のみで計算します。十分なデータがない場合は予測を表示しません。OpenAI公式の予告ではありません。<a href="forecast.html">計算方法</a>をご覧ください。</p>
+<h2>連絡先</h2><p><a href="https://github.com/{REPO}/issues">GitHub Issues</a>で訂正をご連絡ください。</p>
+<h2>プライバシー</h2><p>独自のアクセス解析・広告・Cookie・会員登録を設けていません。</p><p class="article-back"><a href="./">履歴一覧へ</a></p></article>'''
 
 def build():
     records = read_json(DATA / "events.json", [])
@@ -327,7 +328,7 @@ def build():
     now = parse_time(updated)
     fresh = (health.get("feed") == "ok" and health.get("last_success_at")
              and timedelta(0) <= now - parse_time(health["last_success_at"]) <= timedelta(hours=24))
-    forecast = predict(records, now, bool(fresh))
+    forecast = predict(records, now, bool(fresh and health.get("x_status") == "checked"))
     history = update_history(read_json(DATA / "forecast-history.json", []), forecast, records, now, health.get("last_success_at"))
     write_json(DATA / "forecast-history.json", history)
     OUT.mkdir(parents=True, exist_ok=True)
@@ -335,11 +336,11 @@ def build():
         "index": ("ChatGPT リセット履歴｜Codex・Workの臨時リセット", "ChatGPT Work・Codexの一斉リセットとリセット券の配布履歴。日時は日本時間で表記し、内容、確認状況、出典を掲載しています。", homepage(records, health, updated, forecast, history)),
         "guide": ("リセットの種類｜ChatGPT リセット履歴", "通常の利用枠更新、一斉リセット、リセット券の違いと、自分の残り枠・回復予定の確認先を説明します。", GUIDE),
         "forecast": ("予測の計算方法｜ChatGPT リセット履歴", "独自予測の計算式、集計対象、検証方法と注意事項を掲載しています。", FORECAST_METHOD),
-        "about": ("出典について｜ChatGPT リセット履歴", "公式本文の確認、担当者発言の転載、第三者サイトの記録の区分と、日時の表記、出典、訂正の連絡先を掲載しています。", ABOUT),
+        "about": ("出典について｜ChatGPT リセット履歴", "OpenAI公式と関係者本人のX原投稿のみを使用する方針を説明します。", ABOUT),
     }
     for key, (title, description, content) in pages.items():
         (OUT / f"{key}.html").write_text(shell(title, description, key, content, updated), encoding="utf-8")
-    write_json(OUT / "forecast.json", {**forecast, "scores": scores(history), "historical_data_source": DATA_SOURCE_URL, "historical_data_license": DATA_LICENSE_URL, "disclaimer": DISCLAIMER})
+    write_json(OUT / "forecast.json", {**forecast, "scores": scores(history), "source_policy": "OpenAI公式と関係者X原投稿のみ", "disclaimer": DISCLAIMER})
     (OUT / ".nojekyll").write_text("", encoding="utf-8")
     urls = [SITE_URL + "/", SITE_URL + "/guide.html", SITE_URL + "/about.html", SITE_URL + "/forecast.html"]
     sitemap = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + "".join(f"<url><loc>{e(u)}</loc><lastmod>{updated}</lastmod></url>" for u in urls) + "</urlset>"
@@ -347,13 +348,15 @@ def build():
     (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {SITE_URL}/sitemap.xml\n", encoding="utf-8")
     stream = io.StringIO(newline="")
     writer = csv.writer(stream)
-    writer.writerow(["記録ID", "参考日時_JST", "日時の根拠", "種類", "根拠区分", "公式記載日", "時刻の公式確認", "元投稿", "掲載元", "データ出典", "データライセンス", "編集内容"])
+    writer.writerow(["記録ID", "公式日付または参考日時", "日時の根拠", "種類", "根拠区分", "一次資料URL", "説明"])
     for r in records:
-        writer.writerow([r["id"], jst(r["reference_at"]), r["time_basis"], KINDS[r["kind"]], EVIDENCE[r["evidence"]], (r.get("official_confirmation") or {}).get("official_date", ""), "いいえ", r.get("original_url") or "", r["archive_url"], DATA_SOURCE_URL, DATA_LICENSE_URL, "日本時間への換算・分類・説明文の編集"])
+        when = r["official_date"] if r.get("date_precision") == "day" else jst(r["reference_at"])
+        source = (r.get("official_confirmation") or {}).get("url") or r.get("original_url") or ""
+        writer.writerow([r["id"], when, r["time_basis"], KINDS[r["kind"]], EVIDENCE[r["evidence"]], source, r.get("note", "")])
     (OUT / "data.csv").write_text("\ufeff" + stream.getvalue(), encoding="utf-8")
-    credit = f" データ出典：codex-reset.com ({DATA_SOURCE_URL})。ライセンス：CC BY 4.0 ({DATA_LICENSE_URL})。日本時間への換算・分類・説明文の編集を行っています。"
-    items = "".join(f'<item><title>{e(jst(r["reference_at"]))} JST・{KINDS[r["kind"]]}</title><link>{SITE_URL}/#r-{r["id"].replace(":", "-")}</link><guid isPermaLink="false">{e(r["id"])}</guid><description>{e(EVIDENCE[r["evidence"]] + "。" + r["note"] + credit)}</description></item>' for r in records[:30])
-    (OUT / "feed.xml").write_text(f'<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>ChatGPT リセット履歴</title><link>{SITE_URL}/</link><description>ChatGPT Work・Codexの臨時リセット履歴</description><language>ja</language>{items}</channel></rss>', encoding="utf-8")
+    items = "".join(f'<item><title>{e(record_day(r))}・{KINDS[r["kind"]]}</title><link>{SITE_URL}/#r-{r["id"].replace(":", "-")}</link><guid isPermaLink="false">{e(r["id"])}</guid><description>{e(EVIDENCE[r["evidence"]] + "。" + r["note"])}</description></item>' for r in records[:30])
+    (OUT / "feed.xml").write_text(f'<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>ChatGPT リセット履歴</title><link>{SITE_URL}/</link><description>OpenAIの一次資料で確認した臨時リセット</description><language>ja</language>{items}</channel></rss>', encoding="utf-8")
+
     (OUT / "404.html").write_text(shell("ページが見つかりません｜ChatGPT リセット履歴", "履歴一覧からご確認ください。", "404", '<article class="article"><h1 class="section-title">ページが見つかりません</h1><p><a href="' + SITE_URL + '/">履歴一覧へ</a></p></article>', updated), encoding="utf-8")
     print(f"Built {len(records)} records and 4 public pages in docs/")
 
