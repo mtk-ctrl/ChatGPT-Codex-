@@ -32,7 +32,7 @@
       if (!rows.length) target.append(element("p", "この日の履歴はありません。", "empty-day"));
       rows.forEach(row => {
         const article = element("article", undefined, "day-record");
-        const time = element("p", `${row.time}ごろ `, "day-record-time");
+        const time = element("p", `${row.time} `, "day-record-time");
         time.append(element("span", row.evidence));
         article.append(time, element("h4", row.title));
         if (row.note) article.append(element("p", row.note));
