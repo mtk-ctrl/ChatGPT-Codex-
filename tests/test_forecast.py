@@ -76,10 +76,10 @@ class ForecastTests(unittest.TestCase):
         self.assertEqual(scores(h)['24'], {'judged':2, 'brier':0.562})
         self.assertEqual(scores(h)['48'], {'judged':0, 'brier':None})
 
-    def test_date_only_and_third_party_are_not_used_for_predictions(self):
+    def test_date_only_and_unverified_entries_are_not_used_for_predictions(self):
         rows = records()
         day_only = dict(rows[-1], id='day', date_precision='day')
-        external = dict(rows[-1], id='external', evidence='third_party')
+        external = dict(rows[-1], id='unverified', evidence='unverified')
         self.assertEqual(len(completed_times(rows + [day_only, external], NOW)),
                          len(completed_times(rows, NOW)))
 

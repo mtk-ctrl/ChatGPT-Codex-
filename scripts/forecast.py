@@ -1,4 +1,4 @@
-"""Local interval model. Never reads another site's forecast or calls an AI API."""
+"""Local interval model using stored OpenAI primary-source records."""
 from datetime import datetime, timedelta, timezone
 import math
 from statistics import median

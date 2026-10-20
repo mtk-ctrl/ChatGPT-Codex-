@@ -1,33 +1,31 @@
 # ChatGPT リセット履歴（非公式）
 
-公開先: https://mtk-ctrl.github.io/ChatGPT-Codex-/
+公開先：https://mtk-ctrl.github.io/ChatGPT-Codex-/
 
-## 情報源は一次資料だけ
+## 掲載方針
 
-- OpenAI公式サイト（openai.com／help.openai.com）と、OpenAI関係者本人のX原投稿のみを対象にする。
-- 現在の自動収集対象：OpenAI公式ヘルプ、Xの @thsottiaux と @OpenAI。外部の履歴サイト、転載記事、外部のAPIを収集しない。
-- 第三者サイト由来の旧63件をそのまま流用せず、OpenAI公式記事で確認した3件と、Xの原投稿を検索結果の本文抜粋で照合できた55件を再登録した（合計58件）。未確認の記録は復元しない。
-- XはOpenAI関係者本人の原投稿について、本人アカウント・Xの原投稿URL・検索エンジンに登録されたそのX原投稿の本文抜粋を照合できた場合に登録する。これらは「検索表示で確認・全文未確認」として区別する。元投稿URLだけ存在する記録は確定扱いしない。
-- 公式に時刻の記載がない日付は「公式記載日・時刻未公表」と表示し、勝手な日本時間変換・時刻の補完は行わない。
-- X投稿のSnowflake IDから投稿時刻を計算するが、これはリセットの実施時刻ではない。以前の外部記録の日時は引き継がず、投稿IDから一律に再計算している。
+OpenAI公式サイトとOpenAI関係者本人のX原投稿だけを情報源として、Work・Codexの利用枠に関する臨時リセットを記録する。閲覧できる原投稿はXのURLを添え、原投稿の検索表示だけで確認した記録には「全文未確認」と明記する。
 
-## 確認済みの一次情報
+公式記事に日付しかない場合は日付だけを表示し、実施時刻は補完しない。Xの投稿日時は投稿IDから算出し、日本時間で表示する。投稿時刻と実際の反映時刻は異なり得る。実施予告・完了報告・保存型リセット配布を区別する。
 
-OpenAI公式ヘルプ「Managing usage with GPT-6 Astra in Work and Codex」に明記された2026年9月3日・4日の保存型リセット配布、9月7日の一斉リセット。
-一次資料: https://help.openai.com/en/articles/20001516-managing-usage-with-gpt-6-astra-in-work-and-codex
+## データと確認
 
-## 自動更新と限界
+- `data/events.json`：掲載履歴（OpenAI公式と関係者のX投稿）
+- `data/official-confirmations.json`：公式本文による確認記録
+- `data/health.json`：一次情報への取得状況
+- `data/forecast-history.json`：独自予測の履歴
+- `scripts/site.py`：サイトのHTML・CSV・RSS生成
+- `scripts/primary.py`：OpenAI公式とX公開投稿の直接確認
+- `scripts/forecast.py`：時刻が分かるリセット報告からの条件付き予測
 
-GitHub Pagesで公開、GitHub Actionsが2時間おきに公式ヘルプとXの公開プロフィールへ直接アクセスを試す。Xはアクセス制限により新着投稿を自動取得できない場合がある。見つからなかったことはリセットがなかったことの証明ではない。収集失敗は data/health.json に記録し、他サイトから補わない。
+最新の掲載は2026年10月20日にTibo氏がXへ投稿した利用枠リセット報告。原投稿：https://x.com/thsottiaux/status/2112432076767289678
 
-無料のGitHub FreeとPython標準ライブラリのみ利用する。X有料API・AI有料API・外部DB・独自ドメインは使わない。
+GitHub Freeの公開リポジトリとGitHub Pagesを利用し、GitHub Actionsで2時間おきに更新を試みる。X公開ページがアクセスを拒否することがあり、取得できない場合は `data/health.json` に失敗状況を明示する。新着を取得できなかったことは、新しいリセットがなかったことを意味しない。
 
-独自予測は、十分な数の「時刻付き一次資料」が揃い、かつ収集の鮮度を確認できた場合のみ実行する。Xの新着取得が停止している間は予測を表示しない。2026年9月の日付のみの情報は時刻間隔の計算に使わない。第三者由来の過去の予測記録は初期化した。予測はOpenAI公式の予定ではなく、的中を保証しない。
+予測は当サイトの計算による試算であり、OpenAIの予定発表でも的中保証でもない。取得に失敗してデータの鮮度を確認できない場合は予測を表示しない。
 
 ```sh
 python3 -m unittest discover -s tests -v
 python3 scripts/site.py refresh
 python3 scripts/site.py build
 ```
-
-以前の第三者データ取り込み用 --input オプションは使用禁止。Gitの過去コミットには履歴が残るため、現在の公開データから削除することと過去Git履歴そのものの消去は別である。

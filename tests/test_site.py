@@ -14,7 +14,7 @@ PSPEC.loader.exec_module(primary)
 
 class FirstPartyTests(unittest.TestCase):
     def test_only_approved_urls(self):
-        self.assertIsNone(site.safe_url("https://codex-reset.com/api/timeline"))
+        self.assertIsNone(site.safe_url("https://unapproved.example/api/timeline"))
         self.assertIsNone(site.safe_url("https://x.com.evil.test/post"))
         self.assertIsNone(site.safe_url("https://secret@x.com/thsottiaux/status/111111111111"))
         self.assertEqual(site.safe_url("https://x.com/thsottiaux/status/123?s=20"), "https://x.com/thsottiaux/status/123")

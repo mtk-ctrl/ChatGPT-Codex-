@@ -1,5 +1,47 @@
 [
   {
+    "id": "2112432076767289678:global",
+    "post_id": "2112432076767289678",
+    "kind": "global",
+    "state": "reported",
+    "reference_at": "2026-10-20T06:33:48.848Z",
+    "date_precision": "minute",
+    "time_basis": "X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）",
+    "time_officially_verified": false,
+    "evidence": "staff_x",
+    "verification_method": "X原投稿の検索結果表示（本文抜粋）。原投稿ページの全文取得は不可",
+    "verified_at": "2026-10-20",
+    "products": [
+      "codex",
+      "chatgpt_work"
+    ],
+    "note": "28日間の企画15日目として、利用枠リセットを実施したと報告。対象者ごとの反映時刻は記載なし。",
+    "original_url": "https://x.com/thsottiaux/status/2112432076767289678",
+    "official_confirmation": null,
+    "reason_tags": []
+  },
+  {
+    "id": "2111566005684289735:global",
+    "post_id": "2111566005684289735",
+    "kind": "global",
+    "state": "reported",
+    "reference_at": "2026-10-17T21:12:21.411Z",
+    "date_precision": "minute",
+    "time_basis": "X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）",
+    "time_officially_verified": false,
+    "evidence": "staff_x",
+    "verification_method": "X原投稿の検索結果表示（本文抜粋）。原投稿ページの全文取得は不可",
+    "verified_at": "2026-10-20",
+    "products": [
+      "codex",
+      "chatgpt_work"
+    ],
+    "note": "同日のリセット予告に続き、反映完了を短く報告。実際の反映時刻は不明。",
+    "original_url": "https://x.com/thsottiaux/status/2111566005684289735",
+    "official_confirmation": null,
+    "reason_tags": []
+  },
+  {
     "id": "2111492738025959922:global",
     "post_id": "2111492738025959922",
     "kind": "global",
@@ -21,6 +63,27 @@
     "reason_tags": []
   },
   {
+    "id": "2110618732666257557:global",
+    "post_id": "2110618732666257557",
+    "kind": "global",
+    "state": "reported",
+    "reference_at": "2026-10-15T06:28:13.924Z",
+    "date_precision": "minute",
+    "time_basis": "X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）",
+    "time_officially_verified": false,
+    "evidence": "staff_x",
+    "verification_method": "X原投稿の検索結果表示（本文抜粋）。原投稿ページの全文取得は不可",
+    "verified_at": "2026-10-20",
+    "products": [
+      "codex",
+      "chatgpt_work"
+    ],
+    "note": "2時間以内の反映予告に続き、リセット完了を報告。",
+    "original_url": "https://x.com/thsottiaux/status/2110618732666257557",
+    "official_confirmation": null,
+    "reason_tags": []
+  },
+  {
     "id": "2110595554036400151:global",
     "post_id": "2110595554036400151",
     "kind": "global",
@@ -38,6 +101,27 @@
     ],
     "note": "リセットが今後2時間以内に反映されるとの予告。",
     "original_url": "https://x.com/thsottiaux/status/2110595554036400151",
+    "official_confirmation": null,
+    "reason_tags": []
+  },
+  {
+    "id": "2109873287853707513:global",
+    "post_id": "2109873287853707513",
+    "kind": "global",
+    "state": "reported",
+    "reference_at": "2026-10-13T05:06:06.031Z",
+    "date_precision": "minute",
+    "time_basis": "X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）",
+    "time_officially_verified": false,
+    "evidence": "staff_x",
+    "verification_method": "X原投稿の検索結果表示（本文抜粋）。原投稿ページの全文取得は不可",
+    "verified_at": "2026-10-20",
+    "products": [
+      "codex",
+      "chatgpt_work"
+    ],
+    "note": "同日の一斉リセット予告に続き、リセットが完了したと報告。",
+    "original_url": "https://x.com/thsottiaux/status/2109873287853707513",
     "official_confirmation": null,
     "reason_tags": []
   },

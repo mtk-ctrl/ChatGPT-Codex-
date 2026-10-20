@@ -147,7 +147,7 @@ def shell(title, description, active, content, updated):
 <script type="application/ld+json">{website}</script><script defer src="assets/app.js"></script></head>
 <body><a class="skip" href="#main">本文へ移動</a><header class="site-header container"><div class="masthead"><div><div class="brand-line"><{brand_tag} class="brand"><a href="./">ChatGPT リセット履歴</a></{brand_tag}><span class="unofficial">非公式</span></div><p class="site-subtitle">Codex・Workのリセットカレンダーと独自予測</p></div><p class="site-description">ChatGPT Work・Codexの利用枠に関する臨時リセットをカレンダーで確認できます。公式の日付はそのまま表示し、時刻付き記録は日本時間に換算します。一次資料の蓄積から独自予測も試みます。</p></div><nav class="main-nav" aria-label="メインナビゲーション">{nav}</nav></header>
 <main id="main" class="container">{content}</main>
-<footer class="container site-footer"><p class="footer-title">ChatGPT リセット履歴</p><p>OpenAIとは関係のない非公式サイトです。</p><p>出典はOpenAI公式サイトとOpenAI関係者本人のX原投稿のみです。第三者サイトからの収集は行いません。</p><p class="footer-links"><a href="about.html">出典について</a><a href="https://github.com/{REPO}/issues">訂正の連絡</a><a href="data.csv">履歴データ（CSV）</a><a href="feed.xml">RSS</a></p><p class="muted">ページ更新：{e(jst(updated))}（日本時間）</p></footer></body></html>'''
+<footer class="container site-footer"><p class="footer-title">ChatGPT リセット履歴</p><p>OpenAIとは関係のない非公式サイトです。</p><p>出典：OpenAI公式発表・OpenAI関係者本人のX原投稿。</p><p class="footer-links"><a href="about.html">出典について</a><a href="https://github.com/{REPO}/issues">訂正の連絡</a><a href="data.csv">履歴データ（CSV）</a><a href="feed.xml">RSS</a></p><p class="muted">ページ更新：{e(jst(updated))}（日本時間）</p></footer></body></html>'''
 
 
 def record_title(record):
@@ -289,7 +289,7 @@ def homepage(records, health, updated, forecast, forecast_history):
 <section class="related-guide"><h2>通常の利用枠更新との違い</h2><p>通常の5時間枠・週間枠の更新時刻は、アカウントごとに異なります。この履歴から個人の残り枠や回復時刻を確認することはできません。</p><a href="guide.html">リセットの種類</a></section>'''
 
 
-FORECAST_METHOD = f'''<article class="article"><h1 class="section-title">予測の計算方法</h1><p class="article-lead">過去のリセット間隔から計算する、当サイト独自の試みです。他サイトの予測値は使っていません。</p>
+FORECAST_METHOD = f'''<article class="article"><h1 class="section-title">予測の計算方法</h1><p class="article-lead">過去のリセット間隔に基づく、当サイト独自の試算です。</p>
 <h2>何を予測するのか</h2><p>一斉リセットの完了報告・確認報告が、計算時点から24時間・48時間以内に記録される可能性を試算します。判定には出典の参考時刻を使うため、履歴を取得した時刻や実際に利用枠が回復した時刻を予測するものではありません。</p><p>OpenAIの運用方針や内部情報を知るものではありません。リセット券の配布と実施予告は、計算から除外します。</p>
 <h2>計算の手順</h2><ol class="method-steps"><li>保存済みの一斉リセットの完了報告・確認報告を、参考時刻の順に並べます。同じ記録ID・同じ時刻の重複と未来の時刻を除外します。</li><li>連続する報告の間隔を求め、その始まりが計算時点から90日以内のものを使います。</li><li>前回の報告から現在までの経過時間を求めます。過去の間隔のうち、この経過時間より長いものだけを選びます。</li><li>選んだ間隔のうち、現在と同じ経過時点から24時間・48時間以内に次の報告があった件数を数えます。</li><li>少数の記録で0%や100%になりにくいよう、次の式で補正します。表示は5ポイント単位に丸めます。</li></ol>
 <p class="formula">予測値 ＝（該当件数 ＋ 1）÷（選んだ間隔の件数 ＋ 2）</p><p>これはラプラス補正を加えた条件付きの集計です。例えば、選んだ10件のうち3件が24時間以内なら、（3＋1）÷（10＋2）で約33%、表示は35%になります。</p>
@@ -297,7 +297,7 @@ FORECAST_METHOD = f'''<article class="article"><h1 class="section-title">予測�
 <h2>数値を表示しない場合</h2><p>過去の間隔が6件未満、または経過時間による絞り込み後が5件未満の場合は、集計不足として表示しません。履歴の取得に失敗している場合や、最終成功から24時間以上経過した場合も予測を休止します。閲覧中の予測も、計算から24時間を超えた場合は数値を隠します。</p>
 <h2>この方法の限界</h2><p>リセットの間隔が一定だという根拠はありません。障害、モデルの公開、キャンペーン、OpenAIの方針変更などで頻度は変わります。「しばらく来ていないから、そろそろ来る」とは限りません。</p><p>集計にはOpenAIの一次資料から直接確認した記録のみを使い、日付しかない記録は時間間隔の予測から除きます。Xの取得制限による記録漏れも予測に影響します。まだ終了していない現在の間隔は過去の標本に含めておらず、長い間隔が集計に入りにくい偏りもあります。90日という期間や最低件数は、実装上の設定であり、精度が実証された値ではありません。</p><p>「95%参考区間」は、集計した比率に対するウィルソン区間です。少数の記録による幅を示すために掲載しており、次回のリセットが95%の確率でその範囲に収まるという意味ではありません。</p>
 <h2>予測を保存して結果を確認する</h2><p>日本時間の各日で最初に公開用の処理が成功した予測を保存します。保存済みの予測値と計算時点は変更せず、24・48時間が経過し、その期限以降に履歴の取得が成功してから結果を判定します。期間内に完了報告の参考時刻があれば「記録あり」、なければ「記録なし」です。取得の遅延や後日の訂正で結果が変わる場合があります。</p><p>判定済みの結果がない間は「検証前」と表示します。結果がある場合は、24時間予測の平均二乗誤差（Brierスコア、0〜1）を掲載します。0に近いほど誤差が小さい指標で、正解率ではありません。毎日の予測は互いに独立した試行ではないため、単純な件数だけで精度を判断することもできません。</p><p>導入前の予測や的中実績は作成していません。<a href="https://github.com/{REPO}/blob/main/data/forecast-history.json">保存された予測記録</a>と<a href="forecast.json">現在の計算結果（JSON）</a>を公開します。計算式を変更する場合は、記録に残すモデルIDも変更します。</p>
-<h2>出典と費用</h2><p>入力する履歴はOpenAI公式記事とOpenAI関係者本人のX原投稿のみです。原投稿の検索エンジン登録内容を照合した場合は全文未確認と記録し、第三者による記事や転載を出典にしません。他サイトの履歴や予測値は使いません。Xが自動取得を拒否した場合は新着を取得したとは扱わず、確認できる履歴が不足すれば予測を休止します。</p>
+<h2>出典と費用</h2><p>入力する履歴はOpenAI公式記事とOpenAI関係者本人のX原投稿のみです。X原投稿の検索表示で確認した記録には「全文未確認」と表示します。X投稿の取得状況を確認できない場合や、必要な実施報告が不足する場合は予測を休止します。</p>
 
 <h2>予測の利用について</h2><p class="method-disclaimer">{DISCLAIMER}</p><p class="article-back"><a href="./">カレンダーに戻る</a></p></article>'''
 
@@ -313,10 +313,10 @@ GUIDE = '''<article class="article"><h1 class="section-title">リセットの種
 
 ABOUT = f'''<article class="article"><h1 class="section-title">出典について</h1><p class="article-lead">OpenAIの一次資料だけを使う非公式サイトです。</p>
 <h2>このサイトについて</h2><p>ChatGPT Work・Codexの臨時リセットを記録しています。OpenAIとは関係ありません。運営：<a href="https://github.com/mtk-ctrl">mtk-ctrl</a>。</p>
-<h2>情報源</h2><p><a href="{OFFICIAL_URL}">OpenAI公式ヘルプ</a>などOpenAIが発信した公式サイトと、OpenAI関係者本人のX原投稿のみを掲載します。第三者の履歴API、一般ユーザーの転載・引用、ニュース記事は収集元にしません。元投稿へのリンクだけでは確認済みとは扱いません。</p>
+<h2>情報源</h2><p><a href="{OFFICIAL_URL}">OpenAI公式ヘルプ</a>などのOpenAI公式サイトと、OpenAI関係者本人のX原投稿のみを掲載します。X原投稿は内容を確認できた範囲を区別し、元投稿URLだけでは掲載しません。</p>
 <h2>確認状況</h2><dl class="policy-list"><dt>OpenAI公式記事</dt><dd>OpenAI公式本文から直接確認した事実です。</dd><dt>OpenAI関係者のX原投稿</dt><dd>掲載URLは本人のX原投稿です。投稿ページを直接取得できない場合、検索エンジンに登録されたそのX原投稿の本文抜粋を照合しています。全文を確認したという意味ではなく、原投稿が更新・削除された場合の検出は保証できません。実施予告と完了報告を区別します。</dd></dl>
 <h2 id="dates">日時の表記</h2><p>公式発表に日付しかない場合、その記載日付をそのまま表示し、時刻は未公表とします。米国日付を根拠なく日本時間へ変換しません。X投稿時刻はリセット実施時刻ではありません。</p>
-<h2>更新の方法と限界</h2><p>GitHub Actionsから2時間おきにOpenAI公式ヘルプとX公開プロフィールの直接確認を試みます。X側の閲覧制限や仕様変更により取得できない場合は状態を表示し、第三者サイトから補いません。全件網羅を保証しません。</p>
+<h2>更新の方法と限界</h2><p>GitHub Actionsから2時間おきにOpenAI公式ヘルプとX公開プロフィールの直接確認を試みます。Xの閲覧制限や仕様変更によって取得できない場合は確認状況を表示します。全件網羅を保証しません。</p>
 <h2>独自予測</h2><p>日時を確認した一次資料のみで計算します。十分なデータがない場合は予測を表示しません。OpenAI公式の予告ではありません。<a href="forecast.html">計算方法</a>をご覧ください。</p>
 <h2>連絡先</h2><p><a href="https://github.com/{REPO}/issues">GitHub Issues</a>で訂正をご連絡ください。</p>
 <h2>プライバシー</h2><p>独自のアクセス解析・広告・Cookie・会員登録を設けていません。</p><p class="article-back"><a href="./">履歴一覧へ</a></p></article>'''

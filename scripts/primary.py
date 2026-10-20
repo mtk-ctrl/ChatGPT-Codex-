@@ -1,7 +1,7 @@
 """Collect from first-party OpenAI pages and original X posts only.
 
 Public X timelines may refuse automated requests. This is reported as unavailable
-rather than silently substituting third-party data.
+rather than assuming that missing updates did not happen.
 """
 import html
 import json
@@ -70,7 +70,7 @@ def trusted(record):
 
 def collect_primary(data, fetch, read_json, write_json, utcnow, github_output=None, input_file=None):
     if input_file:
-        raise ValueError("Importing third-party feeds is disabled.")
+        raise ValueError("Feed imports are not supported; only directly checked sources.")
     checked = utcnow()
     old = read_json(data / "events.json", []) or []
     records = {r["id"]: r for r in old if trusted(r)}
