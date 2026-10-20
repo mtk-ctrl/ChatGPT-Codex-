@@ -1,10 +1,10 @@
 {
-  "checked_at": "2026-10-20T04:15:01Z",
-  "last_success_at": "2026-10-20T04:15:01Z",
-  "feed": "ok",
-  "official_page": "unavailable",
-  "message": "公開された履歴データを確認しました。",
-  "imported_records": 63,
-  "rejected_records": 0,
-  "upstream_updated_at": "2026-10-20T04:13:48.607Z"
+  "checked_at": "2026-10-20T06:00:00Z",
+  "last_success_at": null,
+  "feed": "bootstrap",
+  "official_page": "not_checked",
+  "x_status": "not_checked",
+  "message": "OpenAIの一次資料を使う初期データです。定期更新の成功はまだ確認していません。",
+  "record_count": 3,
+  "source_policy": "OpenAI official and original staff X"
 }
