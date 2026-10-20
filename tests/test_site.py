@@ -107,6 +107,20 @@ class FirstPartyTests(unittest.TestCase):
         self.assertIn("リセット</span>", overview)
 
 
+    def test_calendar_does_not_mark_completed_reset_as_still_pending(self):
+        import re
+        rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
+        forecast = {"status": "stale", "generated_at": "2026-10-20T12:00:00Z", "horizons": {}}
+        html = site.calendar_overview(rows, forecast)
+        # On 18 October JST, both a reset announcement and completion were posted.
+        day = re.search(r'data-calendar-day="2026-10-18".*?</button>', html)
+        self.assertIsNotNone(day)
+        self.assertIn("リセット</span>", day.group(0))
+        self.assertNotIn(">予告</span>", day.group(0))
+        self.assertIn("投稿時刻は日本時間", html)
+        self.assertIn("臨時リセット", html)
+        self.assertNotIn('>一斉</span>', html)
+
     def test_x_requires_original_text(self):
         markup = '<meta property="og:description" content="We have now reset usage limits for Codex.">'
         post = primary.x_record("thsottiaux", "2111492738025959922", markup)

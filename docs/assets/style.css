@@ -213,3 +213,13 @@ tr[data-record]:target{background:#eef5fc}
 /* Let the calendar use the available space when no verified forecast is published. */
 .calendar-layout--full{grid-template-columns:minmax(0,1fr);max-width:980px}
 .forecast-panel[hidden]{display:none!important}
+
+/* Reader-facing hierarchy and legibility on smaller screens. */
+.archive-explainer{font-size:12px;line-height:1.85;color:var(--muted);margin:12px 0 4px}
+@media(max-width:700px){
+  .main-nav a{font-size:clamp(10.5px,3vw,12px);padding:11px 2px 10px}
+  .calendar-legend{font-size:11px;gap:8px 12px}
+  .day-mark{font-size:9px;padding:0 1px}
+  .evidence-tabs button{font-size:12px}
+  .archive-explainer{font-size:12px;line-height:1.9}
+}
