@@ -168,6 +168,27 @@
     "reason_tags": []
   },
   {
+    "id": "2098685367058612394:global",
+    "post_id": "2098685367058612394",
+    "kind": "global",
+    "state": "reported",
+    "reference_at": "2026-09-12T08:09:17.852Z",
+    "date_precision": "minute",
+    "time_basis": "X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）",
+    "time_officially_verified": false,
+    "evidence": "staff_x",
+    "verification_method": "X原投稿の検索結果表示（本文抜粋）。原投稿ページの全文取得は不可",
+    "verified_at": "2026-10-20",
+    "products": [
+      "codex",
+      "chatgpt_work"
+    ],
+    "note": "Astraの品質に関する説明とともに、利用枠リセットが全体に反映されたと報告。",
+    "original_url": "https://x.com/thsottiaux/status/2098685367058612394",
+    "official_confirmation": null,
+    "reason_tags": []
+  },
+  {
     "id": "openai-2026-09-07-global",
     "post_id": null,
     "kind": "global",
@@ -1001,6 +1022,27 @@
     ],
     "note": "Codexの復旧後、リセットボタンを押したと報告。アカウントへの反映はこの後と説明。",
     "original_url": "https://x.com/thsottiaux/status/2031605592352313567",
+    "official_confirmation": null,
+    "reason_tags": []
+  },
+  {
+    "id": "2031216405266481489:global",
+    "post_id": "2031216405266481489",
+    "kind": "global",
+    "state": "announced",
+    "reference_at": "2026-03-10T03:51:43.848Z",
+    "date_precision": "minute",
+    "time_basis": "X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）",
+    "time_officially_verified": false,
+    "evidence": "staff_x",
+    "verification_method": "X原投稿の検索結果表示（本文抜粋）。原投稿ページの全文取得は不可",
+    "verified_at": "2026-10-20",
+    "products": [
+      "codex",
+      "chatgpt_work"
+    ],
+    "note": "Codexの不具合が解消したため、利用枠をまもなくリセットすると予告。",
+    "original_url": "https://x.com/thsottiaux/status/2031216405266481489",
     "official_confirmation": null,
     "reason_tags": []
   },
