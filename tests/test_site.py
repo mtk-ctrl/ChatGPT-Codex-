@@ -40,6 +40,14 @@ class FirstPartyTests(unittest.TestCase):
         self.assertNotIn("OpenAI関係者のX原投稿", site.ABOUT)
         self.assertIn("Codex責任者Tibo氏", site.shell("確認", "説明", "about", "本文", "2026-10-20T12:00:00Z"))
         self.assertIn("情報の確かめ方", site.ABOUT)
+        self.assertIn("掲載件数はリセットが行われた回数ではありません", site.ABOUT)
+        self.assertIn("通常の利用枠", site.GUIDE)
+        self.assertNotIn("一斉リセット", site.KINDS["global"])
+        self.assertIn("臨時リセット", site.KINDS["global"])
+        self.assertNotIn("対象サービス：", site.record_row(indexed[0]))
+        self.assertNotIn("ページ更新：", site.shell("test", "desc", "index", "", "2026-10-20T12:00:00Z"))
+        self.assertIn("予告を含む発表記録", site.homepage(rows, "2026-10-20T12:00:00Z", {"status":"stale","generated_at":"2026-10-20T12:00:00Z","horizons":{}}, []))
+
         self.assertNotIn("原投稿の検索表示で確認", site.record_row(indexed[0]))
 
     def test_unavailable_forecast_is_not_shown_to_visitors(self):
@@ -84,12 +92,20 @@ class FirstPartyTests(unittest.TestCase):
         self.assertEqual(site.KINDS["banked"], "リセットチケットの配布")
         self.assertEqual(site.record_title({"kind": "banked", "state": "announced"}), "リセットチケットの配布予告")
         self.assertEqual(site.record_title({"kind": "banked", "state": "reported"}), "リセットチケットを配布")
+        self.assertEqual(site.record_title({"kind": "global", "state": "announced"}), "利用枠リセットを予告")
+        self.assertEqual(site.record_title({"kind": "global", "state": "reported"}), "利用枠をリセット")
+
         self.assertIn("チケット", site.GUIDE)
         self.assertIn("有効期限", site.GUIDE)
         self.assertIn("チケット", site.calendar_overview(rows, {"status": "stale", "generated_at": "2026-10-20T12:00:00Z", "horizons": {}}))
         self.assertNotIn("保存型", site.GUIDE)
         self.assertNotIn("保存型", site.KINDS["banked"])
         self.assertTrue(all("保存型" not in (r.get("note") or "") for r in rows))
+        forecast = {"status": "stale", "generated_at": "2026-10-20T12:00:00Z", "horizons": {}}
+        overview = site.calendar_overview(rows, forecast)
+        self.assertIn("リセットカレンダー", overview)
+        self.assertIn("リセット</span>", overview)
+
 
     def test_x_requires_original_text(self):
         markup = '<meta property="og:description" content="We have now reset usage limits for Codex.">'

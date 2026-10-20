@@ -22,14 +22,14 @@
     const details = day => {
       selected = day;
       const [year, number, date] = day.split("-").map(Number);
-      document.getElementById("selected-date").textContent = `${year}年${number}月${date}日の履歴`;
+      document.getElementById("selected-date").textContent = `${year}年${number}月${date}日の発表`;
       const target = document.getElementById("selected-records");
       target.replaceChildren();
       if (day === data.predicted) {
         target.append(element("p", "この日は独自予測の参考日です。公式の実施予定ではありません。", "predicted-day-note"));
       }
       const rows = records.get(day) || [];
-      if (!rows.length) target.append(element("p", "この日の履歴はありません。", "empty-day"));
+      if (!rows.length) target.append(element("p", "この日の発表はありません。", "empty-day"));
       rows.forEach(row => {
         const article = element("article", undefined, "day-record");
         const time = element("p", `${row.time} `, "day-record-time");
@@ -74,12 +74,16 @@
         button.type = "button";
         button.dataset.calendarDay = key;
         button.setAttribute("aria-pressed", String(key === selected));
-        button.setAttribute("aria-label", `${year}年${number}月${date}日、履歴${rows.length}件` + (key === data.predicted ? "、独自予測の参考日" : ""));
+        button.setAttribute("aria-label", `${year}年${number}月${date}日、発表記録${rows.length}件` + (key === data.predicted ? "、独自予測の参考日" : ""));
         button.append(element("span", date, "day-number"));
         const marks = element("span", undefined, "day-marks");
-        if (rows.some(row => row.kind === "global" && row.state !== "announced")) marks.append(element("span", "一斉", "day-mark reset-mark"));
-        if (rows.some(row => row.kind === "banked" && row.state !== "announced")) marks.append(element("span", "チケット", "day-mark banked-mark"));
-        if (rows.some(row => row.state === "announced")) marks.append(element("span", "予告", "day-mark announced-mark"));
+        const resetDone = rows.some(row => row.kind === "global" && row.state !== "announced");
+        const ticketDone = rows.some(row => row.kind === "banked" && row.state !== "announced");
+        const resetPending = !resetDone && rows.some(row => row.kind === "global" && row.state === "announced");
+        const ticketPending = !ticketDone && rows.some(row => row.kind === "banked" && row.state === "announced");
+        if (resetDone) marks.append(element("span", "リセット", "day-mark reset-mark"));
+        if (ticketDone) marks.append(element("span", "チケット", "day-mark banked-mark"));
+        if (resetPending || ticketPending) marks.append(element("span", "予告", "day-mark announced-mark"));
         if (key === data.predicted) marks.append(element("span", "独自予測", "day-mark predicted-mark"));
         button.append(marks);
         button.addEventListener("click", () => details(key));
@@ -149,7 +153,7 @@
         if (link.dataset.monthLink === month.value) link.setAttribute("aria-current", "true");
         else link.removeAttribute("aria-current");
       });
-      document.getElementById("result-count").textContent = `${count}件を表示`;
+      document.getElementById("result-count").textContent = `${count}件の記録を表示`;
       document.getElementById("no-results").hidden = count !== 0;
     };
     evidenceButtons.forEach(button => button.addEventListener("click", () => { evidence.value = button.dataset.evidenceOption; filter(); }));
