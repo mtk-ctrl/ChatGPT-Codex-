@@ -1,6 +1,6 @@
 {
   "model": "interval-90d-laplace-v1",
-  "generated_at": "2026-10-20T23:10:54Z",
+  "generated_at": "2026-10-21T04:45:26Z",
   "window_days": 90,
   "status": "stale",
   "sample_size": 16,
@@ -8,7 +8,7 @@
   "all_completed": 36,
   "horizons": {},
   "last_reset_at": "2026-10-20T06:33:48Z",
-  "elapsed_hours": 16.62,
+  "elapsed_hours": 22.19,
   "median_hours": 76.69,
   "min_hours": 24.99,
   "max_hours": 346.14,
