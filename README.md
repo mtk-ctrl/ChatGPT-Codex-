@@ -49,3 +49,9 @@ python3 scripts/site.py build
 ## 2026年10月25日（日）の予想
 
 2026年10月23日07:03（日本時間）、ユーザーは次回を**10月25日（日）**と予想。13・15・18・20・22日という直近の発表間隔（2・3・2・2日）から、22日から3日後を選んだ。日本時間の日曜にもX実施報告があり、週末という理由のみでは除外しない。独自予想でありOpenAIの確定日ではない。表示期限は10月26日00:00 JST。旧23日の予想は `data/editorial-forecast-history.json` に保存。
+
+## 予想の公開日時の保存
+
+- 2026年10月23日（金）予想：**2026年10月20日23:17（JST）** にサイト公開。根拠：GitHub PagesのPublish完了時刻 https://github.com/mtk-ctrl/ChatGPT-Codex-/actions/runs/39437667124 。履歴は `data/editorial-forecast-history.json`。
+- 2026年10月25日（日）予想：**2026年10月23日07:07（JST）** にサイト公開。根拠：GitHub PagesのPublish完了時刻 https://github.com/mtk-ctrl/ChatGPT-Codex-/actions/runs/39862593473 。現行設定は `data/editorial-forecast.json`。
+- `created_at`（会話・編集で案を決めた日時）と `published_at`（GitHub Pagesで公開が完了した日時）は別。予想を公開したら、成功したPublishステップの完了時刻とrun IDを確認して `published_at` / `publication_run_id` に固定保存する。次回予想への更新時は旧データをアーカイブに加え、元の公開日時を書き換えない。

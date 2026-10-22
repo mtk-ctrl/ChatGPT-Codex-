@@ -222,6 +222,41 @@ def active_editorial_forecast(records, now, proposal):
     return proposal
 
 
+
+def publication_timestamp_markup(record):
+    """A website deployment completion time, not the time an opinion was discussed."""
+    value = record.get("published_at")
+    if not value:
+        return ""
+    # The URL is constructed only from the fixed owner/repository and a numeric run ID.
+    run_id = record.get("publication_run_id")
+    proof = (
+        f'<a href="https://github.com/{REPO}/actions/runs/{run_id}" target="_blank" rel="noopener noreferrer">公開記録を見る ↗</a>'
+        if isinstance(run_id, int) and not isinstance(run_id, bool) and 0 < run_id < 10**18 else ""
+    )
+    return f'<span class="prediction-publication"><time datetime="{e(value)}">{e(jst(value))}</time>（日本時間） {proof}</span>'
+
+
+def previous_editorial_predictions(history):
+    """Display an immutable public audit trail of old editorial dates."""
+    if not history:
+        return ""
+    items = []
+    for record in sorted(history, key=lambda r: r.get("published_at", ""), reverse=True):
+        if not record.get("published_at") or not record.get("date"):
+            continue
+        date = datetime.strptime(record["date"], "%Y-%m-%d")
+        weekday = "月火水木金土日"[date.weekday()]
+        rationale = f'<p class="previous-prediction-reason">{e(record["rationale"])}</p>' if record.get("rationale") else ""
+        items.append(f'''<li><strong>予想日：{date.year}年{date.month}月{date.day}日（{weekday}）</strong>
+<p>サイトで予想を公開：{publication_timestamp_markup(record)}</p>{rationale}</li>''')
+    if not items:
+        return ""
+    return f'''<section class="previous-predictions" aria-labelledby="previous-predictions-title"><h2 id="previous-predictions-title">過去のリセット予想</h2>
+<p class="previous-predictions-intro">後から予想日を書き換えたものではありません。公開日時はGitHub Pagesの公開完了記録で確認できます。</p>
+<ol>{"".join(items)}</ol></section>'''
+
+
 def calendar_overview(records, forecast, editorial=None):
     today = parse_time(forecast['generated_at']).astimezone(JST).date()
     entries = []
@@ -291,7 +326,7 @@ def calendar_overview(records, forecast, editorial=None):
 <p class="editorial-reason">{e(editorial["rationale"])}</p>
 <p class="editorial-basis">根拠となる発表：{e(basis)}（<a href="#history">過去の履歴を見る</a>）</p>
 <p class="editorial-caution">{e(editorial["caution"])}</p>
-<p class="editorial-written">予想の掲載日：{e(jst(editorial["created_at"]).split(" ")[0])}</p></aside>'''
+<p class="editorial-written">サイトで予想を公開：{publication_timestamp_markup(editorial)}</p></aside>'''
     elif forecast["status"] == "ok":
         forecast_panel = f'''<aside class="forecast-panel" aria-labelledby="forecast-title"><div class="forecast-heading"><h2 id="forecast-title">次のリセット予測</h2><span>当サイト独自の試算</span></div><div id="forecast-current" data-generated-at="{forecast['generated_at']}">{prediction}</div><p class="forecast-updated">予測の計算日時：{e(jst(forecast["generated_at"]))}（日本時間）</p><a class="method-link" href="forecast.html">計算方法と検証について →</a><p class="forecast-disclaimer">{DISCLAIMER}</p></aside>'''
     else:
@@ -320,7 +355,7 @@ def forecast_results(history):
     return f'<section class="forecast-results" aria-labelledby="forecast-results-title"><div class="section-heading"><h2 id="forecast-results-title">予測と結果</h2><p>{status}</p></div><p class="results-description">予測を公開したあと、24時間・48時間以内に次のリセット報告があったかを確認します。公開済みの予測値はあとから変更しません。</p>{body}<p class="results-note">直近7日分を掲載。判定待ち・取得遅延を含みます。履歴の追加・訂正により結果が変わる場合があります。<a href="https://github.com/{REPO}/blob/main/data/forecast-history.json">すべての予測記録</a></p></section>'
 
 
-def homepage(records, updated, forecast, forecast_history, editorial=None):
+def homepage(records, updated, forecast, forecast_history, editorial=None, editorial_history=None):
     months = sorted({record_day(r)[:7] for r in records}, reverse=True)
     options = "".join(f'<option value="{m}">{m[:4]}年{int(m[5:])}月</option>' for m in months)
     rows = []
@@ -334,6 +369,7 @@ def homepage(records, updated, forecast, forecast_history, editorial=None):
     evidence_tabs = "".join(f'<button type="button" data-evidence-option="{key}" aria-pressed="{str(key == "all").lower()}">{label}</button>' for key, label in [("all", "すべて"), ("official", "公式サイト"), ("staff_x", "Xの投稿")])
     return f'''{calendar_overview(records, forecast, editorial)}
 <p class="time-note">Xの投稿時刻は日本時間で表示しています。リセットが実際に反映された時刻ではありません。公式記事の日付は原文どおり掲載します。<a href="about.html#dates">日時の見方</a></p>
+{previous_editorial_predictions(editorial_history)}
 {forecast_results(forecast_history)}
 <section id="history" class="history-section"><div class="section-heading"><h2 class="section-title">リセット情報の履歴</h2><p>{len(records)}件<span class="count-detail">（予告を含む発表記録）</span></p></div>
 <form id="filters" aria-label="履歴の絞り込み"><input type="hidden" id="evidence-filter" value="all"><div class="filter-primary"><div class="evidence-tabs" role="group" aria-label="確認状況で絞り込む">{evidence_tabs}</div><label class="search-label"><span class="sr-only">キーワード</span><input id="search-filter" type="search" placeholder="キーワードで検索" autocomplete="off"></label></div><div class="filter-secondary"><label for="kind-filter">種類</label><select id="kind-filter"><option value="all">すべて</option><option value="global">臨時リセット</option><option value="banked">リセットチケット</option></select><label for="month-filter">年月</label><select id="month-filter"><option value="all">すべての月</option>{options}</select><button class="reset-filter" type="reset">条件を解除</button></div></form>
@@ -385,11 +421,12 @@ def build():
              and timedelta(0) <= now - parse_time(health["last_success_at"]) <= timedelta(hours=24))
     forecast = predict(records, now, bool(fresh and health.get("x_status") == "checked"))
     editorial = active_editorial_forecast(records, now, read_json(DATA / "editorial-forecast.json", None))
+    editorial_history = read_json(DATA / "editorial-forecast-history.json", [])
     history = update_history(read_json(DATA / "forecast-history.json", []), forecast, records, now, health.get("last_success_at"))
     write_json(DATA / "forecast-history.json", history)
     OUT.mkdir(parents=True, exist_ok=True)
     pages = {
-        "index": ("Codex・ChatGPT Workのリセット履歴｜非公式", "Codex・ChatGPT Workの臨時リセットとリセットチケットの情報を掲載。OpenAI公式発表やCodex責任者の投稿をカレンダーで確認できます。", homepage(records, updated, forecast, history, editorial)),
+        "index": ("Codex・ChatGPT Workのリセット履歴｜非公式", "Codex・ChatGPT Workの臨時リセットとリセットチケットの情報を掲載。OpenAI公式発表やCodex責任者の投稿をカレンダーで確認できます。", homepage(records, updated, forecast, history, editorial, editorial_history)),
         "guide": ("リセットの種類｜ChatGPT リセット履歴", "通常の利用枠の回復と、臨時リセット・リセットチケットの違いを説明します。", GUIDE),
         "forecast": ("予測の計算方法｜ChatGPT リセット履歴", "独自予測の計算式、集計対象、検証方法と注意事項を掲載しています。", FORECAST_METHOD),
         "about": ("このサイトについて｜ChatGPT リセット履歴", "サイトの情報源、日時の見方、更新方法をご案内します。", ABOUT),

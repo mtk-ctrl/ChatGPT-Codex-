@@ -130,6 +130,9 @@ class FirstPartyTests(unittest.TestCase):
         forecast = {"status": "stale", "generated_at": "2026-10-20T14:00:00Z", "horizons": {}}
         view = site.homepage(rows, "2026-10-20T14:00:00Z", forecast, [], editorial)
         self.assertIn("2026年10月25日（日）", view)
+        self.assertIn("サイトで予想を公開：", view)
+        self.assertIn("2026/10/23 07:07", view)
+        self.assertIn("39862593473", view)
         self.assertIn("2～3日おき", view)
         self.assertIn('data-calendar-day="2026-10-25"', view)
         self.assertIn("当サイトの予想・非公式", view)
@@ -145,6 +148,29 @@ class FirstPartyTests(unittest.TestCase):
         self.assertIsNone(site.active_editorial_forecast([*rows, newer], site.parse_time("2026-10-25T02:00:00Z"), config))
         prior_cycle_completion = {**baseline, "id": "day17-done:global", "reference_at": "2026-10-23T08:00:00Z", "state": "reported"}
         self.assertIsNotNone(site.active_editorial_forecast([*rows, prior_cycle_completion], site.parse_time("2026-10-23T09:00:00Z"), config))
+
+    def test_archived_october_23_prediction_shows_original_publication_time(self):
+        history = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))
+        archived = site.previous_editorial_predictions(history)
+        self.assertIn("過去のリセット予想", archived)
+        self.assertIn("2026年10月23日（金）", archived)
+        self.assertIn("2026/10/20 23:17", archived)
+        self.assertIn("39437667124", archived)
+        self.assertIn("2～3日間隔", archived)
+        self.assertNotIn("リセット実施が確定しました", archived)
+        self.assertEqual(site.previous_editorial_predictions([]), "")
+        self.assertEqual(site.publication_timestamp_markup({}), "")
+
+    def test_full_page_includes_prior_prediction_as_an_audit_trail(self):
+        rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
+        history = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))
+        cfg = json.loads((ROOT / "data/editorial-forecast.json").read_text(encoding="utf-8"))
+        editorial = site.active_editorial_forecast(rows, site.parse_time("2026-10-23T00:00:00Z"), cfg)
+        forecast = {"status":"stale", "generated_at":"2026-10-23T00:00:00Z", "horizons":{}}
+        page = site.homepage(rows, "2026-10-23T00:00:00Z", forecast, [], editorial, history)
+        self.assertIn("2026/10/20 23:17", page)
+        self.assertIn("2026/10/23 07:07", page)
+        self.assertIn("過去のリセット予想", page)
 
     def test_x_requires_original_text(self):
         markup = '<meta property="og:description" content="We have now reset usage limits for Codex.">'
