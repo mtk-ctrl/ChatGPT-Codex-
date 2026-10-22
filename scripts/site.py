@@ -207,10 +207,10 @@ def active_editorial_forecast(records, now, proposal):
     if not isinstance(proposal, dict) or not proposal.get("date") or not proposal.get("expires_at"):
         return None
     baseline = next((r for r in records if r.get("id") == proposal.get("last_report_id")
-                     and r.get("kind") == "global" and r.get("state") in {"reported", "observed"}), None)
+                     and r.get("kind") == "global" and r.get("state") in {"announced", "reported", "observed"}), None)
     if baseline is None or now >= parse_time(proposal["expires_at"]):
         return None
-    baseline_time = parse_time(baseline["reference_at"])
+    baseline_time = max(parse_time(baseline["reference_at"]), parse_time(proposal.get("ignore_reports_before", baseline["reference_at"])))
     for r in records:
         if r.get("id") == baseline["id"] or r.get("kind") != "global" or r.get("state") not in {"reported", "observed"}:
             continue
@@ -274,7 +274,7 @@ def calendar_overview(records, forecast, editorial=None):
     if forecast['status'] == 'ok':
         h24, h48 = forecast['horizons']['24'], forecast['horizons']['48']
         lower, upper = h24['observed_ratio_interval']
-        date = datetime.strptime(predicted, '%Y-%m-%d')
+        date = datetime.strptime(forecast["reference_date"], "%Y-%m-%d")
         prediction = f'''<div class="forecast-numbers"><div><span>24時間以内</span><strong>{h24['display_percent']}<small>%</small></strong></div><div><span>48時間以内</span><strong>{h48['display_percent']}<small>%</small></strong></div></div>
 <p class="forecast-caption">過去のリセット報告の間隔から計算</p>
 <p class="reference-date">参考日 <strong>{date.month}月{date.day}日ごろ</strong><span>実施予定日ではありません</span></p>
@@ -283,14 +283,15 @@ def calendar_overview(records, forecast, editorial=None):
         prediction = ""
     if editorial:
         target_day = datetime.strptime(editorial["date"], "%Y-%m-%d")
-        basis = "・".join(f"{int(d[-2:])}日" for d in editorial["supporting_report_dates"])
+        weekday = "月火水木金土日"[target_day.weekday()]
+        basis = "・".join(f"{int(d[-2:])}日" for d in editorial.get("supporting_event_dates", editorial.get("supporting_report_dates", [])))
         forecast_panel = f'''<aside class="forecast-panel forecast-editorial" aria-labelledby="forecast-title" data-editorial-expires-at="{e(editorial["expires_at"])}"><div class="forecast-heading"><h2 id="forecast-title">次のリセット予想</h2><span>当サイトの予想・非公式</span></div>
-<p class="editorial-date">{target_day.year}年{target_day.month}月{target_day.day}日（金）</p>
-<p class="editorial-reason-title">23日と予想する理由</p>
+<p class="editorial-date">{target_day.year}年{target_day.month}月{target_day.day}日（{weekday}）</p>
+<p class="editorial-reason-title">{target_day.month}月{target_day.day}日と予想する理由</p>
 <p class="editorial-reason">{e(editorial["rationale"])}</p>
 <p class="editorial-basis">根拠となる発表：{e(basis)}（<a href="#history">過去の履歴を見る</a>）</p>
 <p class="editorial-caution">{e(editorial["caution"])}</p>
-<p class="editorial-written">予想日を掲載した日：2026年10月20日</p></aside>'''
+<p class="editorial-written">予想の掲載日：{e(jst(editorial["created_at"]).split(" ")[0])}</p></aside>'''
     elif forecast["status"] == "ok":
         forecast_panel = f'''<aside class="forecast-panel" aria-labelledby="forecast-title"><div class="forecast-heading"><h2 id="forecast-title">次のリセット予測</h2><span>当サイト独自の試算</span></div><div id="forecast-current" data-generated-at="{forecast['generated_at']}">{prediction}</div><p class="forecast-updated">予測の計算日時：{e(jst(forecast["generated_at"]))}（日本時間）</p><a class="method-link" href="forecast.html">計算方法と検証について →</a><p class="forecast-disclaimer">{DISCLAIMER}</p></aside>'''
     else:

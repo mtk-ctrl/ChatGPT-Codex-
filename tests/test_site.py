@@ -121,28 +121,30 @@ class FirstPartyTests(unittest.TestCase):
         self.assertIn("臨時リセット", html)
         self.assertNotIn('>一斉</span>', html)
 
-    def test_october_23_editorial_prediction(self):
+    def test_october_25_editorial_prediction(self):
         rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
         config = json.loads((ROOT / "data/editorial-forecast.json").read_text(encoding="utf-8"))
-        now = site.parse_time("2026-10-20T14:00:00Z")
+        now = site.parse_time("2026-10-23T00:00:00Z")
         editorial = site.active_editorial_forecast(rows, now, config)
         self.assertIsNotNone(editorial)
         forecast = {"status": "stale", "generated_at": "2026-10-20T14:00:00Z", "horizons": {}}
         view = site.homepage(rows, "2026-10-20T14:00:00Z", forecast, [], editorial)
-        self.assertIn("2026年10月23日（金）", view)
-        self.assertIn("2～3日間隔", view)
-        self.assertIn('data-calendar-day="2026-10-23"', view)
+        self.assertIn("2026年10月25日（日）", view)
+        self.assertIn("2～3日おき", view)
+        self.assertIn('data-calendar-day="2026-10-25"', view)
         self.assertIn("当サイトの予想・非公式", view)
-        self.assertIn("OpenAIが発表した予定ではなく", view)
+        self.assertIn("OpenAIから発表されておらず", view)
         self.assertNotIn("24時間以内", view)
 
     def test_editorial_prediction_auto_expires(self):
         rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
         config = json.loads((ROOT / "data/editorial-forecast.json").read_text(encoding="utf-8"))
-        self.assertIsNone(site.active_editorial_forecast(rows, site.parse_time("2026-10-23T15:00:00Z"), config))
+        self.assertIsNone(site.active_editorial_forecast(rows, site.parse_time("2026-10-25T15:00:00Z"), config))
         baseline = next(r for r in rows if r["id"] == config["last_report_id"])
-        newer = {**baseline, "id": "new-reset:global", "reference_at": "2026-10-21T06:00:00Z"}
-        self.assertIsNone(site.active_editorial_forecast([*rows, newer], site.parse_time("2026-10-21T07:00:00Z"), config))
+        newer = {**baseline, "id": "new-reset:global", "reference_at": "2026-10-25T01:00:00Z", "state": "reported"}
+        self.assertIsNone(site.active_editorial_forecast([*rows, newer], site.parse_time("2026-10-25T02:00:00Z"), config))
+        prior_cycle_completion = {**baseline, "id": "day17-done:global", "reference_at": "2026-10-23T08:00:00Z", "state": "reported"}
+        self.assertIsNotNone(site.active_editorial_forecast([*rows, prior_cycle_completion], site.parse_time("2026-10-23T09:00:00Z"), config))
 
     def test_x_requires_original_text(self):
         markup = '<meta property="og:description" content="We have now reset usage limits for Codex.">'
