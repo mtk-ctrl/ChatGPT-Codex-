@@ -1,5 +1,47 @@
 [
   {
+    "id": "2113162413008884099:global",
+    "post_id": "2113162413008884099",
+    "kind": "global",
+    "state": "announced",
+    "reference_at": "2026-10-22T06:55:54.577Z",
+    "date_precision": "minute",
+    "time_basis": "X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）",
+    "time_officially_verified": false,
+    "evidence": "staff_x",
+    "verification_method": "X原投稿の検索結果表示（本文抜粋）。原投稿ページの全文取得は不可",
+    "verified_at": "2026-10-23",
+    "products": [
+      "codex",
+      "chatgpt_work"
+    ],
+    "note": "Tibo氏が前のリセット予告に続けて、太平洋時間の翌日午前10時より前に反映すると案内しました。投稿時点の予定であり、反映完了を確認した発表ではありません。",
+    "original_url": "https://x.com/thsottiaux/status/2113162413008884099",
+    "official_confirmation": null,
+    "reason_tags": []
+  },
+  {
+    "id": "2113162277688070445:global",
+    "post_id": "2113162277688070445",
+    "kind": "global",
+    "state": "announced",
+    "reference_at": "2026-10-22T06:55:22.314Z",
+    "date_precision": "minute",
+    "time_basis": "X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）",
+    "time_officially_verified": false,
+    "evidence": "staff_x",
+    "verification_method": "X原投稿の検索結果表示（本文抜粋）。原投稿ページの全文取得は不可",
+    "verified_at": "2026-10-23",
+    "products": [
+      "codex",
+      "chatgpt_work"
+    ],
+    "note": "OpenAIの28日間企画の17日目。Tibo氏がこの日をリセットの日と発表しました。対象プランや全アカウントへの反映完了は、この投稿では明示されていません。",
+    "original_url": "https://x.com/thsottiaux/status/2113162277688070445",
+    "official_confirmation": null,
+    "reason_tags": []
+  },
+  {
     "id": "2112432076767289678:global",
     "post_id": "2112432076767289678",
     "kind": "global",
