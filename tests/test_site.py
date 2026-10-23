@@ -41,7 +41,7 @@ class FirstPartyTests(unittest.TestCase):
         self.assertIn("Codex責任者Tibo氏", site.shell("確認", "説明", "about", "本文", "2026-10-20T12:00:00Z"))
         self.assertIn("リセットの記録", site.ABOUT)
         self.assertIn("予告も含みます", site.ABOUT)
-        self.assertIn("通常の利用枠", site.GUIDE)
+        self.assertIn("通常の回復予定", site.GUIDE)
         self.assertNotIn("一斉リセット", site.KINDS["global"])
         self.assertIn("臨時リセット", site.KINDS["global"])
         self.assertNotIn("対象サービス：", site.record_row(indexed[0]))
