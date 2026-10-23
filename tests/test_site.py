@@ -118,7 +118,8 @@ class FirstPartyTests(unittest.TestCase):
         self.assertIn("リセット</span>", day.group(0))
         self.assertNotIn(">予告</span>", day.group(0))
         self.assertIn("投稿時刻は日本時間", html)
-        self.assertIn("臨時リセット", html)
+        self.assertIn("リセット完了報告", html)
+        self.assertIn("リセット発表", html)
         self.assertNotIn('>一斉</span>', html)
 
     def test_reader_sees_prominent_reset_announcements(self):
