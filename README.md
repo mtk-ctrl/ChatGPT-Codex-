@@ -55,3 +55,9 @@ python3 scripts/site.py build
 - 2026年10月23日（金）予想：**2026年10月20日23:17（JST）** にサイト公開。根拠：GitHub PagesのPublish完了時刻 https://github.com/mtk-ctrl/ChatGPT-Codex-/actions/runs/39437667124 。履歴は `data/editorial-forecast-history.json`。
 - 2026年10月25日（日）予想：**2026年10月23日07:07（JST）** にサイト公開。根拠：GitHub PagesのPublish完了時刻 https://github.com/mtk-ctrl/ChatGPT-Codex-/actions/runs/39862593473 。現行設定は `data/editorial-forecast.json`。
 - `created_at`（会話・編集で案を決めた日時）と `published_at`（GitHub Pagesで公開が完了した日時）は別。予想を公開したら、成功したPublishステップの完了時刻とrun IDを確認して `published_at` / `publication_run_id` に固定保存する。次回予想への更新時は旧データをアーカイブに加え、元の公開日時を書き換えない。
+
+## 2026年10月24日のDay18確認
+
+- Tibo氏の原投稿を2件追加した。2026-10-23 13:46 JSTのDay18臨時リセット予告（https://x.com/thsottiaux/status/2113492187770175603）と、13:47 JSTの翌日午前10時まで（太平洋時間）の反映予定・新機能についての補足（https://x.com/thsottiaux/status/2113492502355562875）。双方とも発表時刻であり反映完了時刻ではない。本人の全体への完了報告は未確認。
+- サイト掲載は64→66件（投稿件数、リセット実施回数ではない）。ユーザーは10/24早朝に利用枠が再び回復しているようだと申告。利用者観測は一次資料に代わる完了根拠ではない。
+- 次回予想の10月25日については**10月23日の予告が予想日より早かった**ため終了。元の予想日・当初サイト公開日時（10/23 07:07 JST）・理由は`data/editorial-forecast-history.json`で保全し、過去の予想欄で後続の発表と並べて表示する。

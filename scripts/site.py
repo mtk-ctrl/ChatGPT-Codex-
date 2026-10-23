@@ -210,9 +210,19 @@ def active_editorial_forecast(records, now, proposal):
                      and r.get("kind") == "global" and r.get("state") in {"announced", "reported", "observed"}), None)
     if baseline is None or now >= parse_time(proposal["expires_at"]):
         return None
-    baseline_time = max(parse_time(baseline["reference_at"]), parse_time(proposal.get("ignore_reports_before", baseline["reference_at"])))
+    reference_time = parse_time(baseline["reference_at"])
+    baseline_time = max(reference_time, parse_time(proposal.get("ignore_reports_before", baseline["reference_at"])))
     for r in records:
-        if r.get("id") == baseline["id"] or r.get("kind") != "global" or r.get("state") not in {"reported", "observed"}:
+        if r.get("id") == baseline["id"] or r.get("kind") != "global":
+            continue
+        if r.get("state") == "announced":
+            if r.get("date_precision") != "day":
+                notice_time = parse_time(r["reference_at"])
+                # A separate announcement, not an immediate correction in the same thread.
+                if reference_time + timedelta(hours=6) < notice_time <= now:
+                    return None
+            continue
+        if r.get("state") not in {"reported", "observed"}:
             continue
         if r.get("date_precision") == "day":
             if r.get("official_date", "") > record_day(baseline):
@@ -248,8 +258,9 @@ def previous_editorial_predictions(history):
         date = datetime.strptime(record["date"], "%Y-%m-%d")
         weekday = "月火水木金土日"[date.weekday()]
         rationale = f'<p class="previous-prediction-reason">{e(record["rationale"])}</p>' if record.get("rationale") else ""
+        outcome = f'<p class="previous-prediction-result">その後：{e(record["outcome"])}</p>' if record.get("outcome") else ""
         items.append(f'''<li><strong>予想日：{date.year}年{date.month}月{date.day}日（{weekday}）</strong>
-<p>サイトで予想を公開：{publication_timestamp_markup(record)}</p>{rationale}</li>''')
+<p>サイトで予想を公開：{publication_timestamp_markup(record)}</p>{rationale}{outcome}</li>''')
     if not items:
         return ""
     return f'''<section class="previous-predictions" aria-labelledby="previous-predictions-title"><h2 id="previous-predictions-title">過去のリセット予想</h2>

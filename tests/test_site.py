@@ -172,6 +172,30 @@ class FirstPartyTests(unittest.TestCase):
         self.assertIn("2026/10/23 07:07", page)
         self.assertIn("過去のリセット予想", page)
 
+    def test_new_day18_announcement_and_forecast_history(self):
+        rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
+        ids = {r.get("post_id") for r in rows}
+        self.assertIn("2113492187770175603", ids)
+        self.assertIn("2113492502355562875", ids)
+        day18 = [r for r in rows if r.get("post_id") in {"2113492187770175603", "2113492502355562875"}]
+        self.assertTrue(all(r["state"] == "announced" for r in day18))
+        self.assertTrue(all(site.record_day(r) == "2026-10-23" for r in day18))
+        history = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))
+        self.assertEqual({r["date"] for r in history}, {"2026-10-23", "2026-10-25"})
+        output = site.previous_editorial_predictions(history)
+        self.assertIn("2026/10/23 07:07", output)
+        self.assertIn("2026/10/20 23:17", output)
+        self.assertIn("その後：", output)
+        proposal = json.loads((ROOT / "data/editorial-forecast.json").read_text(encoding="utf-8"))
+        self.assertIsNone(site.active_editorial_forecast(rows, site.parse_time("2026-10-23T19:00:00Z"), proposal))
+
+    def test_new_distinct_reset_notice_retires_prediction_without_losing_original_day(self):
+        rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
+        proposal = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))[-1]
+        self.assertEqual(proposal["date"], "2026-10-25")
+        self.assertIsNotNone(site.active_editorial_forecast(rows, site.parse_time("2026-10-23T00:00:00Z"), proposal))
+        self.assertIsNone(site.active_editorial_forecast(rows, site.parse_time("2026-10-23T05:00:00Z"), proposal))
+
     def test_x_requires_original_text(self):
         markup = '<meta property="og:description" content="We have now reset usage limits for Codex.">'
         post = primary.x_record("thsottiaux", "2111492738025959922", markup)
