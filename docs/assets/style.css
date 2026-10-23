@@ -144,14 +144,17 @@ body{border-top:5px solid var(--blue)}
 .day-mark{display:inline-block;font-size:10px;line-height:1.5;padding:0 4px;border:1px solid transparent;white-space:nowrap}
 .reset-mark{background:var(--blue);color:#fff}
 .banked-mark{border-color:var(--blue);color:var(--blue);background:#fff}
-.announced-mark{color:#626c75;background:#edf0f3}
+.announced-mark{color:#174b7c;background:#e6f1fc;border-color:var(--blue);font-weight:700}
+.ticket-announced-mark{color:#415b78;background:#f1f5fa;border-color:#7d98b6;font-weight:600}
+.reset-mark{font-weight:700}
 .predicted-mark{border:1px dashed var(--orange);color:var(--orange);background:#fffcf5}
 .calendar-legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:10px;color:var(--muted);margin:13px 0 19px}
 .calendar-legend>span{display:flex;align-items:center;gap:5px}
 .calendar-legend i{display:inline-block;width:9px;height:9px}
 .legend-reset{background:var(--blue)}
 .legend-banked{border:1px solid var(--blue)}
-.legend-announced{background:#9ea9b3;clip-path:polygon(50% 0,100% 100%,0 100%)}
+.legend-announced{background:#e6f1fc;border:1px solid var(--blue)}
+.legend-ticket-announced{background:#f1f5fa;border:1px solid #7d98b6}
 .legend-predicted{border:1px dashed var(--orange)}
 .selected-day{border-top:1px solid var(--line);padding-top:15px}
 .selected-day h3{margin:0 0 13px;font-size:17px}
@@ -247,3 +250,8 @@ tr[data-record]:target{background:#eef5fc}
 .previous-prediction-reason{color:var(--muted);font-size:12px}
 .forecast-editorial .editorial-written{font-size:12px;line-height:1.8;margin-top:12px;color:var(--muted)}
 @media(max-width:700px){.previous-predictions{padding:15px}.previous-predictions li{font-size:12px}.prediction-publication a{margin-left:0}}
+
+/* Reset announcement and completion use one blue family; status is evidentiary. */
+.calendar-status-explainer{margin:0 0 17px;font-size:12px;color:var(--muted);line-height:1.85}
+.day-status-explainer{font-size:12px;line-height:1.85;color:#174b7c;background:#edf5fd;border-left:3px solid var(--blue);padding:9px 11px;margin:0 0 14px}
+@media(max-width:700px){.calendar-status-explainer,.day-status-explainer{font-size:11px}.day-mark.announced-mark{font-size:9px;padding:0 1px}.calendar-legend i{width:11px;height:11px}}

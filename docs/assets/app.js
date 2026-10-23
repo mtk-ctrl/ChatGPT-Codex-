@@ -30,6 +30,10 @@
       }
       const rows = records.get(day) || [];
       if (!rows.length) target.append(element("p", "この日の発表はありません。", "empty-day"));
+      if (rows.some(row => row.kind === "global" && row.state === "announced")
+          && !rows.some(row => row.kind === "global" && row.state !== "announced")) {
+        target.append(element("p", "この日はリセットの発表がありました。完了したという投稿はまだ記録されていませんが、未実施という意味ではありません。各アカウントへの反映時刻は確認できません。", "day-status-explainer"));
+      }
       rows.forEach(row => {
         const article = element("article", undefined, "day-record");
         const time = element("p", `${row.time} `, "day-record-time");
@@ -83,7 +87,8 @@
         const ticketPending = !ticketDone && rows.some(row => row.kind === "banked" && row.state === "announced");
         if (resetDone) marks.append(element("span", "リセット", "day-mark reset-mark"));
         if (ticketDone) marks.append(element("span", "チケット", "day-mark banked-mark"));
-        if (resetPending || ticketPending) marks.append(element("span", "予告", "day-mark announced-mark"));
+        if (resetPending) marks.append(element("span", "リセット発表", "day-mark announced-mark"));
+        if (ticketPending) marks.append(element("span", "配布予告", "day-mark ticket-announced-mark"));
         if (key === data.predicted) marks.append(element("span", "予想", "day-mark predicted-mark"));
         button.append(marks);
         button.addEventListener("click", () => details(key));

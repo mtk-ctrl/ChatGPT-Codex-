@@ -279,7 +279,7 @@ def calendar_overview(records, forecast, editorial=None):
                         'id': 'r-' + r['id'].replace(':', '-'), 'kind': r['kind'], 'state': r['state'],
                         'title': record_title(r), 'evidence': source_name(r), 'note': r.get('note', ''),
                         'sources': [{'url': safe_url(url), 'label': label} for url, label in zip(sources, ['公式発表を見る', 'Xの投稿を見る']) if safe_url(url)]})
-    selected = next((r['day'] for r in entries if r['kind'] == 'global' and r['state'] != 'announced'), today.isoformat())
+    selected = next((r['day'] for r in entries if r['kind'] == 'global'), today.isoformat())
     if not selected.startswith(today.strftime('%Y-%m')):
         selected = today.isoformat()
     predicted = editorial["date"] if editorial else (forecast.get("reference_date") if forecast["status"] == "ok" else None)
@@ -300,8 +300,10 @@ def calendar_overview(records, forecast, editorial=None):
             marks.append('<span class="day-mark reset-mark">リセット</span>')
         if completed_ticket:
             marks.append('<span class="day-mark banked-mark">チケット</span>')
-        if pending_reset or pending_ticket:
-            marks.append('<span class="day-mark announced-mark">予告</span>')
+        if pending_reset:
+            marks.append('<span class="day-mark announced-mark">リセット発表</span>')
+        if pending_ticket:
+            marks.append('<span class="day-mark ticket-announced-mark">配布予告</span>')
         if key == predicted:
             marks.append('<span class="day-mark predicted-mark">予想</span>')
         classes = 'calendar-day' + (' is-today' if key == today.isoformat() else '')
@@ -316,7 +318,11 @@ def calendar_overview(records, forecast, editorial=None):
         year, month = index // 12, index % 12 + 1
         value = f'{year}-{month:02d}'
         month_options.append(f'<option value="{value}" {"selected" if value == today.strftime("%Y-%m") else ""}>{year}年{month}月</option>')
-    details = ''.join(f'<article class="day-record"><p class="day-record-time">{e(r["time"])} <span>{e(r["evidence"])}</span></p><h4>{e(r["title"])}</h4><p>{e(r["note"])}</p><p class="day-source">' + ''.join(link(s['url'], s['label']) for s in r['sources']) + f'<a href="#{e(r["id"])}">履歴の詳細</a></p></article>' for r in by_day.get(selected, [])) or '<p class="empty-day">この日の発表はありません。</p>'
+    status_note = ('<p class="day-status-explainer">この日はリセットの発表がありました。完了したという投稿はまだ記録されていませんが、未実施という意味ではありません。各アカウントへの反映時刻は確認できません。</p>'
+                   if any(r['kind'] == 'global' and r['state'] == 'announced' for r in by_day.get(selected, []))
+                   and not any(r['kind'] == 'global' and r['state'] != 'announced' for r in by_day.get(selected, []))
+                   else '')
+    details = status_note + (''.join(f'<article class="day-record"><p class="day-record-time">{e(r["time"])} <span>{e(r["evidence"])}</span></p><h4>{e(r["title"])}</h4><p>{e(r["note"])}</p><p class="day-source">' + ''.join(link(s['url'], s['label']) for s in r['sources']) + f'<a href="#{e(r["id"])}">履歴の詳細</a></p></article>' for r in by_day.get(selected, [])) or '<p class="empty-day">この日の発表はありません。</p>')
     payload = json.dumps({'today':today.isoformat(), 'selected':selected, 'first':first, 'last':last, 'predicted':predicted, 'records':entries}, ensure_ascii=False).replace('<', '\\u003c')
     if forecast['status'] == 'ok':
         h24, h48 = forecast['horizons']['24'], forecast['horizons']['48']
@@ -346,7 +352,7 @@ def calendar_overview(records, forecast, editorial=None):
         forecast_panel = ""
     layout_class = "calendar-layout" if forecast_panel else "calendar-layout calendar-layout--full"
     prediction_legend = '<span><i class="legend-predicted"></i>予想日</span>' if forecast_panel else ""
-    return f'''<div class="{layout_class}"><section class="calendar-section" aria-labelledby="calendar-title"><div class="calendar-section-heading"><h2 id="calendar-title">リセットカレンダー</h2><span>投稿時刻は日本時間</span></div><div class="calendar-controls"><div><button id="calendar-prev" type="button" aria-label="前の月">‹</button><label class="sr-only" for="calendar-month">カレンダーの年月</label><select id="calendar-month">{''.join(month_options)}</select><button id="calendar-next" type="button" aria-label="次の月">›</button></div><button id="calendar-today" type="button">今月</button></div><div class="calendar-weekdays" aria-hidden="true"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div><div id="calendar-grid" class="calendar-grid" role="group" aria-label="{today.year}年{today.month}月">{grid}</div><div class="calendar-legend"><span><i class="legend-reset"></i>臨時リセット</span><span><i class="legend-banked"></i>リセットチケット</span><span><i class="legend-announced"></i>予告</span>{prediction_legend}</div><section class="selected-day" aria-live="polite" aria-atomic="true"><h3 id="selected-date">{int(selected[5:7])}月{int(selected[8:])}日の発表</h3><div id="selected-records">{details}</div></section><noscript><p>月の切り替えにはJavaScriptが必要です。全履歴は下の一覧から確認できます。</p></noscript></section>
+    return f'''<div class="{layout_class}"><section class="calendar-section" aria-labelledby="calendar-title"><div class="calendar-section-heading"><h2 id="calendar-title">リセットカレンダー</h2><span>投稿時刻は日本時間</span></div><div class="calendar-controls"><div><button id="calendar-prev" type="button" aria-label="前の月">‹</button><label class="sr-only" for="calendar-month">カレンダーの年月</label><select id="calendar-month">{''.join(month_options)}</select><button id="calendar-next" type="button" aria-label="次の月">›</button></div><button id="calendar-today" type="button">今月</button></div><div class="calendar-weekdays" aria-hidden="true"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div><div id="calendar-grid" class="calendar-grid" role="group" aria-label="{today.year}年{today.month}月">{grid}</div><div class="calendar-legend"><span><i class="legend-reset"></i>リセット完了報告</span><span><i class="legend-announced"></i>リセット発表</span><span><i class="legend-banked"></i>リセットチケット</span><span><i class="legend-ticket-announced"></i>チケット配布予告</span>{prediction_legend}</div><p class="calendar-status-explainer">「リセット発表」は、完了時刻を確認できる投稿がない日です。実際には利用枠が回復していても、そのまま表示される場合があります。<a href="about.html#reset-states">表示の違いを見る</a></p><section class="selected-day" aria-live="polite" aria-atomic="true"><h3 id="selected-date">{int(selected[5:7])}月{int(selected[8:])}日の発表</h3><div id="selected-records">{details}</div></section><noscript><p>月の切り替えにはJavaScriptが必要です。全履歴は下の一覧から確認できます。</p></noscript></section>
 {forecast_panel}</div><script id="calendar-data" type="application/json">{payload}</script>'''
 
 
@@ -416,7 +422,7 @@ ABOUT = f'''<article class="article"><h1 class="section-title">このサイト�
 <h2>掲載している情報</h2><p>Codex・ChatGPT Workの臨時リセットやリセットチケットについて、発表内容を時系列で紹介しています。<strong>掲載件数はリセットが行われた回数ではありません。</strong>同じリセットの予告と実施報告をそれぞれ掲載する場合があります。対象のプラン・機能は発表ごとに異なります。</p>
 <h2>情報の出典</h2><p>情報は<a href="{OFFICIAL_URL}">OpenAIの公式ヘルプ</a>などの公式発表と、OpenAIでCodexを率いる<strong>Tibo（ティボ）氏</strong>（Thibault Sottiaux／<a href="https://x.com/thsottiaux">@thsottiaux</a>）などのX投稿をもとにまとめています。各履歴から、元の発表や投稿に移動できます。</p>
 <h2>情報の確かめ方</h2><p>投稿の内容を日本語で要約しているため、原文と表現が異なる場合があります。また、Xの一部の投稿は検索結果に表示された本文をもとにしており、投稿全文を確認できていないものもあります。確認できない内容を推測で補わず、「予告」と「実施済み」の報告は分けて掲載します。</p>
-<h2 id="dates">日時の見方</h2><p>Xの投稿日時は日本時間に換算しています。「投稿 15:33」は午後3時33分の投稿という意味で、利用枠が実際に回復した時刻ではありません。OpenAI公式記事に日付しか書かれていない場合は、その記事の記載日をそのまま表示し、日本の日付に換算しません。</p>
+<h2 id="reset-states">「リセット発表」と「リセット完了報告」</h2><p>「リセット発表」は、OpenAI関係者がリセットを予告・案内した日です。実際には反映済みでも、完了を明示した原投稿がなければ「リセット発表」のままです。「リセット完了報告」は、関係者が実施・反映完了を明示した日です。青い表示の濃淡は発表内容の確認段階の違いであり、未実施かどうかを示すものではありません。</p><p>OpenAI公式ヘルプの<a href="https://help.openai.com/en/articles/20001498-how-resets-work-in-codex">リセットの説明</a>によると、自動リセットは対象者の使用枠に適用されても、アカウントのリセット履歴には記載されません。設定の「使用状況」で残り枠や次の回復日時は確認できますが、その変化だけで特定の臨時リセットを識別できません。このサイトでは全員への反映時刻を断定しません。</p><h2 id="dates">日時の見方</h2><p>Xの投稿日時は日本時間に換算しています。「投稿 15:33」は午後3時33分の投稿という意味で、利用枠が実際に回復した時刻ではありません。OpenAI公式記事に日付しか書かれていない場合は、その記事の記載日をそのまま表示し、日本の日付に換算しません。</p>
 <h2>更新について</h2><p>定期的に新しい発表を確認し、掲載内容を更新しています。Xの閲覧制限などによって情報の確認が遅れる場合があり、すべての発表を網羅できるとは限りません。</p>
 
 <h2>運営・お問い合わせ</h2><p>このサイトは個人（<a href="https://github.com/mtk-ctrl">mtk-ctrl</a>）が運営しており、OpenAIとは提携していません。情報の訂正やご意見は<a href="https://github.com/{REPO}/issues">GitHubの問い合わせページ</a>からお寄せください。</p>

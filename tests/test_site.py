@@ -121,6 +121,30 @@ class FirstPartyTests(unittest.TestCase):
         self.assertIn("臨時リセット", html)
         self.assertNotIn('>一斉</span>', html)
 
+    def test_reader_sees_prominent_reset_announcements(self):
+        import re
+        rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
+        data = {"status":"stale", "generated_at":"2026-10-24T01:00:00Z", "horizons":{}}
+        html = site.calendar_overview(rows, data)
+        for day in ("2026-10-22", "2026-10-23"):
+            card = re.search(r'data-calendar-day="' + day + r'".*?</button>', html)
+            self.assertIsNotNone(card)
+            self.assertIn(">リセット発表</span>", card.group(0))
+            self.assertIn("announced-mark", card.group(0))
+            self.assertNotIn(">リセット</span>", card.group(0))
+        self.assertIn('id="selected-date">10月23日の発表', html)
+        self.assertIn("未実施という意味ではありません", html)
+        self.assertIn("リセット完了報告", html)
+        self.assertIn("リセット発表", html)
+        self.assertIn("リセット履歴には記載されません", site.ABOUT)
+        self.assertIn("help.openai.com/en/articles/20001498-how-resets-work-in-codex", site.ABOUT)
+        ticket = re.search(r'data-calendar-day="2026-10-08".*?</button>', html)
+        self.assertIsNotNone(ticket)
+        self.assertIn(">配布予告</span>", ticket.group(0))
+        completed = re.search(r'data-calendar-day="2026-10-20".*?</button>', html)
+        self.assertIsNotNone(completed)
+        self.assertIn(">リセット</span>", completed.group(0))
+
     def test_october_25_editorial_prediction(self):
         rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
         config = json.loads((ROOT / "data/editorial-forecast.json").read_text(encoding="utf-8"))
