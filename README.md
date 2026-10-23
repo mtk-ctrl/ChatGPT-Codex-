@@ -1,4 +1,4 @@
-# ChatGPT リセット履歴（非公式）
+# ChatGPT リセット履歴
 
 公開先：https://mtk-ctrl.github.io/ChatGPT-Codex-/
 
@@ -75,3 +75,9 @@ OpenAI公式ヘルプ https://help.openai.com/en/articles/20001498-how-resets-wo
 ## 2026年10月24日：一般閲覧者向け表示の統一
 
 カレンダーではTibo氏・OpenAIの原投稿が「予告」「完了」のいずれでも同じ**「リセット」**を表示する。短い注記「※リセットは、予告または完了の投稿があった日に表示しています。」を添える。発表日時と反映日時が一致するとは限らない事実はAboutに簡潔に記載する。リセットチケットは別種類なので「チケット」。同日複数投稿はカレンダー詳細で1枚にまとめ、リンクを残す。履歴の見出しは「元の投稿」。詳細の原文要約は展開操作で閲覧可能にする。ガイド・About・予想欄も不要な重複説明を省き、発表状態のコード・原資料・CSV/RSS・予想の公開証跡は維持する。
+
+## Google検索での見つけやすさ（2026-10-24）
+
+- 検索画面で「ChatGPT リセット 履歴」はチャット履歴削除の意味で使われることもあるため、ホームページのタイトルと説明文に**「ChatGPT」「Codex」「利用枠リセット」「履歴」「次回予想」**を自然な形で含める。
+- 公開サイト：[ChatGPT リセット履歴](https://mtk-ctrl.github.io/ChatGPT-Codex-/) ／ [サイトマップ](https://mtk-ctrl.github.io/ChatGPT-Codex-/sitemap.xml)。canonicalとサイトマップ、robots.txtはソースで検証済み。Googleのインデックス登録状況は管理者がSearch Consoleから確認する。
+- 検索への初登場や上位表示は保証できない。URLプレフィックスのSearch Console所有権確認後、URL検査とサイトマップ送信でGoogleに登録をリクエストする。

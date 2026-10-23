@@ -26,7 +26,7 @@
       const target = document.getElementById("selected-records");
       target.replaceChildren();
       if (day === data.predicted) {
-        target.append(element("p", "当サイトの予想日です（非公式）。", "predicted-day-note"));
+        target.append(element("p", "当サイトの予想日です。", "predicted-day-note"));
       }
       const rows = records.get(day) || [];
       if (!rows.length) target.append(element("p", "この日の情報はありません。", "empty-day"));
@@ -73,7 +73,7 @@
         button.type = "button";
         button.dataset.calendarDay = key;
         button.setAttribute("aria-pressed", String(key === selected));
-        button.setAttribute("aria-label", `${year}年${number}月${date}日、発表記録${rows.length}件` + (key === data.predicted ? "、非公式の予想日" : ""));
+        button.setAttribute("aria-label", `${year}年${number}月${date}日、発表記録${rows.length}件` + (key === data.predicted ? "、予想日" : ""));
         button.append(element("span", date, "day-number"));
         const marks = element("span", undefined, "day-marks");
         if (rows.some(row => row.kind === "global")) marks.append(element("span", "リセット", "day-mark reset-mark"));

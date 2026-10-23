@@ -50,6 +50,22 @@ class FirstPartyTests(unittest.TestCase):
 
         self.assertNotIn("原投稿の検索表示で確認", site.record_row(indexed[0]))
 
+    def test_site_title_and_public_labels_are_clear_to_searchers(self):
+        rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
+        output = site.shell("ChatGPT リセット履歴｜Codex・Workの利用枠リセット日と次回予想",
+                            "ChatGPT Work・Codexの利用枠リセット履歴をカレンダーで確認。",
+                            "index", "本文", "2026-10-24T00:00:00Z", show_forecast=False)
+        self.assertIn("<title>ChatGPT リセット履歴｜", output)
+        self.assertIn("canonical", output)
+        self.assertNotIn("非公式", output)
+        self.assertNotIn("unofficial", output)
+        self.assertIn("ChatGPT リセット履歴", output)
+        self.assertIn("利用枠リセット", output)
+        self.assertNotIn("非公式", site.ABOUT)
+        self.assertNotIn("非公式", site.GUIDE)
+        self.assertNotIn("非公式", site.homepage(rows, "2026-10-24T00:00:00Z",
+            {"status":"stale", "generated_at":"2026-10-24T00:00:00Z", "horizons":{}}, []))
+
     def test_unavailable_forecast_is_not_shown_to_visitors(self):
         rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
         states = [
@@ -160,7 +176,7 @@ class FirstPartyTests(unittest.TestCase):
         self.assertNotIn("前回の同じ予想日とは別の予想", view)
         self.assertIn("1～3日間隔", view)
         self.assertIn('data-calendar-day="2026-10-25"', view)
-        self.assertIn("当サイトの予想・非公式", view)
+        self.assertIn("独自予想", view)
         self.assertIn("OpenAIの正式な予定", view)
         self.assertNotIn("24時間以内", view)
 

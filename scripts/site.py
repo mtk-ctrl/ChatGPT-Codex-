@@ -161,9 +161,9 @@ def shell(title, description, active, content, updated, show_forecast=True):
 <meta property="og:type" content="website"><meta property="og:locale" content="ja_JP"><meta property="og:title" content="{e(title)}"><meta property="og:description" content="{e(description)}"><meta property="og:url" content="{e(canonical)}">
 <meta name="theme-color" content="#245e9b"><link rel="icon" href="assets/icon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/style.css"><link rel="alternate" type="application/rss+xml" title="ChatGPT リセット履歴 更新情報" href="feed.xml"><link rel="sitemap" type="application/xml" href="sitemap.xml">
 <script type="application/ld+json">{website}</script><script defer src="assets/app.js"></script></head>
-<body><a class="skip" href="#main">本文へ移動</a><header class="site-header container"><div class="masthead"><div><div class="brand-line"><{brand_tag} class="brand"><a href="./">ChatGPT リセット履歴</a></{brand_tag}><span class="unofficial">非公式</span></div><p class="site-subtitle">Codex・ChatGPT Workの臨時リセット情報</p></div><p class="site-description">OpenAIの公式発表やCodex責任者Tibo氏の投稿をもとに、Codex・ChatGPT Workの臨時リセットと予告を紹介します。対象のプランや機能は発表ごとに異なります。</p></div><nav class="main-nav" aria-label="メインナビゲーション">{nav}</nav></header>
+<body><a class="skip" href="#main">本文へ移動</a><header class="site-header container"><div class="masthead"><div><div class="brand-line"><{brand_tag} class="brand"><a href="./">ChatGPT リセット履歴</a></{brand_tag}></div><p class="site-subtitle">Codex・ChatGPT Workの利用枠リセット・次回予想</p></div><p class="site-description">ChatGPT Work・Codexの利用枠リセットがいつあったかをカレンダーで確認できます。OpenAIの発表とTibo氏の投稿をまとめています。</p></div><nav class="main-nav" aria-label="メインナビゲーション">{nav}</nav></header>
 <main id="main" class="container">{content}</main>
-<footer class="container site-footer"><p class="footer-title">ChatGPT リセット履歴</p><p>個人が運営する非公式サイトです。OpenAIの公式サイトではありません。</p><p>情報源：OpenAIの公式発表と、Codex責任者Tibo氏などのX投稿。</p><p class="footer-links"><a href="about.html">掲載情報について</a><a href="https://github.com/{REPO}/issues">訂正の連絡</a><a href="data.csv">履歴データ（CSV）</a><a href="feed.xml">RSS</a></p></footer></body></html>'''
+<footer class="container site-footer"><p class="footer-title">ChatGPT リセット履歴</p><p>情報源：OpenAIの発表と、Codex責任者Tibo氏などのX投稿。</p><p class="footer-links"><a href="about.html">掲載情報について</a><a href="https://github.com/{REPO}/issues">訂正の連絡</a><a href="data.csv">履歴データ（CSV）</a><a href="feed.xml">RSS</a></p></footer></body></html>'''
 
 
 def record_title(record):
@@ -296,7 +296,7 @@ def calendar_overview(records, forecast, editorial=None):
         if key == predicted:
             marks.append('<span class="day-mark predicted-mark">予想</span>')
         classes = 'calendar-day' + (' is-today' if key == today.isoformat() else '')
-        label = f'{today.year}年{today.month}月{day}日、発表記録{len(day_records)}件' + ('、非公式の予想日' if key == predicted else '')
+        label = f'{today.year}年{today.month}月{day}日、発表記録{len(day_records)}件' + ('、予想日' if key == predicted else '')
         return f'<button type="button" class="{classes}" data-calendar-day="{key}" aria-label="{e(label)}" aria-pressed="{str(key == selected).lower()}"><span class="day-number">{day}</span><span class="day-marks">{"".join(marks)}</span></button>'
     grid = ''.join(cell(day) for week in calendar.Calendar(firstweekday=6).monthdayscalendar(today.year, today.month) for day in week)
     first = min(r['day'] for r in entries)[:7]
@@ -337,7 +337,7 @@ def calendar_overview(records, forecast, editorial=None):
         target_day = datetime.strptime(editorial["date"], "%Y-%m-%d")
         weekday = "月火水木金土日"[target_day.weekday()]
         basis = "・".join(f"{int(d[-2:])}日" for d in editorial.get("supporting_event_dates", editorial.get("supporting_report_dates", [])))
-        forecast_panel = f'''<aside class="forecast-panel forecast-editorial" aria-labelledby="forecast-title" data-editorial-expires-at="{e(editorial["expires_at"])}"><div class="forecast-heading"><h2 id="forecast-title">次のリセット予想</h2><span>当サイトの予想・非公式</span></div>
+        forecast_panel = f'''<aside class="forecast-panel forecast-editorial" aria-labelledby="forecast-title" data-editorial-expires-at="{e(editorial["expires_at"])}"><div class="forecast-heading"><h2 id="forecast-title">次のリセット予想</h2><span>独自予想</span></div>
 <p class="editorial-date">{target_day.year}年{target_day.month}月{target_day.day}日（{weekday}）</p>
 <p class="editorial-reason-title">{target_day.month}月{target_day.day}日と予想する理由</p>
 <p class="editorial-reason">{e(editorial["rationale"])}</p>
@@ -413,11 +413,11 @@ GUIDE = '''<article class="article"><h1 class="section-title">リセットの種
 <p class="article-back"><a href="./">カレンダーに戻る</a></p></article>'''
 
 ABOUT = f'''<article class="article"><h1 class="section-title">このサイトについて</h1>
-<p class="article-lead">Codex・ChatGPT Workのリセット情報をまとめた、非公式サイトです。</p>
+<p class="article-lead">Codex・ChatGPT Workのリセット日と予想をカレンダーにまとめています。</p>
 <h2>リセットの記録</h2><p>カレンダーには、OpenAIの発表やTibo氏のX投稿があった日を「リセット」として掲載しています。予告も含みます。実際の反映日は異なる場合があります。</p>
 <h2>情報源</h2><p><a href="{OFFICIAL_URL}">OpenAIの公式案内</a>と、Codexの責任者<strong>Tibo氏</strong>（Thibault Sottiaux／<a href="https://x.com/thsottiaux">X</a>）などの発信を確認しています。元の投稿は「元の投稿」一覧から見られます。</p>
 <h2 id="dates">日時について</h2><p>表示日時は日本時間の投稿日時です。実際に利用枠が回復した時刻とは限りません。</p>
-<h2>運営</h2><p>OpenAIとは関係のない個人運営サイトです。<a href="https://github.com/{REPO}/issues">お問い合わせ・訂正</a></p>
+<h2>お問い合わせ</h2><p><a href="https://github.com/{REPO}/issues">ご意見・訂正の連絡</a></p>
 <p class="article-back"><a href="./">カレンダーに戻る</a></p></article>'''
 
 def build():
@@ -436,7 +436,7 @@ def build():
     write_json(DATA / "forecast-history.json", history)
     OUT.mkdir(parents=True, exist_ok=True)
     pages = {
-        "index": ("Codex・ChatGPT Workのリセット履歴｜非公式", "Codex・ChatGPT Workの臨時リセットとリセットチケットの情報を掲載。OpenAI公式発表やCodex責任者の投稿をカレンダーで確認できます。", homepage(records, updated, forecast, history, editorial, editorial_history)),
+        "index": ("ChatGPT リセット履歴｜Codex・Workの利用枠リセット日と次回予想", "ChatGPT Work・Codexの利用枠リセット履歴をカレンダーで確認。OpenAIの発表やTibo氏の投稿をもとに、これまでのリセット日・次回予想・リセットチケットの情報をまとめています。", homepage(records, updated, forecast, history, editorial, editorial_history)),
         "guide": ("リセットの種類｜ChatGPT リセット履歴", "通常の利用枠の回復と、臨時リセット・リセットチケットの違いを説明します。", GUIDE),
         "forecast": ("予測の計算方法｜ChatGPT リセット履歴", "独自予測の計算式、集計対象、検証方法と注意事項を掲載しています。", FORECAST_METHOD),
         "about": ("このサイトについて｜ChatGPT リセット履歴", "サイトの情報源、日時の見方、更新方法をご案内します。", ABOUT),
