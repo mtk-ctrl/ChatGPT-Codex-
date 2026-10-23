@@ -208,7 +208,8 @@ def active_editorial_forecast(records, now, proposal):
         return None
     baseline = next((r for r in records if r.get("id") == proposal.get("last_report_id")
                      and r.get("kind") == "global" and r.get("state") in {"announced", "reported", "observed"}), None)
-    if baseline is None or now >= parse_time(proposal["expires_at"]):
+    if (baseline is None or now >= parse_time(proposal["expires_at"])
+            or (proposal.get("created_at") and now < parse_time(proposal["created_at"]))):
         return None
     reference_time = parse_time(baseline["reference_at"])
     baseline_time = max(reference_time, parse_time(proposal.get("ignore_reports_before", baseline["reference_at"])))
@@ -334,10 +335,11 @@ def calendar_overview(records, forecast, editorial=None):
         forecast_panel = f'''<aside class="forecast-panel forecast-editorial" aria-labelledby="forecast-title" data-editorial-expires-at="{e(editorial["expires_at"])}"><div class="forecast-heading"><h2 id="forecast-title">次のリセット予想</h2><span>当サイトの予想・非公式</span></div>
 <p class="editorial-date">{target_day.year}年{target_day.month}月{target_day.day}日（{weekday}）</p>
 <p class="editorial-reason-title">{target_day.month}月{target_day.day}日と予想する理由</p>
+<p class="editorial-edition">今回の予想は{e(jst(editorial["created_at"]))}（日本時間）に新たに判断しました。前回の同じ予想日とは別の予想です。</p>
 <p class="editorial-reason">{e(editorial["rationale"])}</p>
 <p class="editorial-basis">根拠となる発表：{e(basis)}（<a href="#history">過去の履歴を見る</a>）</p>
 <p class="editorial-caution">{e(editorial["caution"])}</p>
-<p class="editorial-written">サイトで予想を公開：{publication_timestamp_markup(editorial)}</p></aside>'''
+<p class="editorial-written">サイトで予想を公開：{publication_timestamp_markup(editorial) or "公開時刻を確認中"}</p></aside>'''
     elif forecast["status"] == "ok":
         forecast_panel = f'''<aside class="forecast-panel" aria-labelledby="forecast-title"><div class="forecast-heading"><h2 id="forecast-title">次のリセット予測</h2><span>当サイト独自の試算</span></div><div id="forecast-current" data-generated-at="{forecast['generated_at']}">{prediction}</div><p class="forecast-updated">予測の計算日時：{e(jst(forecast["generated_at"]))}（日本時間）</p><a class="method-link" href="forecast.html">計算方法と検証について →</a><p class="forecast-disclaimer">{DISCLAIMER}</p></aside>'''
     else:

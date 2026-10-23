@@ -124,19 +124,20 @@ class FirstPartyTests(unittest.TestCase):
     def test_october_25_editorial_prediction(self):
         rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
         config = json.loads((ROOT / "data/editorial-forecast.json").read_text(encoding="utf-8"))
-        now = site.parse_time("2026-10-23T00:00:00Z")
+        now = site.parse_time("2026-10-23T22:00:00Z")
         editorial = site.active_editorial_forecast(rows, now, config)
         self.assertIsNotNone(editorial)
         forecast = {"status": "stale", "generated_at": "2026-10-20T14:00:00Z", "horizons": {}}
         view = site.homepage(rows, "2026-10-20T14:00:00Z", forecast, [], editorial)
         self.assertIn("2026年10月25日（日）", view)
         self.assertIn("サイトで予想を公開：", view)
-        self.assertIn("2026/10/23 07:07", view)
-        self.assertIn("39862593473", view)
-        self.assertIn("2～3日おき", view)
+        self.assertIn("公開時刻を確認中", view)
+        self.assertIn("10月24日に改めて", view)
+        self.assertIn("前回の同じ予想日とは別の予想", view)
+        self.assertIn("1～3日間隔", view)
         self.assertIn('data-calendar-day="2026-10-25"', view)
         self.assertIn("当サイトの予想・非公式", view)
-        self.assertIn("OpenAIから発表されておらず", view)
+        self.assertIn("OpenAIの正式な予定", view)
         self.assertNotIn("24時間以内", view)
 
     def test_editorial_prediction_auto_expires(self):
@@ -150,6 +151,7 @@ class FirstPartyTests(unittest.TestCase):
         previous_config = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))[-1]
         prior_rows = [r for r in rows if r.get("post_id") not in {"2113492187770175603", "2113492502355562875"}]
         self.assertIsNotNone(site.active_editorial_forecast([*prior_rows, prior_cycle_completion], site.parse_time("2026-10-23T09:00:00Z"), previous_config))
+        self.assertIsNone(site.active_editorial_forecast(rows, site.parse_time("2026-10-23T10:00:00Z"), config))
 
     def test_archived_october_23_prediction_shows_original_publication_time(self):
         history = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))
@@ -167,11 +169,12 @@ class FirstPartyTests(unittest.TestCase):
         rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
         history = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))
         cfg = json.loads((ROOT / "data/editorial-forecast.json").read_text(encoding="utf-8"))
-        editorial = site.active_editorial_forecast(rows, site.parse_time("2026-10-23T00:00:00Z"), cfg)
-        forecast = {"status":"stale", "generated_at":"2026-10-23T00:00:00Z", "horizons":{}}
-        page = site.homepage(rows, "2026-10-23T00:00:00Z", forecast, [], editorial, history)
+        editorial = site.active_editorial_forecast(rows, site.parse_time("2026-10-23T22:00:00Z"), cfg)
+        forecast = {"status":"stale", "generated_at":"2026-10-23T22:00:00Z", "horizons":{}}
+        page = site.homepage(rows, "2026-10-23T22:00:00Z", forecast, [], editorial, history)
         self.assertIn("2026/10/20 23:17", page)
         self.assertIn("2026/10/23 07:07", page)
+        self.assertIn("公開時刻を確認中", page)
         self.assertIn("過去のリセット予想", page)
 
     def test_new_day18_announcement_and_forecast_history(self):
@@ -197,6 +200,20 @@ class FirstPartyTests(unittest.TestCase):
         self.assertEqual(proposal["date"], "2026-10-25")
         self.assertIsNotNone(site.active_editorial_forecast(rows, site.parse_time("2026-10-23T00:00:00Z"), proposal))
         self.assertIsNone(site.active_editorial_forecast(rows, site.parse_time("2026-10-23T05:00:00Z"), proposal))
+
+
+    def test_separate_october_25_forecasts_have_distinct_issue_dates(self):
+        current = json.loads((ROOT / "data/editorial-forecast.json").read_text(encoding="utf-8"))
+        old = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))[-1]
+        self.assertEqual(current["date"], old["date"])
+        self.assertNotEqual(current["created_at"], old["created_at"])
+        self.assertEqual(old["published_at"], "2026-10-23T07:07:47+09:00")
+        self.assertTrue(old["retired_at"])
+        self.assertEqual(current["last_report_id"], "2113492502355562875:global")
+        self.assertNotIn("published_at", current)
+        self.assertIsNotNone(site.active_editorial_forecast(
+            json.loads((ROOT / "data/events.json").read_text(encoding="utf-8")),
+            site.parse_time("2026-10-23T22:00:00Z"), current))
 
     def test_x_requires_original_text(self):
         markup = '<meta property="og:description" content="We have now reset usage limits for Codex.">'
