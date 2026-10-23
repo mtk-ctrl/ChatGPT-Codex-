@@ -255,3 +255,13 @@ tr[data-record]:target{background:#eef5fc}
 .calendar-status-explainer{margin:0 0 17px;font-size:12px;color:var(--muted);line-height:1.85}
 .day-status-explainer{font-size:12px;line-height:1.85;color:#174b7c;background:#edf5fd;border-left:3px solid var(--blue);padding:9px 11px;margin:0 0 14px}
 @media(max-width:700px){.calendar-status-explainer,.day-status-explainer{font-size:11px}.day-mark.announced-mark{font-size:9px;padding:0 1px}.calendar-legend i{width:11px;height:11px}}
+
+/* Reader-first compact presentation: detailed original posts remain accessible. */
+.record-more{margin-top:7px;font-size:12px;color:var(--muted)}
+.record-more summary,.previous-prediction-reason summary{cursor:pointer;color:var(--blue);font-weight:500}
+.record-more p{margin:7px 0 0;line-height:1.8}
+.previous-prediction-reason{font-size:12px;color:var(--muted);margin-top:8px}
+.previous-prediction-reason p{margin:6px 0 0;line-height:1.75}
+.day-posts{font-size:12px;color:var(--muted)}
+.calendar-status-explainer{font-size:12px;line-height:1.65;margin:5px 0 19px}
+@media(max-width:700px){.calendar-status-explainer{font-size:11px}.record-more,.previous-prediction-reason{font-size:12px}}

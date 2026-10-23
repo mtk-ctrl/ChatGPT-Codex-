@@ -22,36 +22,31 @@
     const details = day => {
       selected = day;
       const [year, number, date] = day.split("-").map(Number);
-      document.getElementById("selected-date").textContent = `${year}年${number}月${date}日の発表`;
+      document.getElementById("selected-date").textContent = `${year}年${number}月${date}日の情報`;
       const target = document.getElementById("selected-records");
       target.replaceChildren();
       if (day === data.predicted) {
-        target.append(element("p", "この日は当サイトの予想日です。OpenAIの実施予定ではありません。", "predicted-day-note"));
+        target.append(element("p", "当サイトの予想日です（非公式）。", "predicted-day-note"));
       }
       const rows = records.get(day) || [];
-      if (!rows.length) target.append(element("p", "この日の発表はありません。", "empty-day"));
-      if (rows.some(row => row.kind === "global" && row.state === "announced")
-          && !rows.some(row => row.kind === "global" && row.state !== "announced")) {
-        target.append(element("p", "この日はリセットの発表がありました。完了したという投稿はまだ記録されていませんが、未実施という意味ではありません。各アカウントへの反映時刻は確認できません。", "day-status-explainer"));
-      }
-      rows.forEach(row => {
+      if (!rows.length) target.append(element("p", "この日の情報はありません。", "empty-day"));
+      ["global", "banked"].forEach(kind => {
+        const posts = rows.filter(row => row.kind === kind);
+        if (!posts.length) return;
         const article = element("article", undefined, "day-record");
-        const time = element("p", `${row.time} `, "day-record-time");
-        time.append(element("span", row.evidence));
-        article.append(time, element("h4", row.title));
-        if (row.note) article.append(element("p", row.note));
+        article.append(element("h4", kind === "global" ? "リセット" : "リセットチケット"));
+        article.append(element("p", `${posts.length}件の投稿`, "day-posts"));
         const sources = element("p", undefined, "day-source");
-        row.sources.forEach(source => {
-          const a = element("a", source.label + " ↗");
+        const seen = new Set();
+        posts.forEach(row => row.sources.forEach(source => {
+          if (seen.has(source.url)) return;
+          seen.add(source.url);
+          const a = element("a", `元の発表 ${seen.size} ↗`);
           a.href = source.url;
           a.target = "_blank";
           a.rel = "noopener noreferrer";
           sources.append(a);
-        });
-        const a = element("a", "履歴の詳細");
-        a.href = "#" + row.id;
-        a.addEventListener("click", () => document.getElementById("filters").reset());
-        sources.append(a);
+        }));
         article.append(sources);
         target.append(article);
       });
@@ -81,14 +76,8 @@
         button.setAttribute("aria-label", `${year}年${number}月${date}日、発表記録${rows.length}件` + (key === data.predicted ? "、非公式の予想日" : ""));
         button.append(element("span", date, "day-number"));
         const marks = element("span", undefined, "day-marks");
-        const resetDone = rows.some(row => row.kind === "global" && row.state !== "announced");
-        const ticketDone = rows.some(row => row.kind === "banked" && row.state !== "announced");
-        const resetPending = !resetDone && rows.some(row => row.kind === "global" && row.state === "announced");
-        const ticketPending = !ticketDone && rows.some(row => row.kind === "banked" && row.state === "announced");
-        if (resetDone) marks.append(element("span", "リセット", "day-mark reset-mark"));
-        if (ticketDone) marks.append(element("span", "チケット", "day-mark banked-mark"));
-        if (resetPending) marks.append(element("span", "リセット発表", "day-mark announced-mark"));
-        if (ticketPending) marks.append(element("span", "配布予告", "day-mark ticket-announced-mark"));
+        if (rows.some(row => row.kind === "global")) marks.append(element("span", "リセット", "day-mark reset-mark"));
+        if (rows.some(row => row.kind === "banked")) marks.append(element("span", "チケット", "day-mark banked-mark"));
         if (key === data.predicted) marks.append(element("span", "予想", "day-mark predicted-mark"));
         button.append(marks);
         button.addEventListener("click", () => details(key));

@@ -167,10 +167,8 @@ def shell(title, description, active, content, updated, show_forecast=True):
 
 
 def record_title(record):
-    if record["kind"] == "banked":
-        return "リセットチケットの配布予告" if record["state"] == "announced" else "リセットチケットを配布"
-    return {"reported": "利用枠をリセット", "announced": "利用枠リセットを予告",
-            "observed": "利用枠のリセットを確認"}[record["state"]]
+    # Show the same name for a reset whether the source post was a notice or a completion.
+    return "リセット" if record["kind"] == "global" else "リセットチケット"
 
 
 def date_label(value):
@@ -185,7 +183,7 @@ def record_row(record):
     # Broad product tags classify the archive; they do not verify every post's eligibility.
     # Leave the exact target to the announcement text and original source.
     target = ""
-    note = f'<p class="record-summary">{e(record["note"])}</p>' if record.get("note") else ""
+    note = f'<details class="record-more"><summary>投稿内容を見る</summary><p>{e(record["note"])}</p></details>' if record.get("note") else ""
     day = record_day(record)
     stamp = day if record.get("date_precision") == "day" else record["reference_at"]
     clock = record_clock(record)
@@ -258,14 +256,13 @@ def previous_editorial_predictions(history):
             continue
         date = datetime.strptime(record["date"], "%Y-%m-%d")
         weekday = "月火水木金土日"[date.weekday()]
-        rationale = f'<p class="previous-prediction-reason">{e(record["rationale"])}</p>' if record.get("rationale") else ""
-        outcome = f'<p class="previous-prediction-result">その後：{e(record["outcome"])}</p>' if record.get("outcome") else ""
-        items.append(f'''<li><strong>予想日：{date.year}年{date.month}月{date.day}日（{weekday}）</strong>
-<p>サイトで予想を公開：{publication_timestamp_markup(record)}</p>{rationale}{outcome}</li>''')
+        rationale = f'<details class="previous-prediction-reason"><summary>予想した理由</summary><p>{e(record["rationale"])}</p></details>' if record.get("rationale") else ""
+        items.append(f'''<li><strong>{date.year}年{date.month}月{date.day}日（{weekday}）を予想</strong>
+<p>サイト公開：{publication_timestamp_markup(record)}</p>{rationale}</li>''')
     if not items:
         return ""
     return f'''<section class="previous-predictions" aria-labelledby="previous-predictions-title"><h2 id="previous-predictions-title">過去のリセット予想</h2>
-<p class="previous-predictions-intro">後から予想日を書き換えたものではありません。公開日時はGitHub Pagesの公開完了記録で確認できます。</p>
+<p class="previous-predictions-intro">予想した日と公開した時刻を記録しています。</p>
 <ol>{"".join(items)}</ol></section>'''
 
 
@@ -292,18 +289,10 @@ def calendar_overview(records, forecast, editorial=None):
         key = f'{today.year}-{today.month:02d}-{day:02d}'
         day_records = by_day.get(key, [])
         marks = []
-        completed_reset = any(r['kind'] == 'global' and r['state'] != 'announced' for r in day_records)
-        completed_ticket = any(r['kind'] == 'banked' and r['state'] != 'announced' for r in day_records)
-        pending_reset = any(r['kind'] == 'global' and r['state'] == 'announced' for r in day_records) and not completed_reset
-        pending_ticket = any(r['kind'] == 'banked' and r['state'] == 'announced' for r in day_records) and not completed_ticket
-        if completed_reset:
+        if any(r['kind'] == 'global' for r in day_records):
             marks.append('<span class="day-mark reset-mark">リセット</span>')
-        if completed_ticket:
+        if any(r['kind'] == 'banked' for r in day_records):
             marks.append('<span class="day-mark banked-mark">チケット</span>')
-        if pending_reset:
-            marks.append('<span class="day-mark announced-mark">リセット発表</span>')
-        if pending_ticket:
-            marks.append('<span class="day-mark ticket-announced-mark">配布予告</span>')
         if key == predicted:
             marks.append('<span class="day-mark predicted-mark">予想</span>')
         classes = 'calendar-day' + (' is-today' if key == today.isoformat() else '')
@@ -318,11 +307,21 @@ def calendar_overview(records, forecast, editorial=None):
         year, month = index // 12, index % 12 + 1
         value = f'{year}-{month:02d}'
         month_options.append(f'<option value="{value}" {"selected" if value == today.strftime("%Y-%m") else ""}>{year}年{month}月</option>')
-    status_note = ('<p class="day-status-explainer">この日はリセットの発表がありました。完了したという投稿はまだ記録されていませんが、未実施という意味ではありません。各アカウントへの反映時刻は確認できません。</p>'
-                   if any(r['kind'] == 'global' and r['state'] == 'announced' for r in by_day.get(selected, []))
-                   and not any(r['kind'] == 'global' and r['state'] != 'announced' for r in by_day.get(selected, []))
-                   else '')
-    details = status_note + (''.join(f'<article class="day-record"><p class="day-record-time">{e(r["time"])} <span>{e(r["evidence"])}</span></p><h4>{e(r["title"])}</h4><p>{e(r["note"])}</p><p class="day-source">' + ''.join(link(s['url'], s['label']) for s in r['sources']) + f'<a href="#{e(r["id"])}">履歴の詳細</a></p></article>' for r in by_day.get(selected, [])) or '<p class="empty-day">この日の発表はありません。</p>')
+    day_records = by_day.get(selected, [])
+    cards = []
+    for kind in ("global", "banked"):
+        posted = [r for r in day_records if r["kind"] == kind]
+        if not posted:
+            continue
+        title = "リセット" if kind == "global" else "リセットチケット"
+        urls = []
+        for r in posted:
+            for source in r["sources"]:
+                if source["url"] not in urls:
+                    urls.append(source["url"])
+        buttons = "".join(link(url, f"元の発表 {i+1}") for i, url in enumerate(urls))
+        cards.append(f'<article class="day-record"><h4>{title}</h4><p class="day-posts">{len(posted)}件の投稿</p><p class="day-source">{buttons}</p></article>')
+    details = "".join(cards) or '<p class="empty-day">この日の情報はありません。</p>'
     payload = json.dumps({'today':today.isoformat(), 'selected':selected, 'first':first, 'last':last, 'predicted':predicted, 'records':entries}, ensure_ascii=False).replace('<', '\\u003c')
     if forecast['status'] == 'ok':
         h24, h48 = forecast['horizons']['24'], forecast['horizons']['48']
@@ -341,18 +340,16 @@ def calendar_overview(records, forecast, editorial=None):
         forecast_panel = f'''<aside class="forecast-panel forecast-editorial" aria-labelledby="forecast-title" data-editorial-expires-at="{e(editorial["expires_at"])}"><div class="forecast-heading"><h2 id="forecast-title">次のリセット予想</h2><span>当サイトの予想・非公式</span></div>
 <p class="editorial-date">{target_day.year}年{target_day.month}月{target_day.day}日（{weekday}）</p>
 <p class="editorial-reason-title">{target_day.month}月{target_day.day}日と予想する理由</p>
-<p class="editorial-edition">今回の予想は{e(jst(editorial["created_at"]))}（日本時間）に新たに判断しました。前回の同じ予想日とは別の予想です。</p>
 <p class="editorial-reason">{e(editorial["rationale"])}</p>
-<p class="editorial-basis">根拠となる発表：{e(basis)}（<a href="#history">過去の履歴を見る</a>）</p>
 <p class="editorial-caution">{e(editorial["caution"])}</p>
-<p class="editorial-written">サイトで予想を公開：{publication_timestamp_markup(editorial) or "公開時刻を確認中"}</p></aside>'''
+<p class="editorial-written">予想の公開日時：{publication_timestamp_markup(editorial) or "確認中"}</p></aside>'''
     elif forecast["status"] == "ok":
         forecast_panel = f'''<aside class="forecast-panel" aria-labelledby="forecast-title"><div class="forecast-heading"><h2 id="forecast-title">次のリセット予測</h2><span>当サイト独自の試算</span></div><div id="forecast-current" data-generated-at="{forecast['generated_at']}">{prediction}</div><p class="forecast-updated">予測の計算日時：{e(jst(forecast["generated_at"]))}（日本時間）</p><a class="method-link" href="forecast.html">計算方法と検証について →</a><p class="forecast-disclaimer">{DISCLAIMER}</p></aside>'''
     else:
         forecast_panel = ""
     layout_class = "calendar-layout" if forecast_panel else "calendar-layout calendar-layout--full"
     prediction_legend = '<span><i class="legend-predicted"></i>予想日</span>' if forecast_panel else ""
-    return f'''<div class="{layout_class}"><section class="calendar-section" aria-labelledby="calendar-title"><div class="calendar-section-heading"><h2 id="calendar-title">リセットカレンダー</h2><span>投稿時刻は日本時間</span></div><div class="calendar-controls"><div><button id="calendar-prev" type="button" aria-label="前の月">‹</button><label class="sr-only" for="calendar-month">カレンダーの年月</label><select id="calendar-month">{''.join(month_options)}</select><button id="calendar-next" type="button" aria-label="次の月">›</button></div><button id="calendar-today" type="button">今月</button></div><div class="calendar-weekdays" aria-hidden="true"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div><div id="calendar-grid" class="calendar-grid" role="group" aria-label="{today.year}年{today.month}月">{grid}</div><div class="calendar-legend"><span><i class="legend-reset"></i>リセット完了報告</span><span><i class="legend-announced"></i>リセット発表</span><span><i class="legend-banked"></i>リセットチケット</span><span><i class="legend-ticket-announced"></i>チケット配布予告</span>{prediction_legend}</div><p class="calendar-status-explainer">「リセット発表」は、完了時刻を確認できる投稿がない日です。実際には利用枠が回復していても、そのまま表示される場合があります。<a href="about.html#reset-states">表示の違いを見る</a></p><section class="selected-day" aria-live="polite" aria-atomic="true"><h3 id="selected-date">{int(selected[5:7])}月{int(selected[8:])}日の発表</h3><div id="selected-records">{details}</div></section><noscript><p>月の切り替えにはJavaScriptが必要です。全履歴は下の一覧から確認できます。</p></noscript></section>
+    return f'''<div class="{layout_class}"><section class="calendar-section" aria-labelledby="calendar-title"><div class="calendar-section-heading"><h2 id="calendar-title">リセットカレンダー</h2></div><div class="calendar-controls"><div><button id="calendar-prev" type="button" aria-label="前の月">‹</button><label class="sr-only" for="calendar-month">カレンダーの年月</label><select id="calendar-month">{''.join(month_options)}</select><button id="calendar-next" type="button" aria-label="次の月">›</button></div><button id="calendar-today" type="button">今月</button></div><div class="calendar-weekdays" aria-hidden="true"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div><div id="calendar-grid" class="calendar-grid" role="group" aria-label="{today.year}年{today.month}月">{grid}</div><div class="calendar-legend"><span><i class="legend-reset"></i>リセット</span><span><i class="legend-banked"></i>リセットチケット</span>{prediction_legend}</div><p class="calendar-status-explainer">※リセットは、予告または完了の投稿があった日に表示しています。</p><section class="selected-day" aria-live="polite" aria-atomic="true"><h3 id="selected-date">{int(selected[5:7])}月{int(selected[8:])}日の発表</h3><div id="selected-records">{details}</div></section><noscript><p>月の切り替えにはJavaScriptが必要です。全履歴は下の一覧から確認できます。</p></noscript></section>
 {forecast_panel}</div><script id="calendar-data" type="application/json">{payload}</script>'''
 
 
@@ -387,14 +384,13 @@ def homepage(records, updated, forecast, forecast_history, editorial=None, edito
         rows.append(record_row(record))
     evidence_tabs = "".join(f'<button type="button" data-evidence-option="{key}" aria-pressed="{str(key == "all").lower()}">{label}</button>' for key, label in [("all", "すべて"), ("official", "公式サイト"), ("staff_x", "Xの投稿")])
     return f'''{calendar_overview(records, forecast, editorial)}
-<p class="time-note">Xの投稿時刻は日本時間で表示しています。リセットが実際に反映された時刻ではありません。公式記事の日付は原文どおり掲載します。<a href="about.html#dates">日時の見方</a></p>
 {previous_editorial_predictions(editorial_history)}
 {forecast_results(forecast_history)}
-<section id="history" class="history-section"><div class="section-heading"><h2 class="section-title">リセット情報の履歴</h2><p>{len(records)}件<span class="count-detail">（予告を含む発表記録）</span></p></div>
+<section id="history" class="history-section"><div class="section-heading"><h2 class="section-title">元の投稿</h2><p>{len(records)}件</p></div>
 <form id="filters" aria-label="履歴の絞り込み"><input type="hidden" id="evidence-filter" value="all"><div class="filter-primary"><div class="evidence-tabs" role="group" aria-label="確認状況で絞り込む">{evidence_tabs}</div><label class="search-label"><span class="sr-only">キーワード</span><input id="search-filter" type="search" placeholder="キーワードで検索" autocomplete="off"></label></div><div class="filter-secondary"><label for="kind-filter">種類</label><select id="kind-filter"><option value="all">すべて</option><option value="global">臨時リセット</option><option value="banked">リセットチケット</option></select><label for="month-filter">年月</label><select id="month-filter"><option value="all">すべての月</option>{options}</select><button class="reset-filter" type="reset">条件を解除</button></div></form>
-<p class="archive-explainer">予告と実施報告は別々に掲載しています。件数はリセットの実施回数ではありません。</p>
+<p class="archive-explainer">※投稿ごとの一覧です。同じ日に複数の投稿がある場合があります。</p>
 <p id="result-count" class="result-count" aria-live="polite">{len(records)}件の記録を表示</p><div class="table-wrap"><table><caption class="sr-only">ChatGPT Work・Codexの臨時リセット履歴</caption><thead><tr><th scope="col">日時</th><th scope="col">発表内容</th><th scope="col">発信元</th><th scope="col">元の発表</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div><p id="no-results" hidden>条件に一致する履歴はありません。</p><noscript><p>絞り込みにはJavaScriptが必要です。以下に全履歴を掲載しています。</p></noscript></section>
-<section class="related-guide"><h2>自分の利用枠はいつ回復する？</h2><p>通常の利用枠の回復予定や残り枠は、お使いのChatGPTの「使用状況」などで確認できます。このサイトは特別なリセットの発表をまとめたもので、個々のアカウントの回復時刻は分かりません。</p><a href="guide.html">臨時リセットとチケットの違いを見る →</a></section>'''
+<section class="related-guide"><h2>自分の利用枠は？</h2><p>残りの利用枠や通常の回復予定はChatGPTの「使用状況」で確認できます。</p><a href="guide.html">リセットの種類を見る →</a></section>'''
 
 
 FORECAST_METHOD = f'''<article class="article"><h1 class="section-title">予測の計算方法</h1><p class="article-lead">過去のリセット間隔に基づく、当サイト独自の試算です。</p>
@@ -410,24 +406,19 @@ FORECAST_METHOD = f'''<article class="article"><h1 class="section-title">予測�
 <h2>予測を見る際の注意</h2><p class="method-disclaimer">{DISCLAIMER}</p><p class="article-back"><a href="./">カレンダーに戻る</a></p></article>'''
 
 
-GUIDE = '''<article class="article"><h1 class="section-title">リセットの種類</h1><p class="article-lead">利用枠がいつものペースで回復する場合と、OpenAIが特別にリセットする場合は異なります。</p>
-<h2>通常の利用枠の回復</h2><p>5時間や1週間などの利用期間に応じて、利用枠は定期的に回復します。自分の残り枠や回復予定は、ChatGPTの使用状況などで確認してください。</p>
-<h2>臨時リセット</h2><p>OpenAIが障害への対応や記念企画などで、対象となる利用枠を特別に回復することです。「一斉リセット」と案内される場合もありますが、<strong>ChatGPTの全利用者・全機能が対象になるとは限りません。</strong>対象プランや内容は発表ごとに異なります。</p>
-<h2>リセットチケット</h2><p>対象のアカウントに付与される、<strong>必要なときに自分で使えるリセット</strong>のことです。チケットを受け取っただけでは利用枠は回復せず、利用者自身が使用したときに適用されます。1枚につき1回利用でき、有効期限などの条件があります。OpenAIの公式案内では「保存済みリセット」（banked reset）と呼ばれています。</p><p>チケットの有無や使い方、残り回数、有効期限は、ご自身のアカウントの「使用状況」などで確認してください。</p>
-<h2>「予告」と「実施報告」の違い</h2><p>「予告」は今後リセットするという発表で、まだ利用枠が回復したことを意味しません。「実施報告」はOpenAI側から実施・反映されたと発表された記録です。アカウントごとの反映時刻は異なる場合があります。同じリセットの予告と実施報告を別々に掲載することがあります。</p>
-<h2>リセットの対象はどこで分かる？</h2><p>対象のサービス・プラン・利用枠は発表によって異なります。履歴に記載された発表内容と、リンク先のOpenAI公式記事またはX投稿でご確認ください。ChatGPTの画像生成やAPIなど、別の機能まで回復するとは限りません。</p>
-<section class="article-source"><h2>OpenAIの案内</h2><ul><li><a href="https://help.openai.com/ja-jp/articles/20001498-how-banked-codex-resets-work">リセットチケット（公式名：保存済みリセット）の仕組み</a></li><li><a href="https://help.openai.com/ja-jp/articles/11369540-using-codex-with-your-chatgpt-plan">ChatGPTのプランでCodexを利用する</a></li></ul></section><p class="article-back"><a href="./#history">履歴一覧に戻る</a></p></article>'''
+GUIDE = '''<article class="article"><h1 class="section-title">リセットの種類</h1><p class="article-lead">リセットには主に2つの種類があります。</p>
+<h2>臨時リセット</h2><p>OpenAIが利用枠を特別に回復することです。対象のプランや機能は発表によって異なります。</p>
+<h2>リセットチケット</h2><p>もらっておき、必要なときに自分で使えるリセットです。有効期限などの条件があります。</p>
+<h2>残りの利用枠を調べるには</h2><p>ChatGPTの「使用状況」で、自分の残りの利用枠と通常の回復予定を確認できます。</p>
+<p class="article-back"><a href="./">カレンダーに戻る</a></p></article>'''
 
-ABOUT = f'''<article class="article"><h1 class="section-title">このサイトについて</h1><p class="article-lead">Codex・ChatGPT Workの臨時リセット情報をまとめた、非公式の情報サイトです。</p>
-<h2>掲載している情報</h2><p>Codex・ChatGPT Workの臨時リセットやリセットチケットについて、発表内容を時系列で紹介しています。<strong>掲載件数はリセットが行われた回数ではありません。</strong>同じリセットの予告と実施報告をそれぞれ掲載する場合があります。対象のプラン・機能は発表ごとに異なります。</p>
-<h2>情報の出典</h2><p>情報は<a href="{OFFICIAL_URL}">OpenAIの公式ヘルプ</a>などの公式発表と、OpenAIでCodexを率いる<strong>Tibo（ティボ）氏</strong>（Thibault Sottiaux／<a href="https://x.com/thsottiaux">@thsottiaux</a>）などのX投稿をもとにまとめています。各履歴から、元の発表や投稿に移動できます。</p>
-<h2>情報の確かめ方</h2><p>投稿の内容を日本語で要約しているため、原文と表現が異なる場合があります。また、Xの一部の投稿は検索結果に表示された本文をもとにしており、投稿全文を確認できていないものもあります。確認できない内容を推測で補わず、「予告」と「実施済み」の報告は分けて掲載します。</p>
-<h2 id="reset-states">「リセット発表」と「リセット完了報告」</h2><p>「リセット発表」は、OpenAI関係者がリセットを予告・案内した日です。実際には反映済みでも、完了を明示した原投稿がなければ「リセット発表」のままです。「リセット完了報告」は、関係者が実施・反映完了を明示した日です。青い表示の濃淡は発表内容の確認段階の違いであり、未実施かどうかを示すものではありません。</p><p>OpenAI公式ヘルプの<a href="https://help.openai.com/en/articles/20001498-how-resets-work-in-codex">リセットの説明</a>によると、自動リセットは対象者の使用枠に適用されても、アカウントのリセット履歴には記載されません。設定の「使用状況」で残り枠や次の回復日時は確認できますが、その変化だけで特定の臨時リセットを識別できません。このサイトでは全員への反映時刻を断定しません。</p><h2 id="dates">日時の見方</h2><p>Xの投稿日時は日本時間に換算しています。「投稿 15:33」は午後3時33分の投稿という意味で、利用枠が実際に回復した時刻ではありません。OpenAI公式記事に日付しか書かれていない場合は、その記事の記載日をそのまま表示し、日本の日付に換算しません。</p>
-<h2>更新について</h2><p>定期的に新しい発表を確認し、掲載内容を更新しています。Xの閲覧制限などによって情報の確認が遅れる場合があり、すべての発表を網羅できるとは限りません。</p>
-
-<h2>運営・お問い合わせ</h2><p>このサイトは個人（<a href="https://github.com/mtk-ctrl">mtk-ctrl</a>）が運営しており、OpenAIとは提携していません。情報の訂正やご意見は<a href="https://github.com/{REPO}/issues">GitHubの問い合わせページ</a>からお寄せください。</p>
-<h2>プライバシー</h2><p>独自のアクセス解析・広告・Cookie・会員登録は設けていません。</p><p class="article-back"><a href="./">カレンダーに戻る</a></p></article>'''
-
+ABOUT = f'''<article class="article"><h1 class="section-title">このサイトについて</h1>
+<p class="article-lead">Codex・ChatGPT Workのリセット情報をまとめた、非公式サイトです。</p>
+<h2>リセットの記録</h2><p>カレンダーには、OpenAIの発表やTibo氏のX投稿があった日を「リセット」として掲載しています。予告も含みます。実際の反映日は異なる場合があります。</p>
+<h2>情報源</h2><p><a href="{OFFICIAL_URL}">OpenAIの公式案内</a>と、Codexの責任者<strong>Tibo氏</strong>（Thibault Sottiaux／<a href="https://x.com/thsottiaux">X</a>）などの発信を確認しています。元の投稿は「元の投稿」一覧から見られます。</p>
+<h2 id="dates">日時について</h2><p>表示日時は日本時間の投稿日時です。実際に利用枠が回復した時刻とは限りません。</p>
+<h2>運営</h2><p>OpenAIとは関係のない個人運営サイトです。<a href="https://github.com/{REPO}/issues">お問い合わせ・訂正</a></p>
+<p class="article-back"><a href="./">カレンダーに戻る</a></p></article>'''
 
 def build():
     records = read_json(DATA / "events.json", [])
