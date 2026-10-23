@@ -131,7 +131,8 @@ class FirstPartyTests(unittest.TestCase):
         view = site.homepage(rows, "2026-10-20T14:00:00Z", forecast, [], editorial)
         self.assertIn("2026年10月25日（日）", view)
         self.assertIn("サイトで予想を公開：", view)
-        self.assertIn("公開時刻を確認中", view)
+        self.assertIn("2026/10/24 06:52", view)
+        self.assertIn("40029830544", view)
         self.assertIn("10月24日に改めて", view)
         self.assertIn("前回の同じ予想日とは別の予想", view)
         self.assertIn("1～3日間隔", view)
@@ -174,7 +175,8 @@ class FirstPartyTests(unittest.TestCase):
         page = site.homepage(rows, "2026-10-23T22:00:00Z", forecast, [], editorial, history)
         self.assertIn("2026/10/20 23:17", page)
         self.assertIn("2026/10/23 07:07", page)
-        self.assertIn("公開時刻を確認中", page)
+        self.assertIn("2026/10/24 06:52", page)
+        self.assertIn("40029830544", page)
         self.assertIn("過去のリセット予想", page)
 
     def test_new_day18_announcement_and_forecast_history(self):
@@ -210,7 +212,9 @@ class FirstPartyTests(unittest.TestCase):
         self.assertEqual(old["published_at"], "2026-10-23T07:07:47+09:00")
         self.assertTrue(old["retired_at"])
         self.assertEqual(current["last_report_id"], "2113492502355562875:global")
-        self.assertNotIn("published_at", current)
+        self.assertEqual(current["published_at"], "2026-10-24T06:52:32+09:00")
+        self.assertEqual(current["publication_run_id"], 40029830544)
+        self.assertNotEqual(current["published_at"], old["published_at"])
         self.assertIsNotNone(site.active_editorial_forecast(
             json.loads((ROOT / "data/events.json").read_text(encoding="utf-8")),
             site.parse_time("2026-10-23T22:00:00Z"), current))
