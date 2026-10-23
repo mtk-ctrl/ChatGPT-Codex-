@@ -147,7 +147,9 @@ class FirstPartyTests(unittest.TestCase):
         newer = {**baseline, "id": "new-reset:global", "reference_at": "2026-10-25T01:00:00Z", "state": "reported"}
         self.assertIsNone(site.active_editorial_forecast([*rows, newer], site.parse_time("2026-10-25T02:00:00Z"), config))
         prior_cycle_completion = {**baseline, "id": "day17-done:global", "reference_at": "2026-10-23T08:00:00Z", "state": "reported"}
-        self.assertIsNotNone(site.active_editorial_forecast([*rows, prior_cycle_completion], site.parse_time("2026-10-23T09:00:00Z"), config))
+        previous_config = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))[-1]
+        prior_rows = [r for r in rows if r.get("post_id") not in {"2113492187770175603", "2113492502355562875"}]
+        self.assertIsNotNone(site.active_editorial_forecast([*prior_rows, prior_cycle_completion], site.parse_time("2026-10-23T09:00:00Z"), previous_config))
 
     def test_archived_october_23_prediction_shows_original_publication_time(self):
         history = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))
