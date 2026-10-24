@@ -19,6 +19,19 @@ class FirstPartyTests(unittest.TestCase):
         self.assertIsNone(site.safe_url("https://secret@x.com/thsottiaux/status/111111111111"))
         self.assertEqual(site.safe_url("https://x.com/thsottiaux/status/123?s=20"), "https://x.com/thsottiaux/status/123")
 
+    def test_search_result_favicon_is_png_and_accessible_from_all_pages(self):
+        import struct
+        icon = ROOT / "docs/assets/favicon-96.png"
+        data = icon.read_bytes()
+        self.assertEqual(data[:8], b"\x89PNG\r\n\x1a\n")
+        width, height = struct.unpack(">II", data[16:24])
+        self.assertEqual((width, height), (96, 96))
+        for page in ("index", "about", "guide"):
+            markup = site.shell("title", "description", page, "content", "2026-10-24T00:00:00Z")
+            self.assertIn('<link rel="icon" href="assets/favicon-96.png" type="image/png" sizes="96x96">', markup)
+            self.assertIn('<meta property="og:site_name" content="ChatGPT リセット履歴">', markup)
+            self.assertNotIn('href="assets/icon.svg" type="image/svg+xml"', markup)
+
     def test_official_detection(self):
         body = "On Sep 3, 2026 and Sep 4, 2026 Plus Pro Business accounts got banked resets. On Sep 7, 2026 we provided an automatic reset."
         self.assertTrue(primary.official_verified(body))
