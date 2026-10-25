@@ -152,7 +152,7 @@ def link(url, text, cls=""):
 
 def shell(title, description, active, content, updated, show_forecast=True):
     canonical = SITE_URL + ("/" if active == "index" else f"/{active}.html")
-    nav = "".join(f'<a href="{href}" {"aria-current=page" if active == key else ""}>{label}</a>' for key, href, label in [("index", "./", "リセット履歴"), ("guide", "guide.html", "リセットの種類"), ("forecast", "forecast.html", "予測の計算方法"), ("about", "about.html", "このサイトについて")] if key != "forecast" or show_forecast)
+    nav = "".join(f'<a href="{href}" {"aria-current=page" if active == key else ""}>{label}</a>' for key, href, label in [("index", "./", "リセット履歴"), ("ship28", "ship28.html", "28日間の発表"), ("guide", "guide.html", "リセットの種類"), ("forecast", "forecast.html", "予測の計算方法"), ("about", "about.html", "このサイトについて")] if key != "forecast" or show_forecast)
     website = json.dumps({"@context": "https://schema.org", "@type": "WebSite", "name": "ChatGPT リセット履歴", "url": SITE_URL + "/", "inLanguage": "ja"}, ensure_ascii=False).replace("<", "\\u003c")
     brand_tag = "h1" if active == "index" else "div"
     return f'''<!doctype html>
@@ -408,6 +408,39 @@ FORECAST_METHOD = f'''<article class="article"><h1 class="section-title">予測�
 <h2>予測を見る際の注意</h2><p class="method-disclaimer">{DISCLAIMER}</p><p class="article-back"><a href="./">カレンダーに戻る</a></p></article>'''
 
 
+def shipping_28_view(rows):
+    """A dated editorial digest of Tibo's 28-day series, separate from reset records."""
+    seen = set()
+    table_rows = []
+    for record in sorted(rows, key=lambda item: item["day"]):
+        day = record["day"]
+        if not isinstance(day, int) or isinstance(day, bool) or day < 1 or day > 28 or day in seen:
+            raise ValueError("Invalid or repeated shipping day")
+        seen.add(day)
+        date_pt = datetime.strptime(record["date_pt"], "%Y-%m-%d")
+        if date_pt.date() != (datetime(2026, 10, 5) + timedelta(days=day - 1)).date():
+            raise ValueError("Shipping date is inconsistent with day number")
+        sources = record["sources"]
+        if not sources or not all(re.fullmatch(r"https://x\\.com/thsottiaux/status/\\d{12,24}", url) for url in sources):
+            raise ValueError("Every day needs an original first-party X post")
+        links = " ".join(link(url, f"投稿{i+1}") for i, url in enumerate(sources))
+        date_display = f"{date_pt.month}/{date_pt.day}"
+        table_rows.append(f'<tr id="day-{day}"><th scope="row">Day {day}</th>'
+                          f'<td class="shipping-date" data-label="日付">{date_display}</td>'
+                          f'<td class="shipping-type" data-label="区分">{e(record["category"])}</td>'
+                          f'<td class="shipping-summary" data-label="発表内容">{e(record["summary"])}</td>'
+                          f'<td class="shipping-sources" data-label="原投稿">{links}</td></tr>')
+    return ('''<article class="shipping-page"><div class="shipping-heading">
+<h1 class="section-title">28日間の発表一覧</h1>
+<p class="article-lead">Codex・ChatGPT Workを中心とした28日間の改善・リセット企画。Day 1〜20の発表内容を日付順にまとめました。</p>
+<p class="shipping-note">日付は企画上の米国太平洋時間です。日本時間では発表が翌日になることがあります。「リセット」には予告も含み、全アカウントへの反映完了を意味するとは限りません。「チケット」は後から使える保存型リセットです。</p>
+</div><div class="shipping-table-wrap"><table class="shipping-table">
+<thead><tr><th scope="col">日</th><th scope="col">日付</th><th scope="col">区分</th><th scope="col">発表・改善内容</th><th scope="col">原投稿</th></tr></thead>
+<tbody>''' + "".join(table_rows) + '''</tbody></table></div>
+<p class="shipping-note">この一覧はTibo氏の原投稿を基にした要約です。個々の機能の提供対象・提供時期はプランや地域などによって異なる場合があります。新たな日程の発表は確認後に追記します。</p>
+<p class="article-back"><a href="./">リセットカレンダーに戻る</a></p></article>''')
+
+
 GUIDE = '''<article class="article"><h1 class="section-title">リセットの種類</h1><p class="article-lead">リセットには主に2つの種類があります。</p>
 <h2>臨時リセット</h2><p>OpenAIが利用枠を特別に回復することです。対象のプランや機能は発表によって異なります。</p>
 <h2>リセットチケット</h2><p>もらっておき、必要なときに自分で使えるリセットです。有効期限などの条件があります。</p>
@@ -439,6 +472,7 @@ def build():
     OUT.mkdir(parents=True, exist_ok=True)
     pages = {
         "index": ("ChatGPT リセット履歴｜Codex・Workの利用枠リセット日と次回予想", "ChatGPT Work・Codexの利用枠リセット履歴をカレンダーで確認。OpenAIの発表やTibo氏の投稿をもとに、これまでのリセット日・次回予想・リセットチケットの情報をまとめています。", homepage(records, updated, forecast, history, editorial, editorial_history)),
+        "ship28": ("28日間の発表一覧｜Codex・Workの機能改善とリセット", "OpenAIのCodex・ChatGPT Workの28日間企画。Day 1〜20の新機能・速度改善・利用枠リセットを日別に一覧で紹介。Tibo氏のX原投稿へのリンク付き。", shipping_28_view(read_json(DATA / "shipping-28.json", []))),
         "guide": ("リセットの種類｜ChatGPT リセット履歴", "通常の利用枠の回復と、臨時リセット・リセットチケットの違いを説明します。", GUIDE),
         "forecast": ("予測の計算方法｜ChatGPT リセット履歴", "独自予測の計算式、集計対象、検証方法と注意事項を掲載しています。", FORECAST_METHOD),
         "about": ("このサイトについて｜ChatGPT リセット履歴", "サイトの情報源、日時の見方、更新方法をご案内します。", ABOUT),
@@ -447,7 +481,7 @@ def build():
         (OUT / f"{key}.html").write_text(shell(title, description, key, content, updated, show_forecast=forecast["status"] == "ok"), encoding="utf-8")
     write_json(OUT / "forecast.json", {**forecast, "scores": scores(history), "source_policy": "OpenAI公式発表・Codex責任者らのX投稿", "disclaimer": DISCLAIMER})
     (OUT / ".nojekyll").write_text("", encoding="utf-8")
-    urls = [SITE_URL + "/", SITE_URL + "/guide.html", SITE_URL + "/about.html", SITE_URL + "/forecast.html"]
+    urls = [SITE_URL + "/", SITE_URL + "/ship28.html", SITE_URL + "/guide.html", SITE_URL + "/about.html", SITE_URL + "/forecast.html"]
     sitemap = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + "".join(f"<url><loc>{e(u)}</loc><lastmod>{updated}</lastmod></url>" for u in urls) + "</urlset>"
     (OUT / "sitemap.xml").write_text(sitemap, encoding="utf-8")
     (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {SITE_URL}/sitemap.xml\n", encoding="utf-8")

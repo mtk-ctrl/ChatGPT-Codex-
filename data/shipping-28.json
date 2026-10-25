@@ -1,0 +1,192 @@
+[
+  {
+    "day": 1,
+    "date_pt": "2026-10-05",
+    "category": "改善",
+    "summary": "GPT-6 AstraとGPT-6.1 Solを約50%高速化。サブスクリプション経由の標準生成速度を約30→50トークン/秒へ。",
+    "sources": [
+      "https://x.com/thsottiaux/status/2107158998495748264"
+    ]
+  },
+  {
+    "day": 2,
+    "date_pt": "2026-10-06",
+    "category": "改善＋リセット",
+    "summary": "自動レビュー無料化、APIの利用枠区分の簡素化、会議メモ用Meetingsプラグイン、Decisions APIの公開ベータを発表。加えて利用枠をリセット。",
+    "sources": [
+      "https://x.com/thsottiaux/status/2107368734981517634",
+      "https://x.com/thsottiaux/status/2107548725359104441",
+      "https://x.com/thsottiaux/status/2107573405553938664",
+      "https://x.com/thsottiaux/status/2107574912349303197",
+      "https://x.com/thsottiaux/status/2107676072871600470"
+    ]
+  },
+  {
+    "day": 3,
+    "date_pt": "2026-10-07",
+    "category": "新機能＋チケット",
+    "summary": "GPT-6のChatGPT展開とIntelligent UI。CodexとWorkの利用者4,000万人を記念し、有料アカウントに保存型リセットを配布。",
+    "sources": [
+      "https://x.com/thsottiaux/status/2107913674593644711"
+    ]
+  },
+  {
+    "day": 4,
+    "date_pt": "2026-10-08",
+    "category": "改善",
+    "summary": "Instant steeringで実行中の指示変更に素早く対応。GPT-6.1 Sol UltrafastもAPI・Codex・Work向けに展開開始。",
+    "sources": [
+      "https://x.com/thsottiaux/status/2108275041276420573"
+    ]
+  },
+  {
+    "day": 5,
+    "date_pt": "2026-10-09",
+    "category": "新機能",
+    "summary": "Codexデスクトップ版に次の入力文を提案する機能。スマホのChatGPTアプリからDotsを作成・メッセージ送信できるように改善。",
+    "sources": [
+      "https://x.com/thsottiaux/status/2108645667451318747",
+      "https://x.com/thsottiaux/status/2108646052178092403"
+    ]
+  },
+  {
+    "day": 6,
+    "date_pt": "2026-10-10",
+    "category": "リセット",
+    "summary": "利用枠リセットを発表。",
+    "sources": [
+      "https://x.com/thsottiaux/status/2109045220411351517"
+    ]
+  },
+  {
+    "day": 7,
+    "date_pt": "2026-10-11",
+    "category": "改善",
+    "summary": "GPT-6.1 Solの標準コンテキストを27.2万から50万トークンに拡張。最大100万トークンまで設定可能。",
+    "sources": [
+      "https://x.com/thsottiaux/status/2109430343346581527"
+    ]
+  },
+  {
+    "day": 8,
+    "date_pt": "2026-10-12",
+    "category": "リセット",
+    "summary": "利用枠リセットを発表。米国太平洋時間の当日中に反映予定と案内。",
+    "sources": [
+      "https://x.com/thsottiaux/status/2109812216212099456"
+    ]
+  },
+  {
+    "day": 9,
+    "date_pt": "2026-10-13",
+    "category": "改善",
+    "summary": "ChatGPT・Codexデスクトップアプリがディスクに保存する状態データを約60%削減する最適化。",
+    "sources": [
+      "https://x.com/thsottiaux/status/2110151780478927344"
+    ]
+  },
+  {
+    "day": 10,
+    "date_pt": "2026-10-14",
+    "category": "リセット",
+    "summary": "利用枠リセットを発表。",
+    "sources": [
+      "https://x.com/thsottiaux/status/2110595484180214059"
+    ]
+  },
+  {
+    "day": 11,
+    "date_pt": "2026-10-15",
+    "category": "改善",
+    "summary": "モデル処理能力の不足によるエラーを削減し、発生した場合も自動的に処理を再開する仕組みを改善。",
+    "sources": [
+      "https://x.com/thsottiaux/status/2110750421367287996"
+    ]
+  },
+  {
+    "day": 12,
+    "date_pt": "2026-10-16",
+    "category": "改善",
+    "summary": "サブエージェント間の文脈再利用、キャッシュ保持、リクエスト振り分けを改善。同じ利用枠でより多く作業できるようにし、GPT-6 Astra Proの改善も発表。",
+    "sources": [
+      "https://x.com/thsottiaux/status/2111244596131111253"
+    ]
+  },
+  {
+    "day": 13,
+    "date_pt": "2026-10-17",
+    "category": "リセット",
+    "summary": "利用枠リセットを発表。米国太平洋時間の当日中に反映予定と案内。",
+    "sources": [
+      "https://x.com/thsottiaux/status/2111492673890824348"
+    ]
+  },
+  {
+    "day": 14,
+    "date_pt": "2026-10-18",
+    "category": "改善",
+    "summary": "Codexデスクトップアプリで、会話の最後だけでなく過去のユーザーメッセージも編集可能に。",
+    "sources": [
+      "https://x.com/thsottiaux/status/2111990254408434095"
+    ]
+  },
+  {
+    "day": 15,
+    "date_pt": "2026-10-19",
+    "category": "紹介＋リセット",
+    "summary": "「Cooking with Codex」の機能紹介を公開し、利用枠もリセット。",
+    "sources": [
+      "https://x.com/thsottiaux/status/2112268918681485431",
+      "https://x.com/thsottiaux/status/2112432076767289678"
+    ]
+  },
+  {
+    "day": 16,
+    "date_pt": "2026-10-20",
+    "category": "改善",
+    "summary": "APIで12時間のプロンプトキャッシュに対応。Codex・Workでも長時間後に会話を再開した際のキャッシュ再利用を強化。",
+    "sources": [
+      "https://x.com/thsottiaux/status/2112712984644784534"
+    ]
+  },
+  {
+    "day": 17,
+    "date_pt": "2026-10-21",
+    "category": "リセット",
+    "summary": "利用枠リセットを予告。翌日の米国太平洋時間午前10時までの反映を案内。",
+    "sources": [
+      "https://x.com/thsottiaux/status/2113162277688070445",
+      "https://x.com/thsottiaux/status/2113162413008884099"
+    ]
+  },
+  {
+    "day": 18,
+    "date_pt": "2026-10-22",
+    "category": "改善＋リセット",
+    "summary": "Decisions API正式公開、OpenResponsesのLinux Foundation参加、性能改善などを発表。利用枠のリセットも予告。",
+    "sources": [
+      "https://x.com/thsottiaux/status/2113492187770175603",
+      "https://x.com/thsottiaux/status/2113492502355562875"
+    ]
+  },
+  {
+    "day": 19,
+    "date_pt": "2026-10-23",
+    "category": "改善",
+    "summary": "Dotsの接続高速化、推論設定変更時のキャッシュ維持、Codex CLIの改善を発表。",
+    "sources": [
+      "https://x.com/thsottiaux/status/2113770573994299544"
+    ]
+  },
+  {
+    "day": 20,
+    "date_pt": "2026-10-24",
+    "category": "リセット",
+    "summary": "「Rest and reset」。リセットを発表し、後にTibo氏が全体への反映完了を報告（日本時間10月25日15:06）。",
+    "sources": [
+      "https://x.com/thsottiaux/status/2114200152701575656",
+      "https://x.com/thsottiaux/status/2114200291319124163",
+      "https://x.com/thsottiaux/status/2114237083652882932"
+    ]
+  }
+]

@@ -265,3 +265,37 @@ tr[data-record]:target{background:#eef5fc}
 .day-posts{font-size:12px;color:var(--muted)}
 .calendar-status-explainer{font-size:12px;line-height:1.65;margin:5px 0 19px}
 @media(max-width:700px){.calendar-status-explainer{font-size:11px}.record-more,.previous-prediction-reason{font-size:12px}}
+
+/* 28-day release history: readable as a table on desktop, cards on phones. */
+.shipping-page{padding:28px 0 45px}
+.shipping-heading{max-width:880px;margin-bottom:22px}
+.shipping-heading .article-lead{font-size:16px;line-height:1.85}
+.shipping-note{font-size:12px;line-height:1.95;color:var(--muted);margin:14px 0 20px}
+.shipping-table-wrap{overflow-x:auto;border-top:2px solid var(--ink)}
+.shipping-table{width:100%;border-collapse:collapse;text-align:left;font-size:13px;line-height:1.8}
+.shipping-table th,.shipping-table td{padding:13px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.shipping-table thead{background:var(--soft)}
+.shipping-table thead th{font-size:12px;white-space:nowrap}
+.shipping-table tbody th{white-space:nowrap;font-weight:700;font-variant-numeric:tabular-nums}
+.shipping-date{white-space:nowrap;font-variant-numeric:tabular-nums}
+.shipping-type{min-width:110px;color:#234b75}
+.shipping-summary{min-width:260px}
+.shipping-sources{min-width:90px;font-size:12px}
+.shipping-sources a{display:inline-block;margin:0 8px 4px 0;white-space:nowrap}
+.shipping-table tbody tr:target{background:#f1f6fb}
+@media(max-width:700px){
+  .main-nav{gap:9px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .main-nav a{flex:0 0 auto;white-space:nowrap;padding:11px 4px 10px}
+  .shipping-page{padding-top:21px}
+  .shipping-heading .article-lead{font-size:14px}
+  .shipping-table-wrap{overflow:visible}
+  .shipping-table,.shipping-table tbody,.shipping-table tr{display:block;width:100%}
+  .shipping-table thead{display:none}
+  .shipping-table tbody tr{position:relative;border-bottom:1px solid var(--line);padding:13px 0}
+  .shipping-table th,.shipping-table td{display:block;border:0;padding:3px 0;min-width:0}
+  .shipping-table tbody th{font-size:16px;display:inline-block;margin-right:15px}
+  .shipping-table .shipping-date,.shipping-table .shipping-type{display:inline-block;font-size:12px;margin-right:12px}
+  .shipping-table .shipping-summary{font-size:13px;line-height:1.85;margin-top:5px}
+  .shipping-table .shipping-sources{font-size:11px}
+  .shipping-table .shipping-sources::before{content:"原投稿：";color:var(--muted)}
+}

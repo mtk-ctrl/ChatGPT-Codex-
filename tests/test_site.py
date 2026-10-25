@@ -19,6 +19,29 @@ class FirstPartyTests(unittest.TestCase):
         self.assertIsNone(site.safe_url("https://secret@x.com/thsottiaux/status/111111111111"))
         self.assertEqual(site.safe_url("https://x.com/thsottiaux/status/123?s=20"), "https://x.com/thsottiaux/status/123")
 
+    def test_28_day_publication_tab_is_listed_and_html_safe(self):
+        rows = json.loads((ROOT / "data/shipping-28.json").read_text(encoding="utf-8"))
+        self.assertEqual(len(rows), 20)
+        self.assertEqual([r["day"] for r in rows], list(range(1, 21)))
+        self.assertEqual(rows[0]["date_pt"], "2026-10-05")
+        self.assertEqual(rows[-1]["date_pt"], "2026-10-24")
+        self.assertTrue(all(r["sources"] for r in rows))
+        self.assertTrue(all(all(url.startswith("https://x.com/thsottiaux/status/") for url in r["sources"]) for r in rows))
+        markup = site.shipping_28_view(rows)
+        self.assertEqual(markup.count('class="shipping-summary"'), 20)
+        self.assertIn("Day 1", markup)
+        self.assertIn("Day 20", markup)
+        self.assertIn("保存型リセット", markup)
+        self.assertIn("全体への反映完了", markup)
+        for page in ("index", "about", "ship28"):
+            html = site.shell("確認", "説明", page, "本文", "2026-10-25T00:00:00Z")
+            self.assertIn('href="ship28.html"', html)
+        self.assertIn('<a href="ship28.html" aria-current=page>', site.shell("確認", "説明", "ship28", "本文", "2026-10-25T00:00:00Z"))
+        bad = dict(rows[0], summary='<script>alert("x")</script>')
+        safe = site.shipping_28_view([bad])
+        self.assertNotIn('<script>alert', safe)
+        self.assertIn('&lt;script&gt;', safe)
+
     def test_search_result_favicon_is_png_and_accessible_from_all_pages(self):
         import struct
         icon = ROOT / "docs/assets/favicon-96.png"
