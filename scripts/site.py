@@ -192,7 +192,7 @@ def record_row(record):
 <td class="record-date" data-label="日時"><time datetime="{e(stamp)}"><span>{e(day.replace("-", "/"))}</span><span class="record-clock">{e(clock)}</span></time></td>
 <td class="record-content" data-label="発表内容"><strong class="record-title">{e(record_title(record))}</strong>{target}{note}</td>
 <td class="record-evidence" data-label="発信元"><span class="badge {record['evidence']}">{e(source_name(record))}</span></td>
-<td class="record-source" data-label="元の発表"><div class="source-links">{source}</div></td></tr>'''
+<td class="record-source" data-label="発表を確認"><div class="source-links">{source}</div></td></tr>'''
 
 
 DISCLAIMER = ("この予測は当サイト独自の試算であり、OpenAIが発表した予定ではありません。"
@@ -321,7 +321,7 @@ def calendar_overview(records, forecast, editorial=None):
             for source in r["sources"]:
                 if source["url"] not in urls:
                     urls.append(source["url"])
-        buttons = "".join(link(url, f"元の発表 {i+1}") for i, url in enumerate(urls))
+        buttons = "".join(link(src["url"], f'{r["time"]}｜' + ("反映完了の報告" if r["state"] == "reported" else ("反映予定の案内" if "期限" in r["note"] or "予定" in r["note"] or "までに" in r["note"] else "リセットの予告")) + "（Xの投稿）") for r in sorted(posted, key=lambda item: item["time"]) for src in r["sources"] if src["url"] == r["sources"][-1]["url"])
         cards.append(f'<article class="day-record"><h4>{title}</h4><p class="day-posts">{len(posted)}件の投稿</p><p class="day-source">{buttons}</p></article>')
     details = "".join(cards) or '<p class="empty-day">この日の情報はありません。</p>'
     payload = json.dumps({'today':today.isoformat(), 'selected':selected, 'first':first, 'last':last, 'predicted':predicted, 'records':entries}, ensure_ascii=False).replace('<', '\\u003c')
@@ -388,7 +388,7 @@ def homepage(records, updated, forecast, forecast_history, editorial=None, edito
     return f'''{calendar_overview(records, forecast, editorial)}
 {previous_editorial_predictions(editorial_history)}
 {forecast_results(forecast_history)}
-<section id="history" class="history-section"><div class="section-heading"><h2 class="section-title">元の投稿</h2><p>{len(records)}件</p></div>
+<section id="history" class="history-section"><div class="section-heading"><h2 class="section-title">リセットに関する発表一覧</h2><p>{len(records)}件</p></div>
 <form id="filters" aria-label="履歴の絞り込み"><input type="hidden" id="evidence-filter" value="all"><div class="filter-primary"><div class="evidence-tabs" role="group" aria-label="確認状況で絞り込む">{evidence_tabs}</div><label class="search-label"><span class="sr-only">キーワード</span><input id="search-filter" type="search" placeholder="キーワードで検索" autocomplete="off"></label></div><div class="filter-secondary"><label for="kind-filter">種類</label><select id="kind-filter"><option value="all">すべて</option><option value="global">臨時リセット</option><option value="banked">リセットチケット</option></select><label for="month-filter">年月</label><select id="month-filter"><option value="all">すべての月</option>{options}</select><button class="reset-filter" type="reset">条件を解除</button></div></form>
 <p class="archive-explainer">※投稿ごとの一覧です。同じ日に複数の投稿がある場合があります。</p>
 <p id="result-count" class="result-count" aria-live="polite">{len(records)}件の記録を表示</p><div class="table-wrap"><table><caption class="sr-only">ChatGPT Work・Codexの臨時リセット履歴</caption><thead><tr><th scope="col">日時</th><th scope="col">発表内容</th><th scope="col">発信元</th><th scope="col">元の発表</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div><p id="no-results" hidden>条件に一致する履歴はありません。</p><noscript><p>絞り込みにはJavaScriptが必要です。以下に全履歴を掲載しています。</p></noscript></section>
