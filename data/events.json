@@ -9,7 +9,7 @@
     "time_basis": "X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）",
     "time_officially_verified": false,
     "evidence": "staff_x",
-    "verification_method": "X原投稿の検索表示と引用表示で本文を照合。原投稿ページの全文直接取得は不可",
+    "verification_method": "X原投稿の検索結果表示（本文抜粋）と原投稿の引用表示で照合。原投稿ページの全文取得は不可",
     "verified_at": "2026-10-25",
     "products": [
       "codex",
@@ -30,7 +30,7 @@
     "time_basis": "X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）",
     "time_officially_verified": false,
     "evidence": "staff_x",
-    "verification_method": "X原投稿の検索表示と引用表示で本文を照合。原投稿ページの全文直接取得は不可",
+    "verification_method": "X原投稿の検索結果表示（本文抜粋）と原投稿の引用表示で照合。原投稿ページの全文取得は不可",
     "verified_at": "2026-10-25",
     "products": [
       "codex",
@@ -51,7 +51,7 @@
     "time_basis": "X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）",
     "time_officially_verified": false,
     "evidence": "staff_x",
-    "verification_method": "X原投稿の検索表示と引用表示で本文を照合。原投稿ページの全文直接取得は不可",
+    "verification_method": "X原投稿の検索結果表示（本文抜粋）と原投稿の引用表示で照合。原投稿ページの全文取得は不可",
     "verified_at": "2026-10-25",
     "products": [
       "codex",

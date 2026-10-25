@@ -85,3 +85,11 @@ OpenAI公式ヘルプ https://help.openai.com/en/articles/20001498-how-resets-wo
 ## 検索結果のサイトアイコン（2026-10-24）
 
 カレンダーを描いた従来の `docs/assets/icon.svg` を元に、Google検索が対応する96×96ピクセルのPNG `docs/assets/favicon-96.png` を追加。HTML全ページの `rel="icon"` はPNGを指す。Googleが「アイコンのないサイト」と認識していた問題を改善する。Googleのfavicon選定はホスト名単位なので、GitHub Pagesの `mtk-ctrl.github.io/ChatGPT-Codex-/` というサブフォルダだけに別アイコンを必ず付けられるわけではない。検索結果への反映には再クロールが必要で、表示は保証されない。
+
+## 2026年10月25日：Day20の利用枠リセット
+
+2026年10月25日12:39 JSTにTibo氏が「Day 20/ Rest and reset」と予告（https://x.com/thsottiaux/status/2114200152701575656）、12:40 JSTに「By midnight PST」と実施期限を補足（https://x.com/thsottiaux/status/2114200291319124163）、15:06 JSTに「It is all propagated」と全体への反映完了を報告（https://x.com/thsottiaux/status/2114237083652882932）。掲載日時は元投稿のX IDから計算したもので、実際のリセット時刻は断定しない。個別アカウントの対象・回復状況は別途確認が必要。検証できた本文に基づき、予告2件と完了報告1件を独立した投稿記録として追加した（計69件）。
+
+10月24日06:52 JSTに公開済みの「10月25日」独自予想は、Day20の発表日と一致。旧予想の初回公開時刻・根拠を保存したまま予想履歴へ移し、サイト上の「事後確認」に結果を表示する。これは10月23日07:07公開の別の10月25日予想（10月23日のDay18予告で終了）とは別。日付一致は観測であり、OpenAIから内部予定の確約があった意味ではない。
+
+`active_editorial_forecast` の歴史的時点での検証は、評価時点より後に投稿された完了報告を参照しないよう修正した。自動収集の失敗は `data/health.json` に残す。

@@ -174,6 +174,23 @@ class FirstPartyTests(unittest.TestCase):
         self.assertNotIn("配布予告", html)
         self.assertNotIn("リセット発表", html)
 
+    def test_day20_announcement_deadline_completion(self):
+        rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
+        ids = ["2114200152701575656", "2114200291319124163", "2114237083652882932"]
+        matched = [next(r for r in rows if r.get("post_id") == x) for x in ids]
+        self.assertEqual([r["state"] for r in matched], ["announced", "announced", "reported"])
+        self.assertEqual([site.jst(r["reference_at"]) for r in matched],
+                         ["2026/10/25 12:39", "2026/10/25 12:40", "2026/10/25 15:06"])
+        self.assertTrue(all(site.record_day(r) == "2026-10-25" for r in matched))
+        config = json.loads((ROOT / "data/editorial-forecast.json").read_text(encoding="utf-8"))
+        self.assertIsNone(site.active_editorial_forecast(rows, site.parse_time("2026-10-25T06:07:00Z"), config))
+        history = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))
+        archived = next(r for r in history if r.get("publication_run_id") == 40029830544)
+        self.assertEqual(archived["published_at"], "2026-10-24T06:52:32+09:00")
+        visible = site.previous_editorial_predictions(history)
+        self.assertIn("事後確認：", visible)
+        self.assertIn("15:06", visible)
+
     def test_october_25_editorial_prediction(self):
         rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
         config = json.loads((ROOT / "data/editorial-forecast.json").read_text(encoding="utf-8"))

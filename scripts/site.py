@@ -227,7 +227,7 @@ def active_editorial_forecast(records, now, proposal):
         if r.get("date_precision") == "day":
             if r.get("official_date", "") > record_day(baseline):
                 return None
-        elif parse_time(r["reference_at"]) > baseline_time:
+        elif baseline_time < parse_time(r["reference_at"]) <= now:
             return None
     return proposal
 
@@ -258,8 +258,9 @@ def previous_editorial_predictions(history):
         date = datetime.strptime(record["date"], "%Y-%m-%d")
         weekday = "月火水木金土日"[date.weekday()]
         rationale = f'<details class="previous-prediction-reason"><summary>予想した理由</summary><p>{e(record["rationale"])}</p></details>' if record.get("rationale") else ""
+        outcome = f'<p>事後確認：{e(record["outcome"])}</p>' if record.get("outcome") else ""
         items.append(f'''<li><strong>{date.year}年{date.month}月{date.day}日（{weekday}）を予想</strong>
-<p>サイト公開：{publication_timestamp_markup(record)}</p>{rationale}</li>''')
+<p>サイト公開：{publication_timestamp_markup(record)}</p>{outcome}{rationale}</li>''')
     if not items:
         return ""
     return f'''<section class="previous-predictions" aria-labelledby="previous-predictions-title"><h2 id="previous-predictions-title">過去のリセット予想</h2>
