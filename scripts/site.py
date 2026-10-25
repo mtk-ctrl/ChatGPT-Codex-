@@ -421,7 +421,7 @@ def shipping_28_view(rows):
         if date_pt.date() != (datetime(2026, 10, 5) + timedelta(days=day - 1)).date():
             raise ValueError("Shipping date is inconsistent with day number")
         sources = record["sources"]
-        if not sources or not all(re.fullmatch(r"https://x\\.com/thsottiaux/status/\\d{12,24}", url) for url in sources):
+        if not sources or not all(re.fullmatch(r"https://x\.com/(?:thsottiaux|OpenAI)/status/\d{12,24}", url) for url in sources):
             raise ValueError("Every day needs an original first-party X post")
         links = " ".join(link(url, f"投稿{i+1}") for i, url in enumerate(sources))
         date_display = f"{date_pt.month}/{date_pt.day}"

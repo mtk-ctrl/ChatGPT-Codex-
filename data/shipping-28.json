@@ -109,7 +109,8 @@
     "category": "改善",
     "summary": "サブエージェント間の文脈再利用、キャッシュ保持、リクエスト振り分けを改善。同じ利用枠でより多く作業できるようにし、GPT-6 Astra Proの改善も発表。",
     "sources": [
-      "https://x.com/thsottiaux/status/2111244596131111253"
+      "https://x.com/thsottiaux/status/2111244596131111253",
+      "https://x.com/OpenAI/status/2111192259073094035"
     ]
   },
   {
