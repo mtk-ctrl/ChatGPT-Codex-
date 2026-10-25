@@ -1,5 +1,68 @@
 [
   {
+    "id": "2114237083652882932:global",
+    "post_id": "2114237083652882932",
+    "kind": "global",
+    "state": "reported",
+    "reference_at": "2026-10-25T06:06:16.025Z",
+    "date_precision": "minute",
+    "time_basis": "X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）",
+    "time_officially_verified": false,
+    "evidence": "staff_x",
+    "verification_method": "X原投稿の検索表示と引用表示で本文を照合。原投稿ページの全文直接取得は不可",
+    "verified_at": "2026-10-25",
+    "products": [
+      "codex",
+      "chatgpt_work"
+    ],
+    "note": "Day20のリセットについて、Tibo氏が「It is all propagated」と投稿し、対象への反映が全体に行き渡った旨を報告しました。個別のアカウントの反映状況までは確認していません。",
+    "original_url": "https://x.com/thsottiaux/status/2114237083652882932",
+    "official_confirmation": null,
+    "reason_tags": []
+  },
+  {
+    "id": "2114200291319124163:global",
+    "post_id": "2114200291319124163",
+    "kind": "global",
+    "state": "announced",
+    "reference_at": "2026-10-25T03:40:04.049Z",
+    "date_precision": "minute",
+    "time_basis": "X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）",
+    "time_officially_verified": false,
+    "evidence": "staff_x",
+    "verification_method": "X原投稿の検索表示と引用表示で本文を照合。原投稿ページの全文直接取得は不可",
+    "verified_at": "2026-10-25",
+    "products": [
+      "codex",
+      "chatgpt_work"
+    ],
+    "note": "Day20の利用枠リセットについて、Tibo氏が「By midnight PST」と反映期限を補足しました。期限までに適用する予定の案内であり、完了報告ではありません。",
+    "original_url": "https://x.com/thsottiaux/status/2114200291319124163",
+    "official_confirmation": null,
+    "reason_tags": []
+  },
+  {
+    "id": "2114200152701575656:global",
+    "post_id": "2114200152701575656",
+    "kind": "global",
+    "state": "announced",
+    "reference_at": "2026-10-25T03:39:31.000Z",
+    "date_precision": "minute",
+    "time_basis": "X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）",
+    "time_officially_verified": false,
+    "evidence": "staff_x",
+    "verification_method": "X原投稿の検索表示と引用表示で本文を照合。原投稿ページの全文直接取得は不可",
+    "verified_at": "2026-10-25",
+    "products": [
+      "codex",
+      "chatgpt_work"
+    ],
+    "note": "Tibo氏が28日間企画の20日目に「Day 20/ Rest and reset」と投稿し、利用枠の臨時リセットを予告しました。この投稿自体は完了報告ではありません。",
+    "original_url": "https://x.com/thsottiaux/status/2114200152701575656",
+    "official_confirmation": null,
+    "reason_tags": []
+  },
+  {
     "id": "2113492502355562875:global",
     "post_id": "2113492502355562875",
     "kind": "global",
