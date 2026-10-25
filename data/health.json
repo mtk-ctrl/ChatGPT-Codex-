@@ -1,9 +1,9 @@
 {
-  "checked_at": "2026-10-25T23:27:25Z",
+  "checked_at": "2026-10-25T23:31:39Z",
   "last_success_at": null,
   "feed": "failed",
   "official_page": "unavailable",
-  "x_status": "checked",
+  "x_status": "unavailable",
   "message": "一次資料を確認できません。確認済みの過去データのみ表示中。",
   "source_policy": "OpenAI official and original staff X",
   "official_errors": [
