@@ -152,7 +152,7 @@ def link(url, text, cls=""):
 
 def shell(title, description, active, content, updated, show_forecast=True):
     canonical = SITE_URL + ("/" if active == "index" else f"/{active}.html")
-    nav = "".join(f'<a href="{href}" {"aria-current=page" if active == key else ""}>{label}</a>' for key, href, label in [("index", "./", "リセット履歴"), ("ship28", "ship28.html", "28日間の発表"), ("guide", "guide.html", "リセットの種類"), ("forecast", "forecast.html", "予測の計算方法"), ("about", "about.html", "このサイトについて")] if key != "forecast" or show_forecast)
+    nav = "".join(f'<a href="{href}" {"aria-current=page" if active == key else ""}>{label}</a>' for key, href, label in [("index", "./", "リセット履歴"), ("ship28", "ship28.html", "新機能・リセット"), ("guide", "guide.html", "リセットの種類"), ("forecast", "forecast.html", "予測の計算方法"), ("about", "about.html", "このサイトについて")] if key != "forecast" or show_forecast)
     website = json.dumps({"@context": "https://schema.org", "@type": "WebSite", "name": "ChatGPT リセット履歴", "url": SITE_URL + "/", "inLanguage": "ja"}, ensure_ascii=False).replace("<", "\\u003c")
     brand_tag = "h1" if active == "index" else "div"
     return f'''<!doctype html>
@@ -431,8 +431,9 @@ def shipping_28_view(rows):
                           f'<td class="shipping-summary" data-label="発表内容">{e(record["summary"])}</td>'
                           f'<td class="shipping-sources" data-label="原投稿">{links}</td></tr>')
     return ('''<article class="shipping-page"><div class="shipping-heading">
-<h1 class="section-title">28日間の発表一覧</h1>
-<p class="article-lead">Codex・ChatGPT Workを中心とした28日間の改善・リセット企画。Day 1〜20の発表内容を日付順にまとめました。</p>
+<h1 class="section-title">OpenAIの28日間企画</h1>
+<h2 class="shipping-subtitle">新機能・改善・利用枠リセットの発表一覧</h2>
+<p class="article-lead">2026年10月5日から28日間、OpenAIの担当者Tibo氏がCodex・ChatGPT Workなどの新機能や改善、利用枠の臨時リセットを発表している企画です。Day 1〜20の内容を日付順にまとめています。</p>
 <p class="shipping-note">日付は企画上の米国太平洋時間です。日本時間では発表が翌日になることがあります。「リセット」には予告も含み、全アカウントへの反映完了を意味するとは限りません。「チケット」は後から使える保存型リセットです。</p>
 </div><div class="shipping-table-wrap"><table class="shipping-table">
 <thead><tr><th scope="col">日</th><th scope="col">日付</th><th scope="col">区分</th><th scope="col">発表・改善内容</th><th scope="col">原投稿</th></tr></thead>
@@ -472,7 +473,7 @@ def build():
     OUT.mkdir(parents=True, exist_ok=True)
     pages = {
         "index": ("ChatGPT リセット履歴｜Codex・Workの利用枠リセット日と次回予想", "ChatGPT Work・Codexの利用枠リセット履歴をカレンダーで確認。OpenAIの発表やTibo氏の投稿をもとに、これまでのリセット日・次回予想・リセットチケットの情報をまとめています。", homepage(records, updated, forecast, history, editorial, editorial_history)),
-        "ship28": ("28日間の発表一覧｜Codex・Workの機能改善とリセット", "OpenAIのCodex・ChatGPT Workの28日間企画。Day 1〜20の新機能・速度改善・利用枠リセットを日別に一覧で紹介。Tibo氏のX原投稿へのリンク付き。", shipping_28_view(read_json(DATA / "shipping-28.json", []))),
+        "ship28": ("OpenAIの28日間企画｜Codex・Workの新機能・リセット一覧", "OpenAI担当者の28日間企画。Day 1〜20のCodex・ChatGPT Workの新機能・速度改善・利用枠リセットを日別に紹介。Tibo氏のX原投稿へのリンク付き。", shipping_28_view(read_json(DATA / "shipping-28.json", []))),
         "guide": ("リセットの種類｜ChatGPT リセット履歴", "通常の利用枠の回復と、臨時リセット・リセットチケットの違いを説明します。", GUIDE),
         "forecast": ("予測の計算方法｜ChatGPT リセット履歴", "独自予測の計算式、集計対象、検証方法と注意事項を掲載しています。", FORECAST_METHOD),
         "about": ("このサイトについて｜ChatGPT リセット履歴", "サイトの情報源、日時の見方、更新方法をご案内します。", ABOUT),
