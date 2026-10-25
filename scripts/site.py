@@ -152,7 +152,7 @@ def link(url, text, cls=""):
 
 def shell(title, description, active, content, updated, show_forecast=True):
     canonical = SITE_URL + ("/" if active == "index" else f"/{active}.html")
-    nav = "".join(f'<a href="{href}" {"aria-current=page" if active == key else ""}>{label}</a>' for key, href, label in [("index", "./", "リセット履歴"), ("ship28", "ship28.html", "新機能・リセット"), ("guide", "guide.html", "リセットの種類"), ("forecast", "forecast.html", "予測の計算方法"), ("about", "about.html", "このサイトについて")] if key != "forecast" or show_forecast)
+    nav = "".join(f'<a href="{href}" {"aria-current=page" if active == key else ""}>{label}</a>' for key, href, label in [("index", "./", "リセット履歴"), ("ship28", "ship28.html", "新機能・リセット"), ("guide", "guide.html", "リセットの種類"), ("forecast", "forecast.html", "予想の考え方"), ("about", "about.html", "このサイトについて")] if key != "forecast" or show_forecast)
     website = json.dumps({"@context": "https://schema.org", "@type": "WebSite", "name": "ChatGPT リセット履歴", "url": SITE_URL + "/", "inLanguage": "ja"}, ensure_ascii=False).replace("<", "\\u003c")
     brand_tag = "h1" if active == "index" else "div"
     return f'''<!doctype html>
@@ -162,7 +162,7 @@ def shell(title, description, active, content, updated, show_forecast=True):
 <meta property="og:type" content="website"><meta property="og:locale" content="ja_JP"><meta property="og:title" content="{e(title)}"><meta property="og:description" content="{e(description)}"><meta property="og:url" content="{e(canonical)}">
 <meta name="theme-color" content="#245e9b"><meta property="og:site_name" content="ChatGPT リセット履歴"><link rel="icon" href="assets/favicon-96.png" type="image/png" sizes="96x96"><link rel="stylesheet" href="assets/style.css"><link rel="alternate" type="application/rss+xml" title="ChatGPT リセット履歴 更新情報" href="feed.xml"><link rel="sitemap" type="application/xml" href="sitemap.xml">
 <script type="application/ld+json">{website}</script><script defer src="assets/app.js"></script></head>
-<body><a class="skip" href="#main">本文へ移動</a><header class="site-header container"><div class="masthead"><div><div class="brand-line"><{brand_tag} class="brand"><a href="./">ChatGPT リセット履歴</a></{brand_tag}></div><p class="site-subtitle">Codex・ChatGPT Workの利用枠リセット・次回予想</p></div><p class="site-description">ChatGPT Work・Codexの利用枠リセットがいつあったかをカレンダーで確認できます。OpenAIの発表とTibo氏の投稿をまとめています。</p></div><nav class="main-nav" aria-label="メインナビゲーション">{nav}</nav></header>
+<body><a class="skip" href="#main">本文へ移動</a><header class="site-header container"><div class="masthead"><div><div class="brand-line"><{brand_tag} class="brand"><a href="./">ChatGPT リセット履歴</a></{brand_tag}></div><p class="site-subtitle">Codex・ChatGPT Workの利用枠リセット・次回予想</p></div><p class="site-description">Codex・ChatGPT Workの利用枠が特別に回復した日や、次回の予想を確認できます。カレンダーの「リセット」には、実施前の予告も含みます。</p></div><nav class="main-nav" aria-label="メインナビゲーション">{nav}</nav></header>
 <main id="main" class="container">{content}</main>
 <footer class="container site-footer"><p class="footer-title">ChatGPT リセット履歴</p><p>情報源：OpenAIの発表と、Codex責任者Tibo氏などのX投稿。</p><p class="footer-links"><a href="about.html">掲載情報について</a><a href="https://github.com/{REPO}/issues">訂正の連絡</a><a href="data.csv">履歴データ（CSV）</a><a href="feed.xml">RSS</a></p></footer></body></html>'''
 
@@ -184,14 +184,14 @@ def record_row(record):
     # Broad product tags classify the archive; they do not verify every post's eligibility.
     # Leave the exact target to the announcement text and original source.
     target = ""
-    note = f'<details class="record-more"><summary>投稿内容を見る</summary><p>{e(record["note"])}</p></details>' if record.get("note") else ""
+    note = f'<details class="record-more"><summary>発表内容を詳しく読む</summary><p>{e(record["note"])}</p></details>' if record.get("note") else ""
     day = record_day(record)
     stamp = day if record.get("date_precision") == "day" else record["reference_at"]
     clock = record_clock(record)
     return f'''<tr id="r-{e(record['id'].replace(':', '-'))}" data-record data-kind="{record['kind']}" data-evidence="{record['evidence']}" data-month="{day[:7]}">
 <td class="record-date" data-label="日時"><time datetime="{e(stamp)}"><span>{e(day.replace("-", "/"))}</span><span class="record-clock">{e(clock)}</span></time></td>
 <td class="record-content" data-label="発表内容"><strong class="record-title">{e(record_title(record))}</strong>{target}{note}</td>
-<td class="record-evidence" data-label="発信元"><span class="badge {record['evidence']}">{e(source_name(record))}</span></td>
+<td class="record-evidence" data-label="発表した人・組織"><span class="badge {record['evidence']}">{e(source_name(record))}</span></td>
 <td class="record-source" data-label="発表を確認"><div class="source-links">{source}</div></td></tr>'''
 
 
@@ -263,7 +263,7 @@ def previous_editorial_predictions(history):
 <p>サイト公開：{publication_timestamp_markup(record)}</p>{outcome}{rationale}</li>''')
     if not items:
         return ""
-    return f'''<section class="previous-predictions" aria-labelledby="previous-predictions-title"><h2 id="previous-predictions-title">過去のリセット予想</h2>
+    return f'''<section class="previous-predictions" aria-labelledby="previous-predictions-title"><h2 id="previous-predictions-title">以前の予想とその結果</h2>
 <p class="previous-predictions-intro">予想した日と公開した時刻を記録しています。</p>
 <ol>{"".join(items)}</ol></section>'''
 
@@ -388,14 +388,14 @@ def homepage(records, updated, forecast, forecast_history, editorial=None, edito
     return f'''{calendar_overview(records, forecast, editorial)}
 {previous_editorial_predictions(editorial_history)}
 {forecast_results(forecast_history)}
-<section id="history" class="history-section"><div class="section-heading"><h2 class="section-title">リセットに関する発表一覧</h2><p>{len(records)}件</p></div>
-<form id="filters" aria-label="履歴の絞り込み"><input type="hidden" id="evidence-filter" value="all"><div class="filter-primary"><div class="evidence-tabs" role="group" aria-label="確認状況で絞り込む">{evidence_tabs}</div><label class="search-label"><span class="sr-only">キーワード</span><input id="search-filter" type="search" placeholder="キーワードで検索" autocomplete="off"></label></div><div class="filter-secondary"><label for="kind-filter">種類</label><select id="kind-filter"><option value="all">すべて</option><option value="global">臨時リセット</option><option value="banked">リセットチケット</option></select><label for="month-filter">年月</label><select id="month-filter"><option value="all">すべての月</option>{options}</select><button class="reset-filter" type="reset">条件を解除</button></div></form>
-<p class="archive-explainer">※投稿ごとの一覧です。同じ日に複数の投稿がある場合があります。</p>
-<p id="result-count" class="result-count" aria-live="polite">{len(records)}件の記録を表示</p><div class="table-wrap"><table><caption class="sr-only">ChatGPT Work・Codexの臨時リセット履歴</caption><thead><tr><th scope="col">日時</th><th scope="col">発表内容</th><th scope="col">発信元</th><th scope="col">元の発表</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div><p id="no-results" hidden>条件に一致する履歴はありません。</p><noscript><p>絞り込みにはJavaScriptが必要です。以下に全履歴を掲載しています。</p></noscript></section>
+<section id="history" class="history-section"><div class="section-heading"><h2 class="section-title">これまでのリセット情報</h2><p>{len(records)}件</p></div>
+<form id="filters" aria-label="履歴の絞り込み"><input type="hidden" id="evidence-filter" value="all"><div class="filter-primary"><div class="evidence-tabs" role="group" aria-label="発表元で絞り込む">{evidence_tabs}</div><label class="search-label"><span class="sr-only">キーワード</span><input id="search-filter" type="search" placeholder="キーワードで検索" autocomplete="off"></label></div><div class="filter-secondary"><label for="kind-filter">種類</label><select id="kind-filter"><option value="all">すべて</option><option value="global">臨時リセット</option><option value="banked">リセットチケット</option></select><label for="month-filter">年月</label><select id="month-filter"><option value="all">すべての月</option>{options}</select><button class="reset-filter" type="reset">条件を解除</button></div></form>
+<p class="archive-explainer">発表を1件ずつ記録しています。同じ日に複数の発表がある場合もあります。</p>
+<p id="result-count" class="result-count" aria-live="polite">{len(records)}件の記録を表示</p><div class="table-wrap"><table><caption class="sr-only">ChatGPT Work・Codexの臨時リセット履歴</caption><thead><tr><th scope="col">発表日時（日本時間）</th><th scope="col">どんな発表？</th><th scope="col">発表した人・組織</th><th scope="col">詳しく見る</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div><p id="no-results" hidden>条件に一致する履歴はありません。</p><noscript><p>絞り込みにはJavaScriptが必要です。以下に全履歴を掲載しています。</p></noscript></section>
 <section class="related-guide"><h2>自分の利用枠は？</h2><p>残りの利用枠や通常の回復予定はChatGPTの「使用状況」で確認できます。</p><a href="guide.html">リセットの種類を見る →</a></section>'''
 
 
-FORECAST_METHOD = f'''<article class="article"><h1 class="section-title">予測の計算方法</h1><p class="article-lead">過去のリセット間隔に基づく、当サイト独自の試算です。</p>
+FORECAST_METHOD = f'''<article class="article"><h1 class="section-title">次回予想の考え方</h1><p class="article-lead">過去のリセット間隔に基づく、当サイト独自の試算です。</p>
 <h2>何を予測するのか</h2><p>臨時リセットの完了報告・確認報告が、計算時点から24時間・48時間以内に記録される可能性を試算します。判定には出典の参考時刻を使うため、履歴を取得した時刻や実際に利用枠が回復した時刻を予測するものではありません。</p><p>OpenAIの運用方針や内部情報を知るものではありません。リセットチケットの配布と実施予告は、計算から除外します。</p>
 <h2>計算の手順</h2><ol class="method-steps"><li>保存済みの臨時リセットの完了報告・確認報告を、参考時刻の順に並べます。同じ記録ID・同じ時刻の重複と未来の時刻を除外します。</li><li>連続する報告の間隔を求め、その始まりが計算時点から90日以内のものを使います。</li><li>前回の報告から現在までの経過時間を求めます。過去の間隔のうち、この経過時間より長いものだけを選びます。</li><li>選んだ間隔のうち、現在と同じ経過時点から24時間・48時間以内に次の報告があった件数を数えます。</li><li>少数の記録で0%や100%になりにくいよう、次の式で補正します。表示は5ポイント単位に丸めます。</li></ol>
 <p class="formula">予測値 ＝（該当件数 ＋ 1）÷（選んだ間隔の件数 ＋ 2）</p><p>これはラプラス補正を加えた条件付きの集計です。例えば、選んだ10件のうち3件が24時間以内なら、（3＋1）÷（10＋2）で約33%、表示は35%になります。</p>
@@ -423,22 +423,22 @@ def shipping_28_view(rows):
         sources = record["sources"]
         if not sources or not all(re.fullmatch(r"https://x\.com/(?:thsottiaux|OpenAI)/status/\d{12,24}", url) for url in sources):
             raise ValueError("Every day needs an original first-party X post")
-        links = " ".join(link(url, f"投稿{i+1}") for i, url in enumerate(sources))
+        links = " ".join(link(url, f"Xの投稿{i+1}を見る") for i, url in enumerate(sources))
         date_display = f"{date_pt.month}/{date_pt.day}"
         table_rows.append(f'<tr id="day-{day}"><th scope="row">Day {day}</th>'
                           f'<td class="shipping-date" data-label="日付">{date_display}</td>'
                           f'<td class="shipping-type" data-label="区分">{e(record["category"])}</td>'
                           f'<td class="shipping-summary" data-label="発表内容">{e(record["summary"])}</td>'
-                          f'<td class="shipping-sources" data-label="原投稿">{links}</td></tr>')
+                          f'<td class="shipping-sources" data-label="発表者の投稿">{links}</td></tr>')
     return ('''<article class="shipping-page"><div class="shipping-heading">
 <h1 class="section-title">OpenAIの28日間企画</h1>
 <h2 class="shipping-subtitle">新機能・改善・利用枠リセットの発表一覧</h2>
 <p class="article-lead">2026年10月5日から28日間、OpenAIの担当者Tibo氏がCodex・ChatGPT Workなどの新機能や改善、利用枠の臨時リセットを発表している企画です。Day 1〜20の内容を日付順にまとめています。</p>
 <p class="shipping-note">日付は企画上の米国太平洋時間です。日本時間では発表が翌日になることがあります。「リセット」には予告も含み、全アカウントへの反映完了を意味するとは限りません。「チケット」は後から使える保存型リセットです。</p>
 </div><div class="shipping-table-wrap"><table class="shipping-table">
-<thead><tr><th scope="col">日</th><th scope="col">日付</th><th scope="col">区分</th><th scope="col">発表・改善内容</th><th scope="col">原投稿</th></tr></thead>
+<thead><tr><th scope="col">何日目？</th><th scope="col">日付</th><th scope="col">種類</th><th scope="col">発表されたこと</th><th scope="col">発表者の投稿</th></tr></thead>
 <tbody>''' + "".join(table_rows) + '''</tbody></table></div>
-<p class="shipping-note">この一覧はTibo氏の原投稿を基にした要約です。個々の機能の提供対象・提供時期はプランや地域などによって異なる場合があります。新たな日程の発表は確認後に追記します。</p>
+<p class="shipping-note">この一覧はOpenAI公式と担当者本人の投稿を基にした要約です。個々の機能の提供対象・提供時期はプランや地域などによって異なる場合があります。新たな日程の発表は確認後に追記します。</p>
 <p class="article-back"><a href="./">リセットカレンダーに戻る</a></p></article>''')
 
 
@@ -451,8 +451,8 @@ GUIDE = '''<article class="article"><h1 class="section-title">リセットの種
 ABOUT = f'''<article class="article"><h1 class="section-title">このサイトについて</h1>
 <p class="article-lead">Codex・ChatGPT Workのリセット日と予想をカレンダーにまとめています。</p>
 <h2>リセットの記録</h2><p>カレンダーには、OpenAIの発表やTibo氏のX投稿があった日を「リセット」として掲載しています。予告も含みます。実際の反映日は異なる場合があります。</p>
-<h2>情報源</h2><p><a href="{OFFICIAL_URL}">OpenAIの公式案内</a>と、Codexの責任者<strong>Tibo氏</strong>（Thibault Sottiaux／<a href="https://x.com/thsottiaux">X</a>）などの発信を確認しています。元の投稿は「元の投稿」一覧から見られます。</p>
-<h2 id="dates">日時について</h2><p>表示日時は日本時間の投稿日時です。実際に利用枠が回復した時刻とは限りません。</p>
+<h2>情報の確認方法</h2><p><a href="{OFFICIAL_URL}">OpenAIの公式案内</a>と、Codexの責任者<strong>Tibo氏</strong>（Thibault Sottiaux／<a href="https://x.com/thsottiaux">X</a>）などの発信を確認しています。各記録の「公式発表を見る」「Xの投稿を見る」から、発表者本人の文章を確認できます。</p>
+<h2 id="dates">表示日時の見方</h2><p>表示日時は日本時間の投稿日時です。実際に利用枠が回復した時刻とは限りません。</p>
 <h2>お問い合わせ</h2><p><a href="https://github.com/{REPO}/issues">ご意見・訂正の連絡</a></p>
 <p class="article-back"><a href="./">カレンダーに戻る</a></p></article>'''
 
@@ -473,7 +473,7 @@ def build():
     OUT.mkdir(parents=True, exist_ok=True)
     pages = {
         "index": ("ChatGPT リセット履歴｜Codex・Workの利用枠リセット日と次回予想", "ChatGPT Work・Codexの利用枠リセット履歴をカレンダーで確認。OpenAIの発表やTibo氏の投稿をもとに、これまでのリセット日・次回予想・リセットチケットの情報をまとめています。", homepage(records, updated, forecast, history, editorial, editorial_history)),
-        "ship28": ("OpenAIの28日間企画｜Codex・Workの新機能・リセット一覧", "OpenAI担当者の28日間企画。Day 1〜20のCodex・ChatGPT Workの新機能・速度改善・利用枠リセットを日別に紹介。Tibo氏のX原投稿へのリンク付き。", shipping_28_view(read_json(DATA / "shipping-28.json", []))),
+        "ship28": ("OpenAIの28日間企画｜Codex・Workの新機能・リセット一覧", "OpenAI担当者の28日間企画。Day 1〜20のCodex・ChatGPT Workの新機能・速度改善・利用枠リセットを日別に紹介。Tibo氏のX発表者本人の投稿へのリンク付き。", shipping_28_view(read_json(DATA / "shipping-28.json", []))),
         "guide": ("リセットの種類｜ChatGPT リセット履歴", "通常の利用枠の回復と、臨時リセット・リセットチケットの違いを説明します。", GUIDE),
         "forecast": ("予測の計算方法｜ChatGPT リセット履歴", "独自予測の計算式、集計対象、検証方法と注意事項を掲載しています。", FORECAST_METHOD),
         "about": ("このサイトについて｜ChatGPT リセット履歴", "サイトの情報源、日時の見方、更新方法をご案内します。", ABOUT),
@@ -488,7 +488,7 @@ def build():
     (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {SITE_URL}/sitemap.xml\n", encoding="utf-8")
     stream = io.StringIO(newline="")
     writer = csv.writer(stream)
-    writer.writerow(["記録ID", "掲載日付・投稿日時", "時刻の意味", "種類", "発表内容", "発信元", "元の発表URL", "内容"])
+    writer.writerow(["記録ID", "掲載日付・投稿日時", "時刻の意味", "種類", "発表内容", "発信元", "発表の確認先URL", "内容"])
     for r in records:
         when = r["official_date"] if r.get("date_precision") == "day" else jst(r["reference_at"])
         source = (r.get("official_confirmation") or {}).get("url") or r.get("original_url") or ""
