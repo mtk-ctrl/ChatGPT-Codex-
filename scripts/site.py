@@ -185,13 +185,14 @@ def record_row(record):
     # Leave the exact target to the announcement text and original source.
     target = ""
     note = f'<details class="record-more"><summary>発表内容を詳しく読む</summary><p>{e(record["note"])}</p></details>' if record.get("note") else ""
+    verification_notice = '<small class="source-unverified">全文未確認</small>' if "全文未確認" in record.get("verification_method", "") else ""
     day = record_day(record)
     stamp = day if record.get("date_precision") == "day" else record["reference_at"]
     clock = record_clock(record)
     return f'''<tr id="r-{e(record['id'].replace(':', '-'))}" data-record data-kind="{record['kind']}" data-evidence="{record['evidence']}" data-month="{day[:7]}">
 <td class="record-date" data-label="日時"><time datetime="{e(stamp)}"><span>{e(day.replace("-", "/"))}</span><span class="record-clock">{e(clock)}</span></time></td>
 <td class="record-content" data-label="発表内容"><strong class="record-title">{e(record_title(record))}</strong>{target}{note}</td>
-<td class="record-evidence" data-label="発表した人・組織"><span class="badge {record['evidence']}">{e(source_name(record))}</span></td>
+<td class="record-evidence" data-label="発表した人・組織"><span class="badge {record['evidence']}">{e(source_name(record))}</span>{verification_notice}</td>
 <td class="record-source" data-label="発表を確認"><div class="source-links">{source}</div></td></tr>'''
 
 
@@ -433,7 +434,7 @@ def shipping_28_view(rows):
     return ('''<article class="shipping-page"><div class="shipping-heading">
 <h1 class="section-title">OpenAIの28日間企画</h1>
 <h2 class="shipping-subtitle">新機能・改善・利用枠リセットの発表一覧</h2>
-<p class="article-lead">2026年10月5日から28日間、OpenAIの担当者Tibo氏がCodex・ChatGPT Workなどの新機能や改善、利用枠の臨時リセットを発表している企画です。Day 1〜20の内容を日付順にまとめています。</p>
+<p class="article-lead">2026年10月5日から28日間、OpenAIの担当者Tibo氏がCodex・ChatGPT Workなどの新機能や改善、利用枠の臨時リセットを発表している企画です。Day 1〜{len(rows)}の内容を日付順にまとめています。</p>
 <p class="shipping-note">日付は企画上の米国太平洋時間です。日本時間では発表が翌日になることがあります。「リセット」には予告も含み、全アカウントへの反映完了を意味するとは限りません。「チケット」は後から使える保存型リセットです。</p>
 </div><div class="shipping-table-wrap"><table class="shipping-table">
 <thead><tr><th scope="col">何日目？</th><th scope="col">日付</th><th scope="col">種類</th><th scope="col">発表されたこと</th><th scope="col">発表者の投稿</th></tr></thead>
@@ -473,7 +474,7 @@ def build():
     OUT.mkdir(parents=True, exist_ok=True)
     pages = {
         "index": ("ChatGPT リセット履歴｜Codex・Workの利用枠リセット日と次回予想", "ChatGPT Work・Codexの利用枠リセット履歴をカレンダーで確認。OpenAIの発表やTibo氏の投稿をもとに、これまでのリセット日・次回予想・リセットチケットの情報をまとめています。", homepage(records, updated, forecast, history, editorial, editorial_history)),
-        "ship28": ("OpenAIの28日間企画｜Codex・Workの新機能・リセット一覧", "OpenAI担当者の28日間企画。Day 1〜20のCodex・ChatGPT Workの新機能・速度改善・利用枠リセットを日別に紹介。Tibo氏のX発表者本人の投稿へのリンク付き。", shipping_28_view(read_json(DATA / "shipping-28.json", []))),
+        "ship28": ("OpenAIの28日間企画｜Codex・Workの新機能・リセット一覧", "OpenAI担当者の28日間企画。Day 1〜21のCodex・ChatGPT Workの新機能・速度改善・利用枠リセットを日別に紹介。Tibo氏のX発表者本人の投稿へのリンク付き。", shipping_28_view(read_json(DATA / "shipping-28.json", []))),
         "guide": ("リセットの種類｜ChatGPT リセット履歴", "通常の利用枠の回復と、臨時リセット・リセットチケットの違いを説明します。", GUIDE),
         "forecast": ("予測の計算方法｜ChatGPT リセット履歴", "独自予測の計算式、集計対象、検証方法と注意事項を掲載しています。", FORECAST_METHOD),
         "about": ("このサイトについて｜ChatGPT リセット履歴", "サイトの情報源、日時の見方、更新方法をご案内します。", ABOUT),

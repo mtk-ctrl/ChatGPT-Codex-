@@ -1,5 +1,26 @@
 [
   {
+    "id": "2114588174249071102:global",
+    "post_id": "2114588174249071102",
+    "kind": "global",
+    "state": "announced",
+    "reference_at": "2026-10-26T05:21:22.546Z",
+    "date_precision": "minute",
+    "time_basis": "X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）",
+    "time_officially_verified": false,
+    "evidence": "staff_x",
+    "verification_method": "X原投稿の埋め込み表示にある本人の投稿本文を確認。原投稿ページは403で直接取得できず全文未確認。",
+    "verified_at": "2026-10-26",
+    "products": [
+      "codex",
+      "chatgpt_work"
+    ],
+    "note": "28日間企画のDay 21。Tibo氏が「Day 21/ Wonder what happens the remaining seven days. But today is a reset.」と投稿し、その日の利用枠リセットを発表しました。これは予告であり、全体への反映完了の報告ではありません。対象プランや実際の反映時刻は本文に記載されていません。X原投稿は直接取得できず、X埋め込み表示にある本人の投稿本文で照合しました（全文未確認）。",
+    "original_url": "https://x.com/thsottiaux/status/2114588174249071102",
+    "official_confirmation": null,
+    "reason_tags": []
+  },
+  {
     "id": "2114237083652882932:global",
     "post_id": "2114237083652882932",
     "kind": "global",
