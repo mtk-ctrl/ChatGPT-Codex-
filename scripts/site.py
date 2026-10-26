@@ -431,7 +431,7 @@ def shipping_28_view(rows):
                           f'<td class="shipping-type" data-label="区分">{e(record["category"])}</td>'
                           f'<td class="shipping-summary" data-label="発表内容">{e(record["summary"])}</td>'
                           f'<td class="shipping-sources" data-label="発表者の投稿">{links}</td></tr>')
-    return ('''<article class="shipping-page"><div class="shipping-heading">
+    return (f'''<article class="shipping-page"><div class="shipping-heading">
 <h1 class="section-title">OpenAIの28日間企画</h1>
 <h2 class="shipping-subtitle">新機能・改善・利用枠リセットの発表一覧</h2>
 <p class="article-lead">2026年10月5日から28日間、OpenAIの担当者Tibo氏がCodex・ChatGPT Workなどの新機能や改善、利用枠の臨時リセットを発表している企画です。Day 1〜{len(rows)}の内容を日付順にまとめています。</p>
