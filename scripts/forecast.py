@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 import math
 from statistics import median
 
-MODEL = 'interval-90d-laplace-v1'
+MODEL = 'interval-90d-reset-announcements-v2'
 WINDOW_DAYS = 90
 JST = timezone(timedelta(hours=9))
 
@@ -22,7 +22,7 @@ def iso(value):
 def completed_times(records, now):
     times, ids = set(), set()
     for row in sorted(records, key=lambda r: r.get('reference_at', '')):
-        if (row.get('kind') != 'global' or row.get('state') not in {'reported', 'observed'}
+        if (row.get('kind') != 'global' or row.get('state') not in {'announced', 'reported', 'observed'}
                 or row.get('date_precision') == 'day' or row.get('evidence') not in {'official', 'staff_x'}
                 or row.get('id') in ids):
             continue
@@ -33,7 +33,11 @@ def completed_times(records, now):
         if moment <= now:
             times.add(moment)
             ids.add(row.get('id'))
-    return sorted(times)
+    grouped = []
+    for moment in sorted(times):
+        if not grouped or moment - grouped[-1] >= timedelta(hours=6):
+            grouped.append(moment)
+    return grouped
 
 
 def wilson(successes, total):

@@ -17,7 +17,9 @@
     ],
     "note": "28日間企画 Day 22：GPT-6.1 Terra提供開始。OpenAI公式によれば、画像理解・PC操作・自然な文章作成を強化し、Plus・Pro・Enterprise・EduのChatGPT WorkとCodexで利用可能。従来モデルより利用枠を効率的に使える。リセットではなく新モデル提供。Tibo氏のX原投稿は全文未確認。",
     "original_url": "https://x.com/thsottiaux/status/2114800277677092936",
-    "official_confirmation": "https://openai.com/index/introducing-gpt-6-1-terra/",
+    "official_confirmation": {
+      "url": "https://openai.com/index/introducing-gpt-6-1-terra/"
+    },
     "reason_tags": []
   },
   {
@@ -36,10 +38,11 @@
       "codex",
       "chatgpt_work"
     ],
-    "note": "28日間企画のDay 21。Tibo氏が「Day 21/ Wonder what happens the remaining seven days. But today is a reset.」と投稿し、その日の利用枠リセットを発表しました。これは予告であり、全体への反映完了の報告ではありません。対象プランや実際の反映時刻は本文に記載されていません。X原投稿は直接取得できず、X埋め込み表示にある本人の投稿本文で照合しました（全文未確認）。",
+    "note": "28日間企画のDay 21。Tibo氏が「Day 21/ Wonder what happens the remaining seven days. But today is a reset.」と投稿し、その日の利用枠リセットを発表しました。対象プランや実際の反映時刻は本文に記載されていません。X原投稿は直接取得できず、X埋め込み表示にある本人の投稿本文で照合しました（全文未確認）。",
     "original_url": "https://x.com/thsottiaux/status/2114588174249071102",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2114237083652882932:global",
@@ -60,7 +63,8 @@
     "note": "Day20のリセットについて、Tibo氏が「It is all propagated」と投稿し、対象への反映が全体に行き渡った旨を報告しました。個別のアカウントの反映状況までは確認していません。",
     "original_url": "https://x.com/thsottiaux/status/2114237083652882932",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2114200291319124163:global",
@@ -78,10 +82,11 @@
       "codex",
       "chatgpt_work"
     ],
-    "note": "Day20の利用枠リセットについて、Tibo氏が「By midnight PST」と反映期限を補足しました。期限までに適用する予定の案内であり、完了報告ではありません。",
+    "note": "Day20の利用枠リセットについて、Tibo氏が「By midnight PST」と反映期限を補足しました。",
     "original_url": "https://x.com/thsottiaux/status/2114200291319124163",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2114200152701575656:global",
@@ -99,10 +104,11 @@
       "codex",
       "chatgpt_work"
     ],
-    "note": "Tibo氏が28日間企画の20日目に「Day 20/ Rest and reset」と投稿し、利用枠の臨時リセットを予告しました。この投稿自体は完了報告ではありません。",
+    "note": "Tibo氏が28日間企画の20日目に「Day 20/ Rest and reset」と投稿し、利用枠の臨時リセットを予告しました。",
     "original_url": "https://x.com/thsottiaux/status/2114200152701575656",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2113492502355562875:global",
@@ -120,10 +126,11 @@
       "codex",
       "chatgpt_work"
     ],
-    "note": "Tibo氏がDay 18のリセットについて、米国太平洋時間の翌日午前10時までに、小規模な新機能とともに反映すると案内しました。予定の発表であり、完了報告ではありません。",
+    "note": "Tibo氏がDay 18のリセットについて、米国太平洋時間の翌日午前10時までに、小規模な新機能とともに反映すると案内しました。",
     "original_url": "https://x.com/thsottiaux/status/2113492502355562875",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2113492187770175603:global",
@@ -141,10 +148,11 @@
       "codex",
       "chatgpt_work"
     ],
-    "note": "OpenAIの28日間企画の18日目。Decisions API正式公開などの進展とあわせて、Tibo氏がこの日も利用枠をリセットすると発表しました。対象アカウントへの反映完了はこの投稿では明示されていません。",
+    "note": "OpenAIの28日間企画の18日目。Decisions API正式公開などの進展とあわせて、Tibo氏がこの日も利用枠をリセットすると発表しました。",
     "original_url": "https://x.com/thsottiaux/status/2113492187770175603",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2113162413008884099:global",
@@ -162,10 +170,11 @@
       "codex",
       "chatgpt_work"
     ],
-    "note": "Tibo氏が前のリセット予告に続けて、太平洋時間の翌日午前10時より前に反映すると案内しました。投稿時点の予定であり、反映完了を確認した発表ではありません。",
+    "note": "Tibo氏が前のリセット予告に続けて、太平洋時間の翌日午前10時より前に反映すると案内しました。",
     "original_url": "https://x.com/thsottiaux/status/2113162413008884099",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2113162277688070445:global",
@@ -183,10 +192,11 @@
       "codex",
       "chatgpt_work"
     ],
-    "note": "OpenAIの28日間企画の17日目。Tibo氏がこの日をリセットの日と発表しました。対象プランや全アカウントへの反映完了は、この投稿では明示されていません。",
+    "note": "OpenAIの28日間企画の17日目。Tibo氏がこの日をリセットの日と発表しました。",
     "original_url": "https://x.com/thsottiaux/status/2113162277688070445",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2112432076767289678:global",
@@ -207,7 +217,8 @@
     "note": "OpenAIが28日間にわたり機能改善やリセットを行う企画の15日目。Tibo氏が利用枠をリセットしたと発表しました。",
     "original_url": "https://x.com/thsottiaux/status/2112432076767289678",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2111566005684289735:global",
@@ -228,7 +239,8 @@
     "note": "この日の予告に続き、Tibo氏がリセットの反映完了を伝えました。",
     "original_url": "https://x.com/thsottiaux/status/2111566005684289735",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2111492738025959922:global",
@@ -249,7 +261,8 @@
     "note": "Tibo氏が、米国太平洋時間のこの日中にリセットを行うと予告しました。",
     "original_url": "https://x.com/thsottiaux/status/2111492738025959922",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2110618732666257557:global",
@@ -270,7 +283,8 @@
     "note": "2時間以内に実施するという予告に続き、Tibo氏がリセット完了を報告しました。",
     "original_url": "https://x.com/thsottiaux/status/2110618732666257557",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2110595554036400151:global",
@@ -291,7 +305,8 @@
     "note": "Tibo氏が、今後2時間以内に利用枠をリセットすると予告しました。",
     "original_url": "https://x.com/thsottiaux/status/2110595554036400151",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2109873287853707513:global",
@@ -312,7 +327,8 @@
     "note": "この日の予告に続き、Tibo氏がリセット完了を報告しました。",
     "original_url": "https://x.com/thsottiaux/status/2109873287853707513",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2109812360596865224:global",
@@ -333,7 +349,8 @@
     "note": "Tibo氏が、米国太平洋時間のこの日中に全世界向けのリセットを行うと予告しました。",
     "original_url": "https://x.com/thsottiaux/status/2109812360596865224",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2109132167112782291:global",
@@ -354,7 +371,8 @@
     "note": "Tibo氏が、対象者へのリセットの反映が完了したと発表しました。",
     "original_url": "https://x.com/thsottiaux/status/2109132167112782291",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2107913674593644711:banked",
@@ -396,7 +414,8 @@
     "note": "Tibo氏が、一斉リセットの反映完了を発表しました。",
     "original_url": "https://x.com/thsottiaux/status/2106131810921136451",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2103911959544610829:global",
@@ -417,7 +436,8 @@
     "note": "リセットの反映完了を報告。",
     "original_url": "https://x.com/thsottiaux/status/2103911959544610829",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2102463847714247142:banked",
@@ -459,7 +479,8 @@
     "note": "Astraの品質に関する説明とともに、利用枠リセットの反映完了が発表されました。",
     "original_url": "https://x.com/thsottiaux/status/2098685367058612394",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "openai-2026-09-07-global",
@@ -486,7 +507,8 @@
       "summary": "対象となるPlus・Pro・Businessユーザーの利用枠を一斉リセット。実施時刻は公式記事に記載がありません。",
       "time_verified": false
     },
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "openai-2026-09-04-banked",
@@ -561,7 +583,8 @@
     "note": "利用者数2,500万人の達成を記念し、ChatGPT WorkとCodexの有料プラン向け利用枠をリセットしたと発表しました。",
     "original_url": "https://x.com/thsottiaux/status/2094252447271366730",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2093801758665715784:global",
@@ -582,7 +605,8 @@
     "note": "ChatGPT Work・Codexの有料利用者を対象に、利用枠のリセットを進めていると発表しました。",
     "original_url": "https://x.com/thsottiaux/status/2093801758665715784",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2093014447833116908:global",
@@ -603,7 +627,8 @@
     "note": "ChatGPT Work・Codexの利用枠がリセットされたと発表されました。",
     "original_url": "https://x.com/thsottiaux/status/2093014447833116908",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2091688655828246890:global",
@@ -624,7 +649,8 @@
     "note": "利用枠のリセットが反映され、利用状況に関する不具合も修正されたと発表されました。",
     "original_url": "https://x.com/thsottiaux/status/2091688655828246890",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2090766694897619318:banked",
@@ -666,7 +692,8 @@
     "note": "利用者数1,500万人の達成を記念し、約1時間以内にリセットを実施すると予告しました。",
     "original_url": "https://x.com/thsottiaux/status/2087706104814023111",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2086972802457063486:global",
@@ -687,7 +714,8 @@
     "note": "ChatGPT Work・Codexのすべての有料利用者の利用枠をリセットしたと発表されました。",
     "original_url": "https://x.com/thsottiaux/status/2086972802457063486",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2086188036493344823:global",
@@ -708,7 +736,8 @@
     "note": "ChatGPT Work・Codexのすべての有料利用者の利用枠をリセットしたと発表されました。",
     "original_url": "https://x.com/thsottiaux/status/2086188036493344823",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2083395449814229287:global",
@@ -729,7 +758,8 @@
     "note": "ChatGPT Work・Codexの利用枠をリセットしたと報告しました。",
     "original_url": "https://x.com/thsottiaux/status/2083395449814229287",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2082317452755751098:global",
@@ -750,7 +780,8 @@
     "note": "ChatGPT Work・Codex利用枠をリセットしたと報告しました。",
     "original_url": "https://x.com/thsottiaux/status/2082317452755751098",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2081940052154933696:global",
@@ -771,7 +802,8 @@
     "note": "ChatGPT Work・Codexの有料利用者の利用枠をリセットしたと発表されました。",
     "original_url": "https://x.com/thsottiaux/status/2081940052154933696",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2081096447718723984:global",
@@ -792,7 +824,8 @@
     "note": "サービス障害後にChatGPT Work・Codex利用者の利用枠をリセットしたと報告しました。",
     "original_url": "https://x.com/thsottiaux/status/2081096447718723984",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2079609157934886975:global",
@@ -813,7 +846,8 @@
     "note": "利用者数1,000万人の達成を記念し、有料プラン向けの利用枠を約1時間以内にリセットすると予告しました。",
     "original_url": "https://x.com/thsottiaux/status/2079609157934886975",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2078320950488297917:global",
@@ -834,7 +868,8 @@
     "note": "ChatGPT Work・Codexの有料利用者の利用枠をリセットしたと発表されました。",
     "original_url": "https://x.com/thsottiaux/status/2078320950488297917",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2077607697487188198:global",
@@ -855,7 +890,8 @@
     "note": "利用者数900万人を記念し、数分以内の利用枠反映を予告。",
     "original_url": "https://x.com/thsottiaux/status/2077607697487188198",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2077114635308986427:global",
@@ -876,7 +912,8 @@
     "note": "利用者数800万人の節目で、全利用者の利用枠をリセット中と発表。",
     "original_url": "https://x.com/thsottiaux/status/2077114635308986427",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2076735790567338203:banked",
@@ -939,7 +976,8 @@
     "note": "ChatGPT Work・Codexの利用枠リセットを予告。今後30分程度で反映予定と発表。",
     "original_url": "https://x.com/thsottiaux/status/2075820987833274448",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2075641131002700120:global",
@@ -960,7 +998,8 @@
     "note": "ChatGPT Work・Codex全体の利用枠をリセットしたと報告しました。",
     "original_url": "https://x.com/thsottiaux/status/2075641131002700120",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2075330198887940337:global",
@@ -981,7 +1020,8 @@
     "note": "ChatGPT Work・Codexの全利用枠リセットを予告。今後1時間程度で反映予定と発表。",
     "original_url": "https://x.com/thsottiaux/status/2075330198887940337",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2071740419030053227:global",
@@ -1002,7 +1042,8 @@
     "note": "Codexの利用枠を今後1時間以内に再びリセットすると予告されました。",
     "original_url": "https://x.com/thsottiaux/status/2071740419030053227",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2071381664853319742:global",
@@ -1023,7 +1064,8 @@
     "note": "利用量消費の問題を調査するなか、Codexの利用枠をリセットしたと報告しました。",
     "original_url": "https://x.com/thsottiaux/status/2071381664853319742",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2070653282440405046:global",
@@ -1044,7 +1086,8 @@
     "note": "Codex利用者全員へ無償の利用枠リセットを配布すると発表。今後数時間で反映予定。",
     "original_url": "https://x.com/thsottiaux/status/2070653282440405046",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2067399435009622521:banked",
@@ -1086,7 +1129,8 @@
     "note": "利用枠の一斉リセットと、リセットチケットの追加が発表されました。",
     "original_url": "https://x.com/thsottiaux/status/2067399435009622521",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2062329981548802523:global",
@@ -1107,7 +1151,8 @@
     "note": "複数の小規模障害に対応し、有料Codex利用枠をリセットしたと報告しました。",
     "original_url": "https://x.com/thsottiaux/status/2062329981548802523",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2061106703446450392:global",
@@ -1128,7 +1173,8 @@
     "note": "すべてのChatGPTの有料プランのCodex利用枠をリセットしたと報告しました。",
     "original_url": "https://x.com/thsottiaux/status/2061106703446450392",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2058280452851638313:global",
@@ -1149,7 +1195,8 @@
     "note": "利用枠の消費が早くなる不具合を修正し、全アカウントの利用枠をリセットしたと報告しました。",
     "original_url": "https://x.com/thsottiaux/status/2058280452851638313",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2055707616605835333:global",
@@ -1170,7 +1217,8 @@
     "note": "有料プラン全体のCodex利用枠をリセットしたと報告しました。",
     "original_url": "https://x.com/thsottiaux/status/2055707616605835333",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2048997818673537399:global",
@@ -1191,7 +1239,8 @@
     "note": "すべての有料プランのCodex利用枠をリセットしたと報告しました。",
     "original_url": "https://x.com/thsottiaux/status/2048997818673537399",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2044943514832871564:global",
@@ -1212,7 +1261,8 @@
     "note": "Codexの1周年を記念し、全プランの利用枠をリセットしたと報告しました。",
     "original_url": "https://x.com/thsottiaux/status/2044943514832871564",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2041655710346572085:global",
@@ -1233,7 +1283,8 @@
     "note": "週300万人のCodex利用者達成を記念し、利用枠のリセットを進めると発表。",
     "original_url": "https://x.com/thsottiaux/status/2041655710346572085",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2039248564967424483:global",
@@ -1254,7 +1305,8 @@
     "note": "利用枠の上限到達者増加を受け、全プランの利用枠をリセットすると発表。",
     "original_url": "https://x.com/thsottiaux/status/2039248564967424483",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2037346989244096581:global",
@@ -1275,7 +1327,8 @@
     "note": "新機能の試用を促すため、全プランのCodex利用枠をリセットしたと報告しました。",
     "original_url": "https://x.com/thsottiaux/status/2037346989244096581",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2031605592352313567:global",
@@ -1296,7 +1349,8 @@
     "note": "Codexの復旧後、リセットの操作を実施したと発表。利用枠への反映はその後になると案内されました。",
     "original_url": "https://x.com/thsottiaux/status/2031605592352313567",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2031216405266481489:global",
@@ -1317,7 +1371,8 @@
     "note": "Codexの不具合が解消したため、まもなく利用枠をリセットすると予告されました。",
     "original_url": "https://x.com/thsottiaux/status/2031216405266481489",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2030474136024400173:global",
@@ -1338,7 +1393,8 @@
     "note": "利用枠消費に関する報告を受け、Codexの利用枠をリセットしたと報告しました。",
     "original_url": "https://x.com/thsottiaux/status/2030474136024400173",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2028649088594436225:global",
@@ -1359,7 +1415,8 @@
     "note": "Codex障害の解消後、利用枠をリセットする予定と説明。",
     "original_url": "https://x.com/thsottiaux/status/2028649088594436225",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2004100061933064395:global",
@@ -1380,7 +1437,8 @@
     "note": "年末の謝意を込めてCodexの利用枠をリセットしたと報告しました。",
     "original_url": "https://x.com/thsottiaux/status/2004100061933064395",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2002137269134819610:global",
@@ -1401,7 +1459,8 @@
     "note": "Codexの使用量管理システム更新時に利用枠をリセットしたと報告しました。",
     "original_url": "https://x.com/thsottiaux/status/2002137269134819610",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "2001114683047317723:global",
@@ -1422,7 +1481,8 @@
     "note": "障害のおわびとしてCodex利用者全員の利用枠をリセットしたと報告しました。",
     "original_url": "https://x.com/thsottiaux/status/2001114683047317723",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "1995988609896513743:global",
@@ -1443,7 +1503,8 @@
     "note": "Codex利用者全員の利用枠をリセットしたと発表されました。",
     "original_url": "https://x.com/thsottiaux/status/1995988609896513743",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "1992370994028388670:global",
@@ -1464,7 +1525,8 @@
     "note": "米国内などで発生した高遅延への補償として全Codex利用枠をリセットしたと報告しました。",
     "original_url": "https://x.com/thsottiaux/status/1992370994028388670",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "1986166501435711936:global",
@@ -1485,7 +1547,8 @@
     "note": "Codex障害の解消にあわせて利用枠をリセットしたと報告しました。",
     "original_url": "https://x.com/thsottiaux/status/1986166501435711936",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   },
   {
     "id": "1968163721034994139:global",
@@ -1506,6 +1569,7 @@
     "note": "GPT-5 Codex公開後の速度低下に対応し、利用枠をリセットしたと報告しました。",
     "original_url": "https://x.com/thsottiaux/status/1968163721034994139",
     "official_confirmation": null,
-    "reason_tags": []
+    "reason_tags": [],
+    "reset_confirmed": true
   }
 ]

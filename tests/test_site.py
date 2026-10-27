@@ -21,21 +21,21 @@ class FirstPartyTests(unittest.TestCase):
 
     def test_28_day_publication_tab_is_listed_and_html_safe(self):
         rows = json.loads((ROOT / "data/shipping-28.json").read_text(encoding="utf-8"))
-        self.assertEqual(len(rows), 21)
-        self.assertEqual([r["day"] for r in rows], list(range(1, 22)))
+        self.assertEqual(len(rows), 22)
+        self.assertEqual([r["day"] for r in rows], list(range(1, 23)))
         self.assertEqual(rows[0]["date_pt"], "2026-10-05")
-        self.assertEqual(rows[-1]["date_pt"], "2026-10-25")
+        self.assertEqual(rows[-1]["date_pt"], "2026-10-26")
         self.assertTrue(all(r["sources"] for r in rows))
         self.assertTrue(all(all(url.startswith(("https://x.com/thsottiaux/status/", "https://x.com/OpenAI/status/")) for url in r["sources"]) for r in rows))
         markup = site.shipping_28_view(rows)
-        self.assertEqual(markup.count('class="shipping-summary"'), 21)
+        self.assertEqual(markup.count('class="shipping-summary"'), 22)
         self.assertIn("Day 1", markup)
         self.assertIn("Day 20", markup)
         self.assertIn("Day 21", markup)
         self.assertIn("OpenAIの28日間企画", markup)
         self.assertIn("新機能・改善・利用枠リセットの発表一覧", markup)
         self.assertIn("保存型リセット", markup)
-        self.assertIn("全体への反映完了", markup)
+        self.assertNotIn("全体への反映完了は本人の投稿で未確認", markup)
         for page in ("index", "about", "ship28"):
             html = site.shell("確認", "説明", page, "本文", "2026-10-25T00:00:00Z")
             self.assertIn('href="ship28.html"', html)
@@ -69,7 +69,7 @@ class FirstPartyTests(unittest.TestCase):
         rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
         self.assertGreaterEqual(len(rows), 56)
         self.assertTrue(all(primary.trusted(r) for r in rows))
-        official = [r for r in rows if r["evidence"] == "official"]
+        official = [r for r in rows if r["evidence"] == "official" and r["kind"] != "improvement"]
         indexed = [r for r in rows if r["evidence"] == "staff_x"]
         self.assertEqual(len(official), 3)
         self.assertTrue(all(r.get("date_precision") == "day" and "時刻の記載なし" in site.record_row(r) for r in official))
@@ -81,7 +81,7 @@ class FirstPartyTests(unittest.TestCase):
         self.assertNotIn("OpenAI関係者のX原投稿", site.ABOUT)
         self.assertIn("Codex責任者Tibo氏", site.shell("確認", "説明", "about", "本文", "2026-10-20T12:00:00Z"))
         self.assertIn("リセットの記録", site.ABOUT)
-        self.assertIn("予告も含みます", site.ABOUT)
+        self.assertIn("実施の発表があれば、リセットとして掲載", site.ABOUT)
         self.assertIn("通常の回復予定", site.GUIDE)
         self.assertNotIn("一斉リセット", site.KINDS["global"])
         self.assertIn("臨時リセット", site.KINDS["global"])
@@ -174,7 +174,7 @@ class FirstPartyTests(unittest.TestCase):
         self.assertIsNotNone(day)
         self.assertIn("リセット</span>", day.group(0))
         self.assertNotIn(">予告</span>", day.group(0))
-        self.assertIn("予告または完了の投稿", html)
+        self.assertIn("リセット実施の発表があった日", html)
         self.assertNotIn("リセット発表</span>", html)
         self.assertNotIn('>一斉</span>', html)
 
@@ -188,13 +188,13 @@ class FirstPartyTests(unittest.TestCase):
             self.assertIsNotNone(cell)
             self.assertIn('class="day-mark reset-mark">リセット</span>', cell.group(0))
             self.assertNotIn("announced-mark", cell.group(0))
-        self.assertIn("※リセットは、予告または完了の投稿があった日に表示しています", html)
+        self.assertIn("※リセット実施の発表があった日", html)
         self.assertIn('id="selected-date">10月26日の情報', html)
         self.assertIn("1件の投稿", html)
         self.assertNotIn("未実施という意味ではありません", html)
-        self.assertIn("14:21｜リセットの予告", html)
+        self.assertIn("14:21｜リセットの発表", html)
         self.assertNotIn("14:21｜反映完了の報告", html)
-        self.assertIn("予告も含みます", site.ABOUT)
+        self.assertIn("実施の発表があれば、リセットとして掲載", site.ABOUT)
         self.assertNotIn("リセット完了報告", site.ABOUT)
         ticket = re.search(r'data-calendar-day="2026-10-08".*?</button>', html)
         self.assertIsNotNone(ticket)
@@ -202,19 +202,19 @@ class FirstPartyTests(unittest.TestCase):
         self.assertNotIn("配布予告", html)
         self.assertNotIn("リセット発表", html)
 
-    def test_day21_reset_announcement_is_not_completion(self):
+    def test_day21_announcement_is_confirmed_without_completion_condition(self):
         rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
         event = next(r for r in rows if r.get("post_id") == "2114588174249071102")
         self.assertEqual(event["state"], "announced")
         self.assertEqual(event["kind"], "global")
         self.assertEqual(site.jst(event["reference_at"]), "2026/10/26 14:21")
         self.assertIn("全文未確認", site.record_row(event))
-        self.assertIn("予告", event["note"])
-        self.assertIn("全体への反映完了の報告ではありません", event["note"])
+        self.assertTrue(event["reset_confirmed"])
+        self.assertNotIn("完了の報告ではありません", event["note"])
         self.assertEqual(event["original_url"], "https://x.com/thsottiaux/status/2114588174249071102")
         self.assertEqual(len(rows), len({r["id"] for r in rows}))
         shipping = json.loads((ROOT / "data/shipping-28.json").read_text(encoding="utf-8"))
-        self.assertEqual(shipping[-1]["day"], 21)
+        self.assertEqual(shipping[-1]["day"], 22)
         self.assertIn("Day 21", site.shipping_28_view(shipping))
 
     def test_day20_announcement_deadline_completion(self):
@@ -234,25 +234,25 @@ class FirstPartyTests(unittest.TestCase):
         self.assertIn("事後確認：", visible)
         self.assertIn("15:06", visible)
 
-    def test_october_27_editorial_prediction(self):
+    def test_october_28_editorial_prediction(self):
         rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
         config = json.loads((ROOT / "data/editorial-forecast.json").read_text(encoding="utf-8"))
-        now = site.parse_time("2026-10-26T00:00:00Z")
+        now = site.parse_time("2026-10-28T00:00:00Z")
         editorial = site.active_editorial_forecast(rows, now, config)
         self.assertIsNotNone(editorial)
-        forecast = {"status": "stale", "generated_at": "2026-10-26T00:00:00Z", "horizons": {}}
-        view = site.homepage(rows, "2026-10-26T00:00:00Z", forecast, [], editorial)
-        self.assertIn("2026年10月27日（火）", view)
-        self.assertIn('data-calendar-day="2026-10-27"', view)
+        forecast = {"status": "stale", "generated_at": "2026-10-28T00:00:00Z", "horizons": {}}
+        view = site.homepage(rows, "2026-10-28T00:00:00Z", forecast, [], editorial)
+        self.assertIn("2026年10月28日（水）", view)
+        self.assertIn('data-calendar-day="2026-10-28"', view)
         self.assertIn("当サイト独自", view)
 
     def test_editorial_prediction_auto_expires(self):
         rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
         config = json.loads((ROOT / "data/editorial-forecast.json").read_text(encoding="utf-8"))
-        self.assertIsNone(site.active_editorial_forecast(rows, site.parse_time("2026-10-27T15:00:00Z"), config))
+        self.assertIsNone(site.active_editorial_forecast(rows, site.parse_time("2026-10-28T15:00:00Z"), config))
         baseline = next(r for r in rows if r["id"] == config["last_report_id"])
-        newer = {**baseline, "id": "new-reset:global", "reference_at": "2026-10-26T02:00:00Z", "state": "reported"}
-        self.assertIsNone(site.active_editorial_forecast([*rows, newer], site.parse_time("2026-10-26T03:00:00Z"), config))
+        newer = {**baseline, "id": "new-reset:global", "reference_at": "2026-10-28T02:00:00Z", "state": "reported"}
+        self.assertIsNone(site.active_editorial_forecast([*rows, newer], site.parse_time("2026-10-28T03:00:00Z"), config))
 
     def test_archived_october_23_prediction_shows_original_publication_time(self):
         history = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))
@@ -288,7 +288,7 @@ class FirstPartyTests(unittest.TestCase):
         self.assertTrue(all(r["state"] == "announced" for r in day18))
         self.assertTrue(all(site.record_day(r) == "2026-10-23" for r in day18))
         history = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))
-        self.assertEqual({r["date"] for r in history}, {"2026-10-23", "2026-10-25"})
+        self.assertEqual({r["date"] for r in history}, {"2026-10-23", "2026-10-25", "2026-10-27"})
         output = site.previous_editorial_predictions(history)
         self.assertIn("2026/10/23 07:07", output)
         self.assertIn("2026/10/20 23:17", output)
@@ -298,22 +298,21 @@ class FirstPartyTests(unittest.TestCase):
 
     def test_new_distinct_reset_notice_retires_prediction_without_losing_original_day(self):
         rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
-        proposal = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))[-1]
+        proposal = next(r for r in json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8")) if r.get("published_at") == "2026-10-23T07:07:47+09:00")
         self.assertEqual(proposal["date"], "2026-10-25")
         self.assertIsNotNone(site.active_editorial_forecast(rows, site.parse_time("2026-10-23T00:00:00Z"), proposal))
         self.assertIsNone(site.active_editorial_forecast(rows, site.parse_time("2026-10-23T05:00:00Z"), proposal))
 
 
-    def test_next_prediction_follows_october_25_completed_reset(self):
+    def test_next_prediction_follows_october_26_reset_announcement(self):
         current = json.loads((ROOT / "data/editorial-forecast.json").read_text(encoding="utf-8"))
         history = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))
-        self.assertEqual(current["date"], "2026-10-27")
-        self.assertEqual(current["last_report_id"], "2114237083652882932:global")
-        self.assertNotIn("published_at", current)
+        self.assertEqual(current["date"], "2026-10-28")
+        self.assertEqual(current["last_report_id"], "2114588174249071102:global")
         self.assertTrue(any(r["date"] == "2026-10-25" for r in history))
         self.assertIsNotNone(site.active_editorial_forecast(
             json.loads((ROOT / "data/events.json").read_text(encoding="utf-8")),
-            site.parse_time("2026-10-26T00:00:00Z"), current))
+            site.parse_time("2026-10-28T00:00:00Z"), current))
 
     def test_x_requires_original_text(self):
         markup = '<meta property="og:description" content="We have now reset usage limits for Codex.">'
@@ -341,3 +340,21 @@ class FirstPartyTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+class ResetEditorialPolicyTests(unittest.TestCase):
+    def test_public_pages_and_exports_do_not_cast_announcements_as_uncertain(self):
+        import re
+        from unittest.mock import patch
+        with patch.object(site, "utcnow", return_value="2026-10-28T00:00:00Z"):
+            site.build()
+        bad = re.compile(r"(?:完了報告|反映完了)[^。<\n]{0,50}(?:未確認|未確定|ありません|限りません)|予告にすぎ")
+        for path in (ROOT / 'docs').iterdir():
+            if path.suffix in {'.html', '.xml', '.csv'}:
+                self.assertIsNone(bad.search(path.read_text(encoding='utf-8-sig')), path.name)
+        index = (ROOT / 'docs/index.html').read_text()
+        self.assertIn('2026年10月28日（水）', index)
+        self.assertIn('"predicted": "2026-10-28"', index)
+        self.assertNotIn('新モデル提供', index)
+        shipping = (ROOT / 'docs/ship28.html').read_text()
+        self.assertIn('Day 22', shipping)
+        self.assertIn('GPT-6.1 Terra', shipping)

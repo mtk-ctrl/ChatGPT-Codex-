@@ -193,10 +193,19 @@
   {
     "day": 21,
     "date_pt": "2026-10-25",
-    "category": "リセット予告",
-    "summary": "Tibo氏が「今日はリセット」と発表。全体への反映完了は本人の投稿で未確認（日本時間10月26日14:21発表）。",
+    "category": "リセット",
+    "summary": "Tibo氏がDay21の利用枠リセットを発表（日本時間10月26日14:21）。",
     "sources": [
       "https://x.com/thsottiaux/status/2114588174249071102"
+    ]
+  },
+  {
+    "day": 22,
+    "date_pt": "2026-10-26",
+    "category": "新モデル",
+    "summary": "GPT-6.1 Terra提供開始。画像理解・PC操作・文章作成を強化し、ChatGPT WorkとCodexで提供。",
+    "sources": [
+      "https://x.com/thsottiaux/status/2114800277677092936"
     ]
   }
 ]

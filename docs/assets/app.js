@@ -40,7 +40,7 @@
         [...posts].sort((a, b) => a.time.localeCompare(b.time)).forEach(row => {
           const source = row.sources[row.sources.length - 1];
           if (!source) return;
-          const caption = row.state === "reported" ? "反映完了の報告" : (/期限|予定|までに/.test(row.note) ? "反映予定の案内" : "リセットの予告");
+          const caption = kind === "global" ? "リセットの発表" : "チケット配布の発表";
           const a = element("a", `${row.time}｜${caption}（Xの投稿） ↗`);
           a.href = source.url;
           a.target = "_blank";

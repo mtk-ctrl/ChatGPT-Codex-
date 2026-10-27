@@ -34,7 +34,7 @@ SITE_URL = os.environ.get("SITE_URL", "https://mtk-ctrl.github.io/ChatGPT-Codex-
 OFFICIAL_URL = "https://help.openai.com/en/articles/20001516-managing-usage-with-gpt-6-astra-in-work-and-codex"
 JST = timezone(timedelta(hours=9))
 # 「チケット」は閲覧者向け表記。種類コード banked は変更しない。
-KINDS = {"global": "臨時リセット", "banked": "リセットチケットの配布"}
+KINDS = {"global": "臨時リセット", "banked": "リセットチケットの配布", "improvement": "新機能・改善"}
 EVIDENCE = {"official": "OpenAI公式", "staff_x": "Tibo氏のX投稿"}
 
 
@@ -162,14 +162,14 @@ def shell(title, description, active, content, updated, show_forecast=True):
 <meta property="og:type" content="website"><meta property="og:locale" content="ja_JP"><meta property="og:title" content="{e(title)}"><meta property="og:description" content="{e(description)}"><meta property="og:url" content="{e(canonical)}">
 <meta name="theme-color" content="#245e9b"><meta property="og:site_name" content="ChatGPT リセット履歴"><link rel="icon" href="assets/favicon-96.png" type="image/png" sizes="96x96"><link rel="stylesheet" href="assets/style.css"><link rel="alternate" type="application/rss+xml" title="ChatGPT リセット履歴 更新情報" href="feed.xml"><link rel="sitemap" type="application/xml" href="sitemap.xml">
 <script type="application/ld+json">{website}</script><script defer src="assets/app.js"></script></head>
-<body><a class="skip" href="#main">本文へ移動</a><header class="site-header container"><div class="masthead"><div><div class="brand-line"><{brand_tag} class="brand"><a href="./">ChatGPT リセット履歴</a></{brand_tag}></div><p class="site-subtitle">Codex・ChatGPT Workの利用枠リセット・次回予想</p></div><p class="site-description">Codex・ChatGPT Workの利用枠が特別に回復した日や、次回の予想を確認できます。カレンダーの「リセット」には、実施前の予告も含みます。</p></div><nav class="main-nav" aria-label="メインナビゲーション">{nav}</nav></header>
+<body><a class="skip" href="#main">本文へ移動</a><header class="site-header container"><div class="masthead"><div><div class="brand-line"><{brand_tag} class="brand"><a href="./">ChatGPT リセット履歴</a></{brand_tag}></div><p class="site-subtitle">Codex・ChatGPT Workの利用枠リセット・次回予想</p></div><p class="site-description">Codex・ChatGPT Workの利用枠が特別に回復した日や、次回の予想を確認できます。Tibo氏やOpenAIが実施を発表したリセットを掲載しています。</p></div><nav class="main-nav" aria-label="メインナビゲーション">{nav}</nav></header>
 <main id="main" class="container">{content}</main>
 <footer class="container site-footer"><p class="footer-title">ChatGPT リセット履歴</p><p>情報源：OpenAIの発表と、Codex責任者Tibo氏などのX投稿。</p><p class="footer-links"><a href="about.html">掲載情報について</a><a href="https://github.com/{REPO}/issues">訂正の連絡</a><a href="data.csv">履歴データ（CSV）</a><a href="feed.xml">RSS</a></p></footer></body></html>'''
 
 
 def record_title(record):
     # Show the same name for a reset whether the source post was a notice or a completion.
-    return "リセット" if record["kind"] == "global" else "リセットチケット"
+    return {"global": "リセット", "banked": "リセットチケット", "improvement": "新機能・改善"}[record["kind"]]
 
 
 def date_label(value):
@@ -270,6 +270,7 @@ def previous_editorial_predictions(history):
 
 
 def calendar_overview(records, forecast, editorial=None):
+    records = [r for r in records if r["kind"] in {"global", "banked"}]
     today = parse_time(forecast['generated_at']).astimezone(JST).date()
     entries = []
     for r in records:
@@ -322,7 +323,7 @@ def calendar_overview(records, forecast, editorial=None):
             for source in r["sources"]:
                 if source["url"] not in urls:
                     urls.append(source["url"])
-        buttons = "".join(link(src["url"], f'{r["time"]}｜' + ("反映完了の報告" if r["state"] == "reported" else ("反映予定の案内" if "期限" in r["note"] or "予定" in r["note"] or "までに" in r["note"] else "リセットの予告")) + "（Xの投稿）") for r in sorted(posted, key=lambda item: item["time"]) for src in r["sources"] if src["url"] == r["sources"][-1]["url"])
+        buttons = "".join(link(src["url"], f'{r["time"]}｜' + ("リセットの発表" if kind == "global" else "チケット配布の発表") + "（Xの投稿）") for r in sorted(posted, key=lambda item: item["time"]) for src in r["sources"] if src["url"] == r["sources"][-1]["url"])
         cards.append(f'<article class="day-record"><h4>{title}</h4><p class="day-posts">{len(posted)}件の投稿</p><p class="day-source">{buttons}</p></article>')
     details = "".join(cards) or '<p class="empty-day">この日の情報はありません。</p>'
     payload = json.dumps({'today':today.isoformat(), 'selected':selected, 'first':first, 'last':last, 'predicted':predicted, 'records':entries}, ensure_ascii=False).replace('<', '\\u003c')
@@ -331,9 +332,9 @@ def calendar_overview(records, forecast, editorial=None):
         lower, upper = h24['observed_ratio_interval']
         date = datetime.strptime(forecast["reference_date"], "%Y-%m-%d")
         prediction = f'''<div class="forecast-numbers"><div><span>24時間以内</span><strong>{h24['display_percent']}<small>%</small></strong></div><div><span>48時間以内</span><strong>{h48['display_percent']}<small>%</small></strong></div></div>
-<p class="forecast-caption">過去のリセット報告の間隔から計算</p>
+<p class="forecast-caption">過去のリセット発表の間隔から計算</p>
 <p class="reference-date">参考日 <strong>{date.month}月{date.day}日ごろ</strong><span>実施予定日ではありません</span></p>
-<details class="forecast-reasons" open><summary>なぜこの予測？</summary><p>前回の完了報告から<strong>{forecast['elapsed_hours']/24:.1f}日</strong>経過しています。直近90日間に始まった実施間隔<strong>{forecast['sample_size']}件</strong>のうち、これより長かったのは<strong>{forecast['eligible_size']}件</strong>でした。</p><p>その{h24['total']}件では、現在と同じ経過時点から24時間以内の報告が{h24['count']}件、48時間以内が{h48['count']}件でした。この比率を補正して上の数値を出しています。</p><p class="sample-note">少数の履歴による試算です。24時間の集計比率の95%参考区間は{lower}〜{upper}%と幅があり、予測精度はまだ検証できていません。</p></details>'''
+<details class="forecast-reasons" open><summary>なぜこの予測？</summary><p>前回のリセット発表から<strong>{forecast['elapsed_hours']/24:.1f}日</strong>経過しています。直近90日間に始まった実施間隔<strong>{forecast['sample_size']}件</strong>のうち、これより長かったのは<strong>{forecast['eligible_size']}件</strong>でした。</p><p>その{h24['total']}件では、現在と同じ経過時点から24時間以内の報告が{h24['count']}件、48時間以内が{h48['count']}件でした。この比率を補正して上の数値を出しています。</p><p class="sample-note">少数の履歴による試算です。24時間の集計比率の95%参考区間は{lower}〜{upper}%と幅があり、予測精度はまだ検証できていません。</p></details>'''
     else:
         prediction = ""
     if editorial:
@@ -352,7 +353,7 @@ def calendar_overview(records, forecast, editorial=None):
         forecast_panel = ""
     layout_class = "calendar-layout" if forecast_panel else "calendar-layout calendar-layout--full"
     prediction_legend = '<span><i class="legend-predicted"></i>予想日</span>' if forecast_panel else ""
-    return f'''<div class="{layout_class}"><section class="calendar-section" aria-labelledby="calendar-title"><div class="calendar-section-heading"><h2 id="calendar-title">リセットカレンダー</h2></div><div class="calendar-controls"><div><button id="calendar-prev" type="button" aria-label="前の月">‹</button><label class="sr-only" for="calendar-month">カレンダーの年月</label><select id="calendar-month">{''.join(month_options)}</select><button id="calendar-next" type="button" aria-label="次の月">›</button></div><button id="calendar-today" type="button">今月</button></div><div class="calendar-weekdays" aria-hidden="true"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div><div id="calendar-grid" class="calendar-grid" role="group" aria-label="{today.year}年{today.month}月">{grid}</div><div class="calendar-legend"><span><i class="legend-reset"></i>リセット</span><span><i class="legend-banked"></i>リセットチケット</span>{prediction_legend}</div><p class="calendar-status-explainer">※リセットは、予告または完了の投稿があった日に表示しています。</p><section class="selected-day" aria-live="polite" aria-atomic="true"><h3 id="selected-date">{int(selected[5:7])}月{int(selected[8:])}日の情報</h3><div id="selected-records">{details}</div></section><noscript><p>月の切り替えにはJavaScriptが必要です。全履歴は下の一覧から確認できます。</p></noscript></section>
+    return f'''<div class="{layout_class}"><section class="calendar-section" aria-labelledby="calendar-title"><div class="calendar-section-heading"><h2 id="calendar-title">リセットカレンダー</h2></div><div class="calendar-controls"><div><button id="calendar-prev" type="button" aria-label="前の月">‹</button><label class="sr-only" for="calendar-month">カレンダーの年月</label><select id="calendar-month">{''.join(month_options)}</select><button id="calendar-next" type="button" aria-label="次の月">›</button></div><button id="calendar-today" type="button">今月</button></div><div class="calendar-weekdays" aria-hidden="true"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div><div id="calendar-grid" class="calendar-grid" role="group" aria-label="{today.year}年{today.month}月">{grid}</div><div class="calendar-legend"><span><i class="legend-reset"></i>リセット</span><span><i class="legend-banked"></i>リセットチケット</span>{prediction_legend}</div><p class="calendar-status-explainer">※リセット実施の発表があった日を、日本時間で表示しています。</p><section class="selected-day" aria-live="polite" aria-atomic="true"><h3 id="selected-date">{int(selected[5:7])}月{int(selected[8:])}日の情報</h3><div id="selected-records">{details}</div></section><noscript><p>月の切り替えにはJavaScriptが必要です。全履歴は下の一覧から確認できます。</p></noscript></section>
 {forecast_panel}</div><script id="calendar-data" type="application/json">{payload}</script>'''
 
 
@@ -375,6 +376,7 @@ def forecast_results(history):
 
 
 def homepage(records, updated, forecast, forecast_history, editorial=None, editorial_history=None):
+    records = [r for r in records if r["kind"] in {"global", "banked"}]
     months = sorted({record_day(r)[:7] for r in records}, reverse=True)
     options = "".join(f'<option value="{m}">{m[:4]}年{int(m[5:])}月</option>' for m in months)
     rows = []
@@ -397,13 +399,13 @@ def homepage(records, updated, forecast, forecast_history, editorial=None, edito
 
 
 FORECAST_METHOD = f'''<article class="article"><h1 class="section-title">次回予想の考え方</h1><p class="article-lead">過去のリセット間隔に基づく、当サイト独自の試算です。</p>
-<h2>何を予測するのか</h2><p>臨時リセットの完了報告・確認報告が、計算時点から24時間・48時間以内に記録される可能性を試算します。判定には出典の参考時刻を使うため、履歴を取得した時刻や実際に利用枠が回復した時刻を予測するものではありません。</p><p>OpenAIの運用方針や内部情報を知るものではありません。リセットチケットの配布と実施予告は、計算から除外します。</p>
-<h2>計算の手順</h2><ol class="method-steps"><li>保存済みの臨時リセットの完了報告・確認報告を、参考時刻の順に並べます。同じ記録ID・同じ時刻の重複と未来の時刻を除外します。</li><li>連続する報告の間隔を求め、その始まりが計算時点から90日以内のものを使います。</li><li>前回の報告から現在までの経過時間を求めます。過去の間隔のうち、この経過時間より長いものだけを選びます。</li><li>選んだ間隔のうち、現在と同じ経過時点から24時間・48時間以内に次の報告があった件数を数えます。</li><li>少数の記録で0%や100%になりにくいよう、次の式で補正します。表示は5ポイント単位に丸めます。</li></ol>
+<h2>何を予測するのか</h2><p>臨時リセットの発表が、計算時点から24時間・48時間以内に記録される可能性を試算します。判定には出典の参考時刻を使うため、履歴を取得した時刻や実際に利用枠が回復した時刻を予測するものではありません。</p><p>OpenAIの運用方針や内部情報を知るものではありません。実施の発表も集計し、同じリセットについて6時間以内に続く補足・完了報告はまとめます。リセットチケットの配布は別に扱います。</p>
+<h2>計算の手順</h2><ol class="method-steps"><li>保存済みの臨時リセットの実施発表を、参考時刻の順に並べます。同じ記録ID・同じ時刻の重複と未来の時刻を除外します。</li><li>連続する報告の間隔を求め、その始まりが計算時点から90日以内のものを使います。</li><li>前回の報告から現在までの経過時間を求めます。過去の間隔のうち、この経過時間より長いものだけを選びます。</li><li>選んだ間隔のうち、現在と同じ経過時点から24時間・48時間以内に次の報告があった件数を数えます。</li><li>少数の記録で0%や100%になりにくいよう、次の式で補正します。表示は5ポイント単位に丸めます。</li></ol>
 <p class="formula">予測値 ＝（該当件数 ＋ 1）÷（選んだ間隔の件数 ＋ 2）</p><p>これはラプラス補正を加えた条件付きの集計です。例えば、選んだ10件のうち3件が24時間以内なら、（3＋1）÷（10＋2）で約33%、表示は35%になります。</p>
 <h2>カレンダーの参考日</h2><p>選んだ間隔の中央値を前回の報告時刻に足し、日本時間の日付に換算します。次回の実施予定日や、最も起こりやすい日を示すものではありません。カレンダーでは履歴とは異なる破線で表示します。</p>
 <h2>数値を表示しない場合</h2><p>過去の間隔が6件未満、または経過時間による絞り込み後が5件未満の場合は、集計不足として表示しません。履歴の取得に失敗している場合や、最終成功から24時間以上経過した場合も予測を休止します。閲覧中の予測も、計算から24時間を超えた場合は数値を隠します。</p>
 <h2>この方法の限界</h2><p>リセットの間隔が一定だという根拠はありません。障害、モデルの公開、キャンペーン、OpenAIの方針変更などで頻度は変わります。「しばらく来ていないから、そろそろ来る」とは限りません。</p><p>集計にはOpenAIの公式発表や担当者本人の投稿から確認した記録のみを使い、日付しかない記録は時間間隔の予測から除きます。Xの取得制限による記録漏れも予測に影響します。まだ終了していない現在の間隔は過去の標本に含めておらず、長い間隔が集計に入りにくい偏りもあります。90日という期間や最低件数は、実装上の設定であり、精度が実証された値ではありません。</p><p>「95%参考区間」は、集計した比率に対するウィルソン区間です。少数の記録による幅を示すために掲載しており、次回のリセットが95%の確率でその範囲に収まるという意味ではありません。</p>
-<h2>予測を保存して結果を確認する</h2><p>日本時間の各日で最初に公開用の処理が成功した予測を保存します。保存済みの予測値と計算時点は変更せず、24・48時間が経過し、その期限以降に履歴の取得が成功してから結果を判定します。期間内に完了報告の参考時刻があれば「記録あり」、なければ「記録なし」です。取得の遅延や後日の訂正で結果が変わる場合があります。</p><p>判定済みの結果がない間は「検証前」と表示します。結果がある場合は、24時間予測の平均二乗誤差（Brierスコア、0〜1）を掲載します。0に近いほど誤差が小さい指標で、正解率ではありません。毎日の予測は互いに独立した試行ではないため、単純な件数だけで精度を判断することもできません。</p><p>導入前の予測や的中実績は作成していません。<a href="https://github.com/{REPO}/blob/main/data/forecast-history.json">保存された予測記録</a>と<a href="forecast.json">現在の計算結果（JSON）</a>を公開します。計算式を変更する場合は、記録に残すモデルIDも変更します。</p>
+<h2>予測を保存して結果を確認する</h2><p>日本時間の各日で最初に公開用の処理が成功した予測を保存します。保存済みの予測値と計算時点は変更せず、24・48時間が経過し、その期限以降に履歴の取得が成功してから結果を判定します。期間内にリセット発表の参考時刻があれば「記録あり」、なければ「記録なし」です。取得の遅延や後日の訂正で結果が変わる場合があります。</p><p>判定済みの結果がない間は「検証前」と表示します。結果がある場合は、24時間予測の平均二乗誤差（Brierスコア、0〜1）を掲載します。0に近いほど誤差が小さい指標で、正解率ではありません。毎日の予測は互いに独立した試行ではないため、単純な件数だけで精度を判断することもできません。</p><p>導入前の予測や的中実績は作成していません。<a href="https://github.com/{REPO}/blob/main/data/forecast-history.json">保存された予測記録</a>と<a href="forecast.json">現在の計算結果（JSON）</a>を公開します。計算式を変更する場合は、記録に残すモデルIDも変更します。</p>
 <h2>情報源について</h2><p>計算にはOpenAIの公式発表と、Codex責任者Tibo氏などのX投稿を使用します。新しい発表を十分に確認できない場合は、予測を表示しません。<a href="about.html">掲載情報について</a>もご覧ください。</p>
 
 <h2>予測を見る際の注意</h2><p class="method-disclaimer">{DISCLAIMER}</p><p class="article-back"><a href="./">カレンダーに戻る</a></p></article>'''
@@ -435,7 +437,7 @@ def shipping_28_view(rows):
 <h1 class="section-title">OpenAIの28日間企画</h1>
 <h2 class="shipping-subtitle">新機能・改善・利用枠リセットの発表一覧</h2>
 <p class="article-lead">2026年10月5日から28日間、OpenAIの担当者Tibo氏がCodex・ChatGPT Workなどの新機能や改善、利用枠の臨時リセットを発表している企画です。Day 1〜{len(rows)}の内容を日付順にまとめています。</p>
-<p class="shipping-note">日付は企画上の米国太平洋時間です。日本時間では発表が翌日になることがあります。「リセット」には予告も含み、全アカウントへの反映完了を意味するとは限りません。「チケット」は後から使える保存型リセットです。</p>
+<p class="shipping-note">日付は企画上の米国太平洋時間です。日本時間では発表が翌日になることがあります。Tibo氏が実施を発表したリセットを掲載しています。「チケット」は後から使える保存型リセットです。</p>
 </div><div class="shipping-table-wrap"><table class="shipping-table">
 <thead><tr><th scope="col">何日目？</th><th scope="col">日付</th><th scope="col">種類</th><th scope="col">発表されたこと</th><th scope="col">発表者の投稿</th></tr></thead>
 <tbody>''' + "".join(table_rows) + '''</tbody></table></div>
@@ -451,7 +453,7 @@ GUIDE = '''<article class="article"><h1 class="section-title">リセットの種
 
 ABOUT = f'''<article class="article"><h1 class="section-title">このサイトについて</h1>
 <p class="article-lead">Codex・ChatGPT Workのリセット日と予想をカレンダーにまとめています。</p>
-<h2>リセットの記録</h2><p>カレンダーには、OpenAIの発表やTibo氏のX投稿があった日を「リセット」として掲載しています。予告も含みます。実際の反映日は異なる場合があります。</p>
+<h2>リセットの記録</h2><p>カレンダーには、OpenAIの発表やTibo氏のX投稿があった日を「リセット」として掲載しています。実施の発表があれば、リセットとして掲載します。</p>
 <h2>情報の確認方法</h2><p><a href="{OFFICIAL_URL}">OpenAIの公式案内</a>と、Codexの責任者<strong>Tibo氏</strong>（Thibault Sottiaux／<a href="https://x.com/thsottiaux">X</a>）などの発信を確認しています。各記録の「公式発表を見る」「Xの投稿を見る」から、発表者本人の文章を確認できます。</p>
 <h2 id="dates">表示日時の見方</h2><p>表示日時は日本時間の投稿日時です。実際に利用枠が回復した時刻とは限りません。</p>
 <h2>お問い合わせ</h2><p><a href="https://github.com/{REPO}/issues">ご意見・訂正の連絡</a></p>
@@ -474,7 +476,7 @@ def build():
     OUT.mkdir(parents=True, exist_ok=True)
     pages = {
         "index": ("ChatGPT リセット履歴｜Codex・Workの利用枠リセット日と次回予想", "ChatGPT Work・Codexの利用枠リセット履歴をカレンダーで確認。OpenAIの発表やTibo氏の投稿をもとに、これまでのリセット日・次回予想・リセットチケットの情報をまとめています。", homepage(records, updated, forecast, history, editorial, editorial_history)),
-        "ship28": ("OpenAIの28日間企画｜Codex・Workの新機能・リセット一覧", "OpenAI担当者の28日間企画。Day 1〜21のCodex・ChatGPT Workの新機能・速度改善・利用枠リセットを日別に紹介。Tibo氏のX発表者本人の投稿へのリンク付き。", shipping_28_view(read_json(DATA / "shipping-28.json", []))),
+        "ship28": ("OpenAIの28日間企画｜Codex・Workの新機能・リセット一覧", "OpenAI担当者の28日間企画。Day 1〜22のCodex・ChatGPT Workの新機能・速度改善・利用枠リセットを日別に紹介。Tibo氏のX発表者本人の投稿へのリンク付き。", shipping_28_view(read_json(DATA / "shipping-28.json", []))),
         "guide": ("リセットの種類｜ChatGPT リセット履歴", "通常の利用枠の回復と、臨時リセット・リセットチケットの違いを説明します。", GUIDE),
         "forecast": ("予測の計算方法｜ChatGPT リセット履歴", "独自予測の計算式、集計対象、検証方法と注意事項を掲載しています。", FORECAST_METHOD),
         "about": ("このサイトについて｜ChatGPT リセット履歴", "サイトの情報源、日時の見方、更新方法をご案内します。", ABOUT),
@@ -488,7 +490,7 @@ def build():
     (OUT / "sitemap.xml").write_text(sitemap, encoding="utf-8")
     (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {SITE_URL}/sitemap.xml\n", encoding="utf-8")
     stream = io.StringIO(newline="")
-    writer = csv.writer(stream)
+    writer = csv.writer(stream, lineterminator="\n")
     writer.writerow(["記録ID", "掲載日付・投稿日時", "時刻の意味", "種類", "発表内容", "発信元", "発表の確認先URL", "内容"])
     for r in records:
         when = r["official_date"] if r.get("date_precision") == "day" else jst(r["reference_at"])

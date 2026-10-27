@@ -58,6 +58,10 @@ def x_record(handle, post_id, markup):
 def trusted(record):
     if not isinstance(record, dict):
         return False
+    if record.get("kind") == "improvement":
+        return (record.get("evidence") == "official"
+                and (record.get("official_confirmation") or {}).get("url")
+                == "https://openai.com/index/introducing-gpt-6-1-terra/")
     if record.get("evidence") == "official":
         return (record.get("date_precision") == "day"
                 and record.get("official_date") in ("2026-09-03", "2026-09-04", "2026-09-07")

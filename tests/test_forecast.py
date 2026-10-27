@@ -34,14 +34,22 @@ class ForecastTests(unittest.TestCase):
         self.assertEqual(result['horizons']['24']['display_percent'], 40)
         self.assertEqual(result['reference_date'], '2026-10-21')
 
-    def test_future_vouchers_announcements_and_duplicates_are_excluded(self):
+    def test_future_vouchers_and_duplicates_are_excluded(self):
         rows = records()
         rows += [dict(rows[-1]), dict(rows[-1], id='another-id'),
                  dict(rows[-1], id='voucher', kind='banked', reference_at=NOW.isoformat()),
-                 dict(rows[-1], id='announcement', state='announced', reference_at=NOW.isoformat()),
+
                  dict(rows[-1], id='future', reference_at=(NOW + timedelta(hours=1)).isoformat())]
         self.assertEqual(len(completed_times(rows, NOW)), 8)
         self.assertEqual(predict(rows, NOW), predict(records(), NOW))
+
+    def test_reset_announcements_count_and_followup_posts_do_not_duplicate(self):
+        rows = records()
+        announced = dict(rows[-1], id='notice', state='announced', reference_at=NOW.isoformat())
+        followup = dict(announced, id='followup', state='reported', reference_at=(NOW + timedelta(hours=2)).isoformat())
+        times = completed_times(rows + [announced, followup], NOW + timedelta(hours=3))
+        self.assertEqual(len(times), len(completed_times(rows, NOW)) + 1)
+        self.assertEqual(times[-1], NOW)
 
     def test_sparse_and_stale_data_do_not_produce_probabilities(self):
         self.assertEqual(predict(records()[-4:], NOW)['status'], 'insufficient')
