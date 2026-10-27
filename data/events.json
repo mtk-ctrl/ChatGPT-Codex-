@@ -1,5 +1,26 @@
 [
   {
+    "id": "2114800277677092936:improvement",
+    "post_id": "2114800277677092936",
+    "kind": "improvement",
+    "state": "reported",
+    "reference_at": "2026-10-26T19:24:11.944Z",
+    "date_precision": "minute",
+    "time_basis": "X投稿IDから算出した投稿時刻（実際の提供開始時刻ではない）",
+    "time_officially_verified": false,
+    "evidence": "official",
+    "verification_method": "OpenAI公式発表（https://openai.com/index/introducing-gpt-6-1-terra/）で製品内容と提供対象を確認。Tibo氏のX原投稿ページは403のため全文未確認。",
+    "verified_at": "2026-10-27",
+    "products": [
+      "codex",
+      "chatgpt_work"
+    ],
+    "note": "28日間企画 Day 22：GPT-6.1 Terra提供開始。OpenAI公式によれば、画像理解・PC操作・自然な文章作成を強化し、Plus・Pro・Enterprise・EduのChatGPT WorkとCodexで利用可能。従来モデルより利用枠を効率的に使える。リセットではなく新モデル提供。Tibo氏のX原投稿は全文未確認。",
+    "original_url": "https://x.com/thsottiaux/status/2114800277677092936",
+    "official_confirmation": "https://openai.com/index/introducing-gpt-6-1-terra/",
+    "reason_tags": []
+  },
+  {
     "id": "2114588174249071102:global",
     "post_id": "2114588174249071102",
     "kind": "global",
