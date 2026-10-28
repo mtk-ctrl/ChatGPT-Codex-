@@ -1,5 +1,49 @@
 [
   {
+    "id": "2115273253711409208:global",
+    "post_id": "2115273253711409208",
+    "kind": "global",
+    "state": "announced",
+    "reference_at": "2026-10-28T02:43:38.218Z",
+    "date_precision": "minute",
+    "time_basis": "X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）",
+    "time_officially_verified": false,
+    "evidence": "staff_x",
+    "verification_method": "X原投稿の埋め込み表示（X公式oEmbed）で本人の投稿本文とアカウントを確認。",
+    "verified_at": "2026-10-28",
+    "products": [
+      "codex",
+      "chatgpt_work"
+    ],
+    "note": "Day23のリセットについて、Tibo氏が「Lands by midnight PST.」と反映の時刻を補足しました。",
+    "original_url": "https://x.com/thsottiaux/status/2115273253711409208",
+    "official_confirmation": null,
+    "reason_tags": [],
+    "reset_confirmed": true
+  },
+  {
+    "id": "2115273064481218829:global",
+    "post_id": "2115273064481218829",
+    "kind": "global",
+    "state": "announced",
+    "reference_at": "2026-10-28T02:42:53.102Z",
+    "date_precision": "minute",
+    "time_basis": "X投稿IDから算出した投稿時刻（実際のリセット時刻ではない）",
+    "time_officially_verified": false,
+    "evidence": "staff_x",
+    "verification_method": "X原投稿の埋め込み表示（X公式oEmbed）で本人の投稿本文とアカウントを確認。",
+    "verified_at": "2026-10-28",
+    "products": [
+      "codex",
+      "chatgpt_work"
+    ],
+    "note": "28日間企画のDay23。Tibo氏が「今日はリセット」と発表しました。",
+    "original_url": "https://x.com/thsottiaux/status/2115273064481218829",
+    "official_confirmation": null,
+    "reason_tags": [],
+    "reset_confirmed": true
+  },
+  {
     "id": "2114800277677092936:improvement",
     "post_id": "2114800277677092936",
     "kind": "improvement",

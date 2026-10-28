@@ -476,7 +476,7 @@ def build():
     OUT.mkdir(parents=True, exist_ok=True)
     pages = {
         "index": ("ChatGPT リセット履歴｜Codex・Workの利用枠リセット日と次回予想", "ChatGPT Work・Codexの利用枠リセット履歴をカレンダーで確認。OpenAIの発表やTibo氏の投稿をもとに、これまでのリセット日・次回予想・リセットチケットの情報をまとめています。", homepage(records, updated, forecast, history, editorial, editorial_history)),
-        "ship28": ("OpenAIの28日間企画｜Codex・Workの新機能・リセット一覧", "OpenAI担当者の28日間企画。Day 1〜22のCodex・ChatGPT Workの新機能・速度改善・利用枠リセットを日別に紹介。Tibo氏のX発表者本人の投稿へのリンク付き。", shipping_28_view(read_json(DATA / "shipping-28.json", []))),
+        "ship28": ("OpenAIの28日間企画｜Codex・Workの新機能・リセット一覧", "OpenAI担当者の28日間企画。Day 1〜23のCodex・ChatGPT Workの新機能・速度改善・利用枠リセットを日別に紹介。Tibo氏のX発表者本人の投稿へのリンク付き。", shipping_28_view(read_json(DATA / "shipping-28.json", []))),
         "guide": ("リセットの種類｜ChatGPT リセット履歴", "通常の利用枠の回復と、臨時リセット・リセットチケットの違いを説明します。", GUIDE),
         "forecast": ("予測の計算方法｜ChatGPT リセット履歴", "独自予測の計算式、集計対象、検証方法と注意事項を掲載しています。", FORECAST_METHOD),
         "about": ("このサイトについて｜ChatGPT リセット履歴", "サイトの情報源、日時の見方、更新方法をご案内します。", ABOUT),
