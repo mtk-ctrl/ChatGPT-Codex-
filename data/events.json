@@ -9,7 +9,7 @@
     "time_basis": "X投稿IDから算出した投稿時刻（実際のリセット反映時刻ではない）",
     "time_officially_verified": false,
     "evidence": "staff_x",
-    "verification_method": "Tibo氏本人のX原投稿URLと投稿IDを照合し、検索結果に表示された本人の投稿本文抜粋で確認。X原投稿ページは403で直接取得できず全文未確認。第三者サイトによる解説や独自の反映観測は根拠に使用していない。",
+    "verification_method": "X原投稿の検索結果表示（Tibo氏本人の投稿本文抜粋）。原投稿ページは403で直接取得できず全文未確認。",
     "verified_at": "2026-10-29",
     "products": [
       "codex",
