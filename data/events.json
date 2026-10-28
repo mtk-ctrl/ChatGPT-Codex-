@@ -1,5 +1,27 @@
 [
   {
+    "id": "2115330127886463244:global",
+    "post_id": "2115330127886463244",
+    "kind": "global",
+    "state": "reported",
+    "reference_at": "2026-10-28T06:29:38.078Z",
+    "date_precision": "minute",
+    "time_basis": "X投稿IDから算出した投稿時刻（実際のリセット反映時刻ではない）",
+    "time_officially_verified": false,
+    "evidence": "staff_x",
+    "verification_method": "Tibo氏本人のX原投稿URLと投稿IDを照合し、検索結果に表示された本人の投稿本文抜粋で確認。X原投稿ページは403で直接取得できず全文未確認。第三者サイトによる解説や独自の反映観測は根拠に使用していない。",
+    "verified_at": "2026-10-29",
+    "products": [
+      "codex",
+      "chatgpt_work"
+    ],
+    "note": "28日間企画Day23のリセットについて、Tibo氏が「And it's done. See you tomorrow for some good news.」と投稿し、反映完了を報告しました。投稿日時は日本時間2026年10月28日15:29であり、実際の反映時刻を示すものではありません。X原投稿は全文未確認。",
+    "original_url": "https://x.com/thsottiaux/status/2115330127886463244",
+    "official_confirmation": null,
+    "reason_tags": [],
+    "reset_confirmed": true
+  },
+  {
     "id": "2115273253711409208:global",
     "post_id": "2115273253711409208",
     "kind": "global",
