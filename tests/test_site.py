@@ -236,7 +236,7 @@ class FirstPartyTests(unittest.TestCase):
 
     def test_october_28_editorial_prediction(self):
         rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
-        config = json.loads((ROOT / "data/editorial-forecast.json").read_text(encoding="utf-8"))
+        config = next(r for r in json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8")) if r.get("forecast_id") == "2026-10-28-forecast-28")
         now = site.parse_time("2026-10-28T00:00:00Z")
         editorial = site.active_editorial_forecast(rows, now, config)
         self.assertIsNotNone(editorial)
@@ -247,12 +247,14 @@ class FirstPartyTests(unittest.TestCase):
         self.assertIn("当サイト独自", view)
 
     def test_editorial_prediction_auto_expires(self):
+        from datetime import timedelta
         rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
         config = json.loads((ROOT / "data/editorial-forecast.json").read_text(encoding="utf-8"))
-        self.assertIsNone(site.active_editorial_forecast(rows, site.parse_time("2026-10-28T15:00:00Z"), config))
+        self.assertIsNone(site.active_editorial_forecast(rows, site.parse_time(config["expires_at"]), config))
+        moment = site.parse_time(config["created_at"]) + timedelta(hours=7)
         baseline = next(r for r in rows if r["id"] == config["last_report_id"])
-        newer = {**baseline, "id": "new-reset:global", "reference_at": "2026-10-28T02:00:00Z", "state": "reported"}
-        self.assertIsNone(site.active_editorial_forecast([*rows, newer], site.parse_time("2026-10-28T03:00:00Z"), config))
+        newer = {**baseline, "id": "new-reset:global", "reference_at": moment.isoformat(), "state": "announced"}
+        self.assertIsNone(site.active_editorial_forecast([*rows, newer], moment, config))
 
     def test_archived_october_23_prediction_shows_original_publication_time(self):
         history = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))
@@ -304,15 +306,15 @@ class FirstPartyTests(unittest.TestCase):
         self.assertIsNone(site.active_editorial_forecast(rows, site.parse_time("2026-10-23T05:00:00Z"), proposal))
 
 
-    def test_next_prediction_follows_october_26_reset_announcement(self):
+    def test_next_prediction_follows_october_28_reset_announcement(self):
         current = json.loads((ROOT / "data/editorial-forecast.json").read_text(encoding="utf-8"))
         history = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))
-        self.assertEqual(current["date"], "2026-10-28")
-        self.assertEqual(current["last_report_id"], "2114588174249071102:global")
+        self.assertEqual(current["date"], "2026-10-30")
+        self.assertEqual(current["last_report_id"], "2115273064481218829:global")
         self.assertTrue(any(r["date"] == "2026-10-25" for r in history))
         self.assertIsNotNone(site.active_editorial_forecast(
             json.loads((ROOT / "data/events.json").read_text(encoding="utf-8")),
-            site.parse_time("2026-10-28T00:00:00Z"), current))
+            site.parse_time(current["created_at"]), current))
 
     def test_x_requires_original_text(self):
         markup = '<meta property="og:description" content="We have now reset usage limits for Codex.">'
@@ -345,15 +347,16 @@ class ResetEditorialPolicyTests(unittest.TestCase):
     def test_public_pages_and_exports_do_not_cast_announcements_as_uncertain(self):
         import re
         from unittest.mock import patch
-        with patch.object(site, "utcnow", return_value="2026-10-28T00:00:00Z"):
+        current = json.loads((ROOT / "data/editorial-forecast.json").read_text())
+        with patch.object(site, "utcnow", return_value=current["created_at"]):
             site.build()
         bad = re.compile(r"(?:完了報告|反映完了)[^。<\n]{0,50}(?:未確認|未確定|ありません|限りません)|予告にすぎ")
         for path in (ROOT / 'docs').iterdir():
             if path.suffix in {'.html', '.xml', '.csv'}:
                 self.assertIsNone(bad.search(path.read_text(encoding='utf-8-sig')), path.name)
         index = (ROOT / 'docs/index.html').read_text()
-        self.assertIn('2026年10月28日（水）', index)
-        self.assertIn('"predicted": "2026-10-28"', index)
+        self.assertIn('2026年10月30日（金）', index)
+        self.assertIn('"predicted": "2026-10-30"', index)
         self.assertNotIn('新モデル提供', index)
         shipping = (ROOT / 'docs/ship28.html').read_text()
         self.assertIn('Day 22', shipping)
@@ -362,7 +365,7 @@ class ResetEditorialPolicyTests(unittest.TestCase):
 class Day23Tests(unittest.TestCase):
     def test_day23_retires_published_prediction_and_keeps_original_publication(self):
         rows = json.loads((ROOT / 'data/events.json').read_text())
-        config = json.loads((ROOT / 'data/editorial-forecast.json').read_text())
+        config = next(r for r in json.loads((ROOT / 'data/editorial-forecast-history.json').read_text()) if r.get('forecast_id') == '2026-10-28-forecast-28')
         notices = [r for r in rows if r.get('post_id') in {'2115273064481218829', '2115273253711409208'}]
         self.assertEqual(len(notices), 2)
         self.assertTrue(all(r['reset_confirmed'] for r in notices))
