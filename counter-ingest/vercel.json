@@ -1,0 +1,1 @@
+{"functions":{"api/collect.mjs":{"maxDuration":10}},"headers":[{"source":"/(.*)","headers":[{"key":"X-Robots-Tag","value":"noindex"}]}]}

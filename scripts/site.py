@@ -161,7 +161,7 @@ def shell(title, description, active, content, updated, show_forecast=True):
 <title>{e(title)}</title><meta name="description" content="{e(description)}"><link rel="canonical" href="{e(canonical)}">
 <meta property="og:type" content="website"><meta property="og:locale" content="ja_JP"><meta property="og:title" content="{e(title)}"><meta property="og:description" content="{e(description)}"><meta property="og:url" content="{e(canonical)}">
 <meta name="theme-color" content="#245e9b"><meta property="og:site_name" content="ChatGPT リセット履歴"><link rel="icon" href="assets/favicon-96.png" type="image/png" sizes="96x96"><link rel="stylesheet" href="assets/style.css"><link rel="alternate" type="application/rss+xml" title="ChatGPT リセット履歴 更新情報" href="feed.xml"><link rel="sitemap" type="application/xml" href="sitemap.xml">
-<script type="application/ld+json">{website}</script><script defer src="assets/app.js"></script></head>
+<script type="application/ld+json">{website}</script><script defer src="assets/app.js"></script><script defer src="assets/counter.js"></script></head>
 <body><a class="skip" href="#main">本文へ移動</a><header class="site-header container"><div class="masthead"><div><div class="brand-line"><{brand_tag} class="brand"><a href="./">ChatGPT リセット履歴</a></{brand_tag}></div><p class="site-subtitle">Codex・ChatGPT Workの利用枠リセット・次回予想</p></div><p class="site-description">Codex・ChatGPT Workの利用枠が特別に回復した日や、次回の予想を確認できます。Tibo氏やOpenAIが実施を発表したリセットを掲載しています。</p></div><nav class="main-nav" aria-label="メインナビゲーション">{nav}</nav></header>
 <main id="main" class="container">{content}</main>
 <footer class="container site-footer"><p class="footer-title">ChatGPT リセット履歴</p><p>情報源：OpenAIの発表と、Codex責任者Tibo氏などのX投稿。</p><p class="footer-links"><a href="about.html">掲載情報について</a><a href="https://github.com/{REPO}/issues">訂正の連絡</a><a href="data.csv">履歴データ（CSV）</a><a href="feed.xml">RSS</a></p></footer></body></html>'''
@@ -456,6 +456,7 @@ ABOUT = f'''<article class="article"><h1 class="section-title">このサイト�
 <h2>リセットの記録</h2><p>カレンダーには、OpenAIの発表やTibo氏のX投稿があった日を「リセット」として掲載しています。実施の発表があれば、リセットとして掲載します。</p>
 <h2>情報の確認方法</h2><p><a href="{OFFICIAL_URL}">OpenAIの公式案内</a>と、Codexの責任者<strong>Tibo氏</strong>（Thibault Sottiaux／<a href="https://x.com/thsottiaux">X</a>）などの発信を確認しています。各記録の「公式発表を見る」「Xの投稿を見る」から、発表者本人の文章を確認できます。</p>
 <h2 id="dates">表示日時の見方</h2><p>表示日時は日本時間の投稿日時です。実際に利用枠が回復した時刻とは限りません。</p>
+<h2>アクセスの集計</h2><p>閲覧回数などを匿名で集計しています。氏名・メールアドレス・IPアドレスは集計データに保存しません。</p>
 <h2>お問い合わせ</h2><p><a href="https://github.com/{REPO}/issues">ご意見・訂正の連絡</a></p>
 <p class="article-back"><a href="./">カレンダーに戻る</a></p></article>'''
 
