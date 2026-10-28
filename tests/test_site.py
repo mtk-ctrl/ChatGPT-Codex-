@@ -190,7 +190,7 @@ class FirstPartyTests(unittest.TestCase):
             self.assertNotIn("announced-mark", cell.group(0))
         self.assertIn("※リセット実施の発表があった日", html)
         self.assertIn('id="selected-date">10月28日の情報', html)
-        self.assertIn("2件の投稿", html)
+        self.assertIn("3件の投稿", html)
         self.assertNotIn("未実施という意味ではありません", html)
         self.assertIn("11:42｜リセットの発表", html)
         self.assertNotIn("14:21｜反映完了の報告", html)
