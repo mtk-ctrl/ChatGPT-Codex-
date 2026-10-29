@@ -276,12 +276,16 @@ tr[data-record]:target{background:#eef5fc}
 .shipping-table th,.shipping-table td{padding:13px 12px;border-bottom:1px solid var(--line);vertical-align:top}
 .shipping-table thead{background:var(--soft)}
 .shipping-table thead th{font-size:12px;white-space:nowrap}
+.shipping-table thead th:nth-child(1),.shipping-table thead th:nth-child(2){width:8%}
+.shipping-table thead th:nth-child(3){width:13%}
+.shipping-table thead th:nth-child(4){width:49%}
+.shipping-table thead th:nth-child(5){width:22%}
 .shipping-table tbody th{white-space:nowrap;font-weight:700;font-variant-numeric:tabular-nums}
 .shipping-date{white-space:nowrap;font-variant-numeric:tabular-nums}
 .shipping-type{min-width:110px;color:#234b75}
 .shipping-summary{min-width:260px}
 .shipping-sources{min-width:90px;font-size:12px}
-.shipping-sources a{display:inline-block;margin:0 8px 4px 0;white-space:nowrap}
+.shipping-sources a{display:inline-block;margin:0 8px 4px 0;white-space:normal;overflow-wrap:anywhere}
 .shipping-table tbody tr:target{background:#f1f6fb}
 @media(max-width:700px){
   .main-nav{gap:9px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
