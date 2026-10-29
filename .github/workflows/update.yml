@@ -44,7 +44,7 @@ jobs:
       - name: Run data and publishing checks
         run: |
           python3 -m unittest discover -s tests -v
-          node --test tests/test_counter.mjs
+          node --test tests/test_counter.mjs tests/test_stats.mjs
       - name: Collect OpenAI primary data (retain verified history on failure)
         id: collect
         continue-on-error: true
