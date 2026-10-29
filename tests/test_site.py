@@ -21,14 +21,14 @@ class FirstPartyTests(unittest.TestCase):
 
     def test_28_day_publication_tab_is_listed_and_html_safe(self):
         rows = json.loads((ROOT / "data/shipping-28.json").read_text(encoding="utf-8"))
-        self.assertEqual(len(rows), 23)
-        self.assertEqual([r["day"] for r in rows], list(range(1, 24)))
+        self.assertEqual(len(rows), 24)
+        self.assertEqual([r["day"] for r in rows], list(range(1, 25)))
         self.assertEqual(rows[0]["date_pt"], "2026-10-05")
-        self.assertEqual(rows[-1]["date_pt"], "2026-10-27")
+        self.assertEqual(rows[-1]["date_pt"], "2026-10-28")
         self.assertTrue(all(r["sources"] for r in rows))
-        self.assertTrue(all(all(url.startswith(("https://x.com/thsottiaux/status/", "https://x.com/OpenAI/status/")) for url in r["sources"]) for r in rows))
+        self.assertTrue(all(all(url.startswith(("https://x.com/thsottiaux/status/", "https://x.com/OpenAI/status/", "https://x.com/ChatGPT/status/")) for url in r["sources"]) for r in rows))
         markup = site.shipping_28_view(rows)
-        self.assertEqual(markup.count('class="shipping-summary"'), 23)
+        self.assertEqual(markup.count('class="shipping-summary"'), 24)
         self.assertIn("Day 1", markup)
         self.assertIn("Day 20", markup)
         self.assertIn("Day 21", markup)
@@ -214,7 +214,7 @@ class FirstPartyTests(unittest.TestCase):
         self.assertEqual(event["original_url"], "https://x.com/thsottiaux/status/2114588174249071102")
         self.assertEqual(len(rows), len({r["id"] for r in rows}))
         shipping = json.loads((ROOT / "data/shipping-28.json").read_text(encoding="utf-8"))
-        self.assertEqual(shipping[-1]["day"], 23)
+        self.assertEqual(shipping[-1]["day"], 24)
         self.assertIn("Day 21", site.shipping_28_view(shipping))
 
     def test_day20_announcement_deadline_completion(self):
