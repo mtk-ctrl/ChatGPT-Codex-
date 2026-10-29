@@ -212,7 +212,7 @@
     "day": 23,
     "date_pt": "2026-10-27",
     "category": "リセット",
-    "summary": "利用枠リセット。Tibo氏が「今日はリセット」と発表し、PSTの深夜0時までに反映すると補足。日本時間10月28日15:29の投稿で「完了」と報告しました。原投稿は検索表示で照合（全文未確認）。",
+    "summary": "利用枠リセット。Tibo氏が「今日はリセット」と発表し、PSTの深夜0時までに反映すると補足。日本時間10月28日15:29の投稿で反映完了を報告しました。",
     "sources": [
       "https://x.com/thsottiaux/status/2115273064481218829",
       "https://x.com/thsottiaux/status/2115273253711409208",
@@ -223,9 +223,16 @@
     "day": 24,
     "date_pt": "2026-10-28",
     "category": "新機能",
-    "summary": "Dot（継続的に仕事を進めるAI）に、iMessageやRCSから文章・写真・音声メモを送れる機能を発表。米国のPro利用者向けに試験提供を開始。利用枠リセットの発表ではありません。",
+    "summary": "AIアシスタントのdotに、iMessageやAndroidのRCSから文字・写真・音声メッセージで依頼できるように。必要な更新もメッセージで届きます。米国のChatGPT Pro利用者向けにベータ提供を開始。Tibo氏の発表は日本時間10月29日10:49。",
     "sources": [
-      "https://x.com/thsottiaux/status/2115622002581188681"
+      "https://x.com/thsottiaux/status/2115622002581188681",
+      "https://x.com/ChatGPT/status/2115496387613786374",
+      "https://learn.chatgpt.com/docs/dots/channels"
+    ],
+    "source_labels": [
+      "Tibo氏の機能紹介（X）",
+      "ChatGPT公式の発表（X）",
+      "提供対象・使い方（公式ガイド）"
     ]
   }
 ]

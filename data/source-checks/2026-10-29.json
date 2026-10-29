@@ -1,0 +1,35 @@
+{
+  "checked_at": "2026-10-29T10:56:50.312626+00:00",
+  "method": "X公式oEmbedによる投稿本文・著者の確認、およびOpenAI公式ガイド",
+  "scope": "Day24、ChatとWork統合の補足、既存Day23完了投稿。Xのタイムライン全件の確認ではない。",
+  "sources": [
+    {
+      "url": "https://x.com/thsottiaux/status/2115622002581188681",
+      "status": "full_text_verified",
+      "summary": "Day24。dotへのメッセージ送信を紹介。"
+    },
+    {
+      "url": "https://x.com/ChatGPT/status/2115496387613786374",
+      "status": "excerpt_verified",
+      "summary": "文字・写真・音声とiMessage/RCSの記載までoEmbedで確認。後半は省略表示。"
+    },
+    {
+      "url": "https://learn.chatgpt.com/docs/dots/channels",
+      "status": "official_text_verified",
+      "summary": "Texting節で米国Pro向けベータ、iMessage/RCS、文字・写真・音声対応を確認。"
+    },
+    {
+      "url": "https://x.com/thsottiaux/status/2115588390414581916",
+      "status": "full_text_verified",
+      "summary": "ChatとWorkの統合は開発中。まだ展開していない。"
+    },
+    {
+      "url": "https://x.com/thsottiaux/status/2115330127886463244",
+      "status": "full_text_verified",
+      "summary": "Day23の反映完了報告を全文確認。"
+    }
+  ],
+  "reset_records": 74,
+  "new_reset_records": 0,
+  "forecast": "既存の10月30日予想と初回公開日時を保持。新しいリセットがないことを網羅的に証明したものではない。"
+}

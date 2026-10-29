@@ -94,7 +94,7 @@ def safe_url(value):
         u = urllib.parse.urlsplit(value)
         if u.scheme != "https" or u.username or u.password or u.port:
             return None
-        if u.hostname not in {"x.com", "twitter.com", "help.openai.com", "openai.com"}:
+        if u.hostname not in {"x.com", "twitter.com", "help.openai.com", "openai.com", "learn.chatgpt.com"}:
             return None
         if any(ord(c) < 32 for c in value):
             return None
@@ -411,7 +411,12 @@ FORECAST_METHOD = f'''<article class="article"><h1 class="section-title">次回�
 <h2>予測を見る際の注意</h2><p class="method-disclaimer">{DISCLAIMER}</p><p class="article-back"><a href="./">カレンダーに戻る</a></p></article>'''
 
 
-def shipping_28_view(rows):
+def shipping_source(url):
+    return bool(re.fullmatch(r"https://x\.com/(?:thsottiaux|OpenAI|ChatGPT)/status/\d{12,24}", url)
+                or url == "https://learn.chatgpt.com/docs/dots/channels")
+
+
+def shipping_28_view(rows, notices=()):
     """A dated editorial digest of Tibo's 28-day series, separate from reset records."""
     seen = set()
     table_rows = []
@@ -424,15 +429,26 @@ def shipping_28_view(rows):
         if date_pt.date() != (datetime(2026, 10, 5) + timedelta(days=day - 1)).date():
             raise ValueError("Shipping date is inconsistent with day number")
         sources = record["sources"]
-        if not sources or not all(re.fullmatch(r"https://x\.com/(?:thsottiaux|OpenAI)/status/\d{12,24}", url) for url in sources):
-            raise ValueError("Every day needs an original first-party X post")
-        links = " ".join(link(url, f"Xの投稿{i+1}を見る") for i, url in enumerate(sources))
+        if not sources or not all(shipping_source(url) for url in sources):
+            raise ValueError("Every day needs a first-party source")
+        labels = record.get("source_labels") or [f"Xの投稿{i+1}を見る" for i in range(len(sources))]
+        if len(labels) != len(sources):
+            raise ValueError("Source labels must match sources")
+        links = " ".join(link(url, label) for url, label in zip(sources, labels))
         date_display = f"{date_pt.month}/{date_pt.day}"
         table_rows.append(f'<tr id="day-{day}"><th scope="row">Day {day}</th>'
                           f'<td class="shipping-date" data-label="日付">{date_display}</td>'
                           f'<td class="shipping-type" data-label="区分">{e(record["category"])}</td>'
                           f'<td class="shipping-summary" data-label="発表内容">{e(record["summary"])}</td>'
                           f'<td class="shipping-sources" data-label="発表者の投稿">{links}</td></tr>')
+    updates = []
+    for notice in sorted(notices, key=lambda item: parse_time(item["published_at"]), reverse=True):
+        if not shipping_source(notice["source"]):
+            raise ValueError("Notices need an original first-party source")
+        updates.append(f'<section><h3>{e(notice["title"])}</h3>'
+                       f'<p class="shipping-note">{e(jst(notice["published_at"]))}（日本時間）の投稿</p>'
+                       f'<p>{e(notice["summary"])}</p><p>{link(notice["source"], "Tibo氏の説明を読む（X）")}</p></section>')
+    supplemental = '<section class="shipping-updates"><h2>関連するお知らせ</h2>' + ''.join(updates) + '</section>' if updates else ''
     return (f'''<article class="shipping-page"><div class="shipping-heading">
 <h1 class="section-title">OpenAIの28日間企画</h1>
 <h2 class="shipping-subtitle">新機能・改善・利用枠リセットの発表一覧</h2>
@@ -442,7 +458,7 @@ def shipping_28_view(rows):
 <thead><tr><th scope="col">何日目？</th><th scope="col">日付</th><th scope="col">種類</th><th scope="col">発表されたこと</th><th scope="col">発表者の投稿</th></tr></thead>
 <tbody>''' + "".join(table_rows) + '''</tbody></table></div>
 <p class="shipping-note">この一覧はOpenAI公式と担当者本人の投稿を基にした要約です。個々の機能の提供対象・提供時期はプランや地域などによって異なる場合があります。新たな日程の発表は確認後に追記します。</p>
-<p class="article-back"><a href="./">リセットカレンダーに戻る</a></p></article>''')
+''' + supplemental + '''<p class="article-back"><a href="./">リセットカレンダーに戻る</a></p></article>''')
 
 
 GUIDE = '''<article class="article"><h1 class="section-title">リセットの種類</h1><p class="article-lead">リセットには主に2つの種類があります。</p>
@@ -475,9 +491,12 @@ def build():
     history = update_history(read_json(DATA / "forecast-history.json", []), forecast, records, now, health.get("last_success_at"))
     write_json(DATA / "forecast-history.json", history)
     OUT.mkdir(parents=True, exist_ok=True)
+    shipping = read_json(DATA / "shipping-28.json", [])
+    shipping_end = max((row["day"] for row in shipping), default=0)
+    notices = read_json(DATA / "shipping-notices.json", [])
     pages = {
         "index": ("ChatGPT リセット履歴｜Codex・Workの利用枠リセット日と次回予想", "ChatGPT Work・Codexの利用枠リセット履歴をカレンダーで確認。OpenAIの発表やTibo氏の投稿をもとに、これまでのリセット日・次回予想・リセットチケットの情報をまとめています。", homepage(records, updated, forecast, history, editorial, editorial_history)),
-        "ship28": ("OpenAIの28日間企画｜Codex・Workの新機能・リセット一覧", "OpenAI担当者の28日間企画。Day 1〜23のCodex・ChatGPT Workの新機能・速度改善・利用枠リセットを日別に紹介。Tibo氏のX発表者本人の投稿へのリンク付き。", shipping_28_view(read_json(DATA / "shipping-28.json", []))),
+        "ship28": ("OpenAIの28日間企画｜Codex・Workの新機能・リセット一覧", f"OpenAI担当者の28日間企画。Day 1〜{shipping_end}のCodex・ChatGPT Workの新機能・速度改善・利用枠リセットを日別に紹介。Tibo氏とOpenAI公式の発表へのリンク付き。", shipping_28_view(shipping, notices)),
         "guide": ("リセットの種類｜ChatGPT リセット履歴", "通常の利用枠の回復と、臨時リセット・リセットチケットの違いを説明します。", GUIDE),
         "forecast": ("予測の計算方法｜ChatGPT リセット履歴", "独自予測の計算式、集計対象、検証方法と注意事項を掲載しています。", FORECAST_METHOD),
         "about": ("このサイトについて｜ChatGPT リセット履歴", "サイトの情報源、日時の見方、更新方法をご案内します。", ABOUT),

@@ -9,13 +9,13 @@
     "time_basis": "X投稿IDから算出した投稿時刻（実際のリセット反映時刻ではない）",
     "time_officially_verified": false,
     "evidence": "staff_x",
-    "verification_method": "X原投稿の検索結果表示（Tibo氏本人の投稿本文抜粋）。原投稿ページは403で直接取得できず全文未確認。",
+    "verification_method": "X原投稿の埋め込み表示（X公式oEmbed）でTibo氏本人の投稿本文とアカウントを確認。",
     "verified_at": "2026-10-29",
     "products": [
       "codex",
       "chatgpt_work"
     ],
-    "note": "28日間企画Day23のリセットについて、Tibo氏が「And it's done. See you tomorrow for some good news.」と投稿し、反映完了を報告しました。投稿日時は日本時間2026年10月28日15:29であり、実際の反映時刻を示すものではありません。X原投稿は全文未確認。",
+    "note": "28日間企画Day23のリセットについて、Tibo氏が反映完了を報告しました。投稿日時は日本時間2026年10月28日15:29であり、実際の反映時刻を示すものではありません。",
     "original_url": "https://x.com/thsottiaux/status/2115330127886463244",
     "official_confirmation": null,
     "reason_tags": [],

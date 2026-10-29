@@ -299,3 +299,8 @@ tr[data-record]:target{background:#eef5fc}
   .shipping-table .shipping-sources{font-size:11px}
   .shipping-table .shipping-sources::before{content:"原投稿：";color:var(--muted)}
 }
+
+.shipping-updates{margin-top:32px;padding-top:22px;border-top:1px solid var(--line)}
+.shipping-updates h2{font-size:20px;margin:0 0 18px}
+.shipping-updates h3{font-size:17px;line-height:1.6;margin:0 0 8px}
+.shipping-updates p{line-height:1.95;overflow-wrap:anywhere}
