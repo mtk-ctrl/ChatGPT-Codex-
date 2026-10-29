@@ -1,1 +1,21 @@
-{"functions":{"api/collect.mjs":{"maxDuration":10}},"headers":[{"source":"/(.*)","headers":[{"key":"X-Robots-Tag","value":"noindex"}]}]}
+{
+  "functions": {
+    "api/collect.mjs": {
+      "maxDuration": 10
+    },
+    "api/stats.mjs": {
+      "maxDuration": 10
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
+      ]
+    }
+  ]
+}
