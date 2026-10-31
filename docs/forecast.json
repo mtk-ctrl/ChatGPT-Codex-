@@ -1,6 +1,6 @@
 {
   "model": "interval-90d-reset-announcements-v2",
-  "generated_at": "2026-10-31T23:15:46Z",
+  "generated_at": "2026-10-31T23:16:06Z",
   "window_days": 90,
   "status": "stale",
   "sample_size": 19,
