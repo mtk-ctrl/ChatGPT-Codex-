@@ -344,3 +344,6 @@ tr[data-record]:target{background:#eef5fc}
 .shipping-updates h2{font-size:20px;margin:0 0 18px}
 .shipping-updates h3{font-size:17px;line-height:1.6;margin:0 0 8px}
 .shipping-updates p{line-height:1.95;overflow-wrap:anywhere}
+
+/* Evidence disclosure when original X HTML is blocked but quoted text is corroborated. */
+.shipping-verification-note{font-size:11px;line-height:1.7;color:var(--muted);margin:7px 0 0}
