@@ -247,5 +247,21 @@
       "Day 25の発表を読む（Tibo氏のX投稿）"
     ],
     "verification_note": "本人投稿URL・投稿IDは確認。X原投稿ページを直接取得できなかったため、同投稿の公開テキストの転載・監視記録を複数比較して内容を検証。"
+  },
+  {
+    "day": 26,
+    "date_pt": "2026-10-30",
+    "category": "新機能＋リセット関連の事前予告",
+    "summary": "スマートフォンで複数のChatGPTアカウントを簡単に切り替えられるようになったとTibo氏が発表。デスクトップ版にも近日対応予定。あわせて『次の2日間はリセット…保存型…』と予告しました。次の2日間は米国太平洋時間のDay27（10月31日）・Day28（11月1日）に相当しますが、どちらが通常リセットで、どちらがリセットチケットかは明言されていません。",
+    "sources": [
+      "https://help.openai.com/en/articles/20001068-using-multiple-chatgpt-accounts-on-web-and-mobile"
+    ],
+    "source_labels": [
+      "複数アカウント切り替えの公式案内（OpenAI）"
+    ],
+    "verification_note": "Tibo氏本人のDay 26 X投稿は、10月31日14:58（日本時間）にユーザーが提供したX画面のスクリーンショットで本文と認証済みアカウント表示を確認。投稿の個別URL・正確な投稿時刻は取得できていません。上記の公式ガイドはアカウント切り替え機能の確認先であり、リセット予告の原投稿URLではありません。",
+    "evidence_type": "user_supplied_x_screenshot",
+    "original_post_url": null,
+    "screenshot_sha256": "397a571e433811a5c55503108589b3792edbc404525cf8b37f0897016f329da3"
   }
 ]
