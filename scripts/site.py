@@ -249,7 +249,11 @@ def publication_timestamp_markup(record):
 
 
 def editorial_result(entry, records, health, now):
-    """Compare with the first independent, verified reset announcement after publication."""
+    """A date prediction hits when an independently confirmed reset is announced that day.
+
+    A different, earlier reset does not invalidate the date prediction. Missing
+    upstream coverage cannot establish a miss.
+    """
     if not entry.get("published_at"):
         return "確認中", "初回のサイト公開日時を確認中です。"
     try:
@@ -261,7 +265,6 @@ def editorial_result(entry, records, health, now):
     baseline = next((r for r in records if r.get("id") == entry.get("last_report_id")), None)
     if baseline:
         published = max(published, parse_time(baseline["reference_at"]) + timedelta(hours=6))
-    later = []
     for event in records:
         if (event.get("kind") != "global" or event.get("state") not in {"announced", "reported", "observed"}
                 or event.get("evidence") not in {"official", "staff_x"}
@@ -271,14 +274,9 @@ def editorial_result(entry, records, health, now):
             stamp = parse_time(event["reference_at"])
         except (ValueError, KeyError, TypeError):
             continue
-        if published < stamp <= now:
-            later.append(stamp)
-    if later:
-        first_day = min(later).astimezone(JST).date().isoformat()
-        label = f"{int(first_day[5:7])}月{int(first_day[8:])}日"
-        if first_day == target:
-            return "的中", f"次のリセット発表日（{label}）と予想日が一致しました。"
-        return "外れ", f"次のリセット発表は{label}で、予想日とは異なりました。"
+        if published < stamp <= now and stamp.astimezone(JST).date().isoformat() == target:
+            day_label = f"{int(target[5:7])}月{int(target[8:])}日"
+            return "的中", f"予想した{day_label}にリセット発表があり、日付が一致しました。"
     if now < cutoff:
         return "予想中", "予想日がまだ終了していません。"
     try:
@@ -287,8 +285,9 @@ def editorial_result(entry, records, health, now):
         checked = None
     if (checked and checked >= cutoff and health.get("feed") == "ok"
             and health.get("x_status") == "checked"):
-        return "外れ", "確認できた一次情報では、予想日までに次のリセット発表はありませんでした。"
+        return "外れ", "一次情報を予想日終了後まで確認しましたが、その日付のリセット発表はありませんでした。"
     return "確認中", "予想日は終了しましたが、一次情報が不十分なため結果を判定できません。"
+
 
 
 def sync_editorial_history(history, proposal, records, health, now, active):
@@ -318,33 +317,8 @@ def sync_editorial_history(history, proposal, records, health, now, active):
     return items
 
 
-def first_forecast_reset_date(prediction, records):
-    """First separately announced reset after this forecast was made public."""
-    if not prediction.get("published_at"):
-        return None
-    try:
-        earliest = parse_time(prediction["published_at"])
-    except (ValueError, TypeError):
-        return None
-    baseline = next((r for r in records if r.get("id") == prediction.get("last_report_id")), None)
-    if baseline:
-        earliest = max(earliest, parse_time(baseline["reference_at"]) + timedelta(hours=6))
-    dates = []
-    for item in records:
-        if (item.get("kind") != "global" or item.get("state") not in {"announced", "reported", "observed"}
-                or item.get("evidence") not in {"official", "staff_x"} or item.get("date_precision") == "day"):
-            continue
-        try:
-            when = parse_time(item["reference_at"])
-        except (ValueError, TypeError, KeyError):
-            continue
-        if when > earliest:
-            dates.append(when)
-    return min(dates).astimezone(JST).date().isoformat() if dates else None
-
-
 def forecast_calendar_explanation(prediction, records):
-    """Explain why a calendar reset badge and next-reset forecast verdict can differ."""
+    """Display the date-matched outcome alongside the reset-announcement calendar."""
     if records is None:
         return ""
     day = prediction.get("date")
@@ -352,15 +326,14 @@ def forecast_calendar_explanation(prediction, records):
         return ""
     actual_on_date = any(r.get("kind") == "global" and record_day(r) == day for r in records)
     short = f"{int(day[5:7])}月{int(day[8:])}日"
-    first_day = first_forecast_reset_date(prediction, records)
-    status = prediction.get("outcome_status")
-    if actual_on_date and status == "外れ" and first_day and first_day < day:
-        first_short = f"{int(first_day[5:7])}月{int(first_day[8:])}日"
-        return (f"予想日の{short}にもリセット発表の記録があります。ただし予想公開後、"
-                f"最初の次回リセット発表は{first_short}でした。"
-                "「次の1回」の日付予想としては外れです。")
+    if actual_on_date and prediction.get("outcome_status") == "的中":
+        if day == "2026-10-23":
+            return (f"予想した{short}にTibo氏がリセットを発表したため的中です。"
+                    "10月22日にも別のリセット発表がありましたが、予想日と発表日の一致で判定しています。")
+        return f"予想した{short}にリセット発表があったため、日付一致で的中です。"
     if actual_on_date:
-        return f"予想日の{short}にリセット発表の記録があります。予想の的中判定は公開後最初の次回発表と比較します。"
+        return (f"予想した{short}にリセット発表の記録があります。"
+                "判定と記録の整合性を確認しています。")
     if prediction.get("outcome_evidence", "").startswith("site_owner_report_"):
         return (f"予想日の{short}にはカレンダーに登録されたリセット発表がありません。"
                 "外れは運営者の確認による判定で、一次情報との照合は未了です。"
@@ -393,7 +366,7 @@ def previous_editorial_predictions(history, current_forecast_id=None, records=No
     if not items:
         return ""
     return f'''<section class="previous-predictions" aria-labelledby="previous-predictions-title"><h2 id="previous-predictions-title">以前の予想とその結果</h2>
-<p class="previous-predictions-intro">予想は、公開後に最初に発表された「次のリセット」の日付を当てるものです。予想日に別のリセット発表があっても、それ以前に次のリセットが発表されていれば「外れ」です。カレンダーには確認できた発表日を記録しています。</p>
+<p class="previous-predictions-intro">予想した日付にリセットの発表があれば「的中」です。途中に別の日のリセットがあっても、予想日の発表をもって判定します。カレンダーには確認できた発表日を記録しています。</p>
 <ol>{"".join(items)}</ol></section>'''
 
 
@@ -522,7 +495,7 @@ def calendar_overview(records, forecast, editorial=None, previous_editorial=None
         history_legend += '<span><i class="legend-forecast-miss"></i>予想✕：外れ</span>'
     if past_statuses - {"的中", "外れ"}:
         history_legend += '<span><i class="legend-forecast-pending"></i>予想？：確認中</span>'
-    return f'''<div class="{layout_class}"><section class="calendar-section" aria-labelledby="calendar-title"><div class="calendar-section-heading"><h2 id="calendar-title">リセットカレンダー</h2></div><div class="calendar-controls"><div><button id="calendar-prev" type="button" aria-label="前の月">‹</button><label class="sr-only" for="calendar-month">カレンダーの年月</label><select id="calendar-month">{''.join(month_options)}</select><button id="calendar-next" type="button" aria-label="次の月">›</button></div><button id="calendar-today" type="button">今月</button></div><div class="calendar-weekdays" aria-hidden="true"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div><div id="calendar-grid" class="calendar-grid" role="group" aria-label="{today.year}年{today.month}月">{grid}</div><div class="calendar-legend"><span><i class="legend-reset"></i>リセット</span><span><i class="legend-banked"></i>リセットチケット</span>{prediction_legend}{history_legend}</div><p class="calendar-status-explainer">カレンダーの「リセット」は確認済みの発表日です。「予想◯」は的中、「予想✕」は外れ、「予想？」は判定待ちです。予想の結果は、公開後最初の次回リセット発表日と比較しています。発表記録のない日も「実施なし」とは断定できません。</p><section class="selected-day" aria-live="polite" aria-atomic="true"><h3 id="selected-date">{int(selected[5:7])}月{int(selected[8:])}日の情報</h3><div id="selected-records">{details}</div></section><noscript><p>月の切り替えにはJavaScriptが必要です。全履歴は下の一覧から確認できます。</p></noscript></section>
+    return f'''<div class="{layout_class}"><section class="calendar-section" aria-labelledby="calendar-title"><div class="calendar-section-heading"><h2 id="calendar-title">リセットカレンダー</h2></div><div class="calendar-controls"><div><button id="calendar-prev" type="button" aria-label="前の月">‹</button><label class="sr-only" for="calendar-month">カレンダーの年月</label><select id="calendar-month">{''.join(month_options)}</select><button id="calendar-next" type="button" aria-label="次の月">›</button></div><button id="calendar-today" type="button">今月</button></div><div class="calendar-weekdays" aria-hidden="true"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div><div id="calendar-grid" class="calendar-grid" role="group" aria-label="{today.year}年{today.month}月">{grid}</div><div class="calendar-legend"><span><i class="legend-reset"></i>リセット</span><span><i class="legend-banked"></i>リセットチケット</span>{prediction_legend}{history_legend}</div><p class="calendar-status-explainer">カレンダーの「リセット」は確認済みの発表日です。「予想◯」は予想日にリセット発表があった的中、「予想✕」は外れ、「予想？」は判定待ちです。途中に別の日の発表があっても予想日は変わりません。発表記録のない日も「実施なし」とは断定できません。</p><section class="selected-day" aria-live="polite" aria-atomic="true"><h3 id="selected-date">{int(selected[5:7])}月{int(selected[8:])}日の情報</h3><div id="selected-records">{details}</div></section><noscript><p>月の切り替えにはJavaScriptが必要です。全履歴は下の一覧から確認できます。</p></noscript></section>
 {forecast_panel}</div><script id="calendar-data" type="application/json">{payload}</script>'''
 
 
