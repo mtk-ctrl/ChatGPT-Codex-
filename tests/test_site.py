@@ -242,7 +242,7 @@ class FirstPartyTests(unittest.TestCase):
         archived = next(r for r in history if r.get("publication_run_id") == 40029830544)
         self.assertEqual(archived["published_at"], "2026-10-24T06:52:32+09:00")
         visible = site.previous_editorial_predictions(history)
-        self.assertIn("事後確認：", visible)
+        self.assertIn("判定：", visible)
         self.assertIn("15:06", visible)
 
     def test_october_28_editorial_prediction(self):
