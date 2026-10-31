@@ -22,7 +22,7 @@ class FirstPartyTests(unittest.TestCase):
     def test_28_day_publication_tab_is_listed_and_html_safe(self):
         rows = json.loads((ROOT / "data/shipping-28.json").read_text(encoding="utf-8"))
         self.assertEqual(len(rows), 25)
-        self.assertEqual([r["day"] for r in rows], list(range(1, 25)))
+        self.assertEqual([r["day"] for r in rows], list(range(1, 26)))
         self.assertEqual(rows[0]["date_pt"], "2026-10-05")
         self.assertEqual(rows[-1]["date_pt"], "2026-10-28")
         self.assertTrue(all(r["sources"] for r in rows))
