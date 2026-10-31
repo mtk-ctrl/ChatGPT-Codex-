@@ -540,7 +540,7 @@ def calendar_overview(records, forecast, editorial=None, previous_editorial=None
 {intro}
 <p class="editorial-reason">{e(previous_editorial.get("outlook_reason", ""))}</p>
 <ul class="outlook-dates">{"".join(outlook_rows)}</ul>
-<p class="editorial-caution">{e(previous_editorial.get("outlook_caution", ""))}</p>
+<p class="editorial-caution">{e("11月1日午前4時ごろのチケット配布と、配布時点で臨時リセットがなかったことはサイト運営者の確認に基づきます。当日のTibo氏個別投稿は未照合です。11月2日のリセット実施はまだ確認できていません。" if has_owner_observation else previous_editorial.get("outlook_caution", ""))}</p>
 {evidence}
 <p class="editorial-written">当初見通しの記録時刻：{as_of}（日本時間）。以前の10月31日予想は変更前の記録として履歴に残しています。</p></aside>'''
     elif forecast["status"] == "ok":
@@ -686,7 +686,7 @@ GUIDE = '''<article class="article"><h1 class="section-title">リセットの種
 
 ABOUT = f'''<article class="article"><h1 class="section-title">このサイトについて</h1>
 <p class="article-lead">Codex・ChatGPT Workのリセット日と予想をカレンダーにまとめています。</p>
-<h2>リセットの記録</h2><p>カレンダーには、OpenAIの発表やTibo氏のX投稿があった日を「リセット」として掲載しています。実施の発表があれば、リセットとして掲載します。</p>
+<h2>リセットの記録</h2><p>カレンダーには、OpenAIの発表やTibo氏のX投稿があった日を「リセット」として掲載しています。実施の発表があれば、リセットとして掲載します。サイト運営者がリセットチケットの配布を確認した場合は、公式の発表記録と区別して掲載します。</p>
 <h2>情報の確認方法</h2><p><a href="{OFFICIAL_URL}">OpenAIの公式案内</a>と、Codexの責任者<strong>Tibo氏</strong>（Thibault Sottiaux／<a href="https://x.com/thsottiaux">X</a>）などの発信を確認しています。各記録の「公式発表を見る」「Xの投稿を見る」から、発表者本人の文章を確認できます。</p>
 <h2 id="dates">表示日時の見方</h2><p>表示日時は日本時間の投稿日時です。実際に利用枠が回復した時刻とは限りません。</p>
 <h2>アクセスの集計</h2><p>閲覧回数などを匿名で集計しています。氏名・メールアドレス・IPアドレスは集計データに保存しません。</p>
