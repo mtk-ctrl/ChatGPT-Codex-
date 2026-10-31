@@ -310,8 +310,8 @@ class FirstPartyTests(unittest.TestCase):
         generated = current["created_at"]
         forecast = {"status": "stale", "generated_at": generated, "horizons": {}}
         page = site.homepage(rows, generated, forecast, [], None, history)
-        self.assertIn("予想日の10月23日にもリセット発表の記録があります", page)
-        self.assertIn("最初の次回リセット発表は10月22日でした", page)
+        self.assertIn("予想した10月23日にTibo氏がリセットを発表したため的中です", page)
+        self.assertIn("10月22日にも別のリセット発表", page)
         self.assertIn("予想日の10月30日にはカレンダーに登録されたリセット発表がありません", page)
         self.assertIn("外れは運営者の確認による判定", page)
         self.assertIn('data-calendar-jump="2026-10-23"', page)
@@ -323,7 +323,7 @@ class FirstPartyTests(unittest.TestCase):
         serialized = re.search(r'<script id="calendar-data" type="application/json">(.*?)</script>', page, re.S)
         self.assertIsNotNone(serialized)
         data = json.loads(serialized.group(1))
-        self.assertEqual(data["past_predictions"]["2026-10-23"][0]["status"], "外れ")
+        self.assertEqual(data["past_predictions"]["2026-10-23"][0]["status"], "的中")
         self.assertIn("10月22日", data["past_predictions"]["2026-10-23"][0]["note"])
         self.assertEqual(data["past_predictions"]["2026-10-30"][0]["status"], "外れ")
         self.assertIn("一次情報", data["past_predictions"]["2026-10-30"][0]["note"])
@@ -354,7 +354,7 @@ class FirstPartyTests(unittest.TestCase):
             return match.group(0)
         self.assertIn('class="day-mark forecast-hit-mark">予想◯</span>', date_cell("2026-10-25"))
         self.assertIn('class="day-mark forecast-hit-mark">予想◯</span>', date_cell("2026-10-28"))
-        self.assertIn('class="day-mark forecast-miss-mark">予想✕</span>', date_cell("2026-10-23"))
+        self.assertIn('class="day-mark forecast-hit-mark">予想◯</span>', date_cell("2026-10-23"))
         self.assertIn('class="day-mark forecast-miss-mark">予想✕</span>', date_cell("2026-10-27"))
         self.assertIn('class="day-mark forecast-miss-mark">予想✕</span>', date_cell("2026-10-30"))
         self.assertIn('class="day-mark predicted-mark">予想中</span>', date_cell("2026-10-31"))
@@ -369,7 +369,7 @@ class FirstPartyTests(unittest.TestCase):
         data = json.loads(payload.group(1))
         self.assertEqual(data["past_predictions"]["2026-10-25"][0]["mark"], "予想◯")
         self.assertEqual(data["past_predictions"]["2026-10-30"][0]["mark"], "予想✕")
-        self.assertEqual(data["past_predictions"]["2026-10-23"][0]["mark_class"], "forecast-miss-mark")
+        self.assertEqual(data["past_predictions"]["2026-10-23"][0]["mark_class"], "forecast-hit-mark")
         self.assertEqual(len(data["past_predictions"]["2026-10-25"]), 1)
         self.assertNotIn("2026-11-01", data["past_predictions"])
         js = (ROOT / "docs/assets/app.js").read_text(encoding="utf-8")
@@ -412,6 +412,19 @@ class FirstPartyTests(unittest.TestCase):
         self.assertEqual(sum(x.get("forecast_id") == cfg["forecast_id"] for x in refreshed), 1)
         self.assertFalse(any(x.get("date") == "2026-11-01" for x in refreshed))
 
+    def test_october_23_hit_keeps_original_prediction_and_verification_proof(self):
+        entries = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))
+        entry = next(item for item in entries if item.get("date") == "2026-10-23")
+        self.assertEqual(entry["outcome_status"], "的中")
+        self.assertEqual(entry["published_at"], "2026-10-20T23:17:07+09:00")
+        self.assertIn("2113492187770175603", entry["verification_post_ids"])
+        self.assertEqual(entry["previous_verdict"]["outcome_status"], "外れ")
+        records = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
+        # The October 22 reset must not invalidate the predicted date.
+        result, rationale = site.editorial_result(entry, records, {}, site.parse_time("2026-10-24T12:00:00+09:00"))
+        self.assertEqual(result, "的中")
+        self.assertIn("一致", rationale)
+
     def test_forecast_hit_and_miss_are_recorded_after_a_new_announcement(self):
         old = json.loads((ROOT / "data/editorial-forecast.json").read_text(encoding="utf-8"))
         current = dict(old, published_at="2026-10-31T09:30:00+09:00")
@@ -422,10 +435,22 @@ class FirstPartyTests(unittest.TestCase):
         status, detail = site.editorial_result(current, [event], {}, now)
         self.assertEqual(status, "的中")
         self.assertIn("一致", detail)
-        event["reference_at"] = "2026-11-01T12:00:00+09:00"
-        status, detail = site.editorial_result(current, [event], {}, now)
+        # A reset announced before the prediction date must not prematurely fail it.
+        event["reference_at"] = "2026-10-30T18:00:00+09:00"
+        status, detail = site.editorial_result(current, [event], {}, site.parse_time("2026-10-31T18:00:00+09:00"))
+        self.assertEqual(status, "予想中")
+        # Even if an earlier reset happened, a reset on the target day still counts.
+        same_day = dict(event, id="another:global", reference_at="2026-10-31T15:00:00+09:00")
+        status, detail = site.editorial_result(current, [event, same_day], {}, now)
+        self.assertEqual(status, "的中")
+        # After the target day and with sufficient fresh source coverage, no target-day
+        # event means a miss, even when another reset occurred on a different date.
+        later = dict(event, reference_at="2026-11-01T12:00:00+09:00")
+        health = {"last_success_at": "2026-11-02T12:00:00+09:00",
+                  "feed": "ok", "x_status": "checked"}
+        status, detail = site.editorial_result(current, [later], health, now)
         self.assertEqual(status, "外れ")
-        self.assertIn("異なり", detail)
+        self.assertIn("ありませんでした", detail)
 
     def test_browser_never_silently_hides_an_expired_editorial_prediction(self):
         script = (ROOT / "docs/assets/app.js").read_text(encoding="utf-8")
