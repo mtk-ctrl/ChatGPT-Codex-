@@ -1,6 +1,6 @@
 {
   "model": "interval-90d-reset-announcements-v2",
-  "generated_at": "2026-10-31T00:13:29Z",
+  "generated_at": "2026-10-31T00:19:37Z",
   "window_days": 90,
   "status": "stale",
   "sample_size": 19,
@@ -8,7 +8,7 @@
   "all_completed": 55,
   "horizons": {},
   "last_reset_at": "2026-10-28T02:42:53Z",
-  "elapsed_hours": 69.51,
+  "elapsed_hours": 69.61,
   "median_hours": 51.97,
   "min_hours": 21.85,
   "max_hours": 346.14,
