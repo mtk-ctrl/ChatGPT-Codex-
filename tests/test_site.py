@@ -397,7 +397,10 @@ class FirstPartyTests(unittest.TestCase):
         self.assertEqual([x["date"] for x in cfg["outlook_dates"]], ["2026-11-01", "2026-11-02"])
         self.assertTrue(all(r.get("date") not in {"2026-11-01", "2026-11-02"} for r in history))
         archived = next(r for r in history if r.get("forecast_id") == cfg["forecast_id"])
-        self.assertEqual(archived["outcome_status"], "予想変更")
+        self.assertEqual(archived["outcome_status"], "外れ")
+        self.assertEqual(archived["outcome_evidence"], "site_owner_report_2026-10-31")
+        self.assertEqual(archived["previous_verdict"]["outcome_status"], "予想変更")
+        self.assertEqual(archived["published_at"], "2026-10-31T09:19:47+09:00")
         forecast = {"status": "stale", "generated_at": now.isoformat(), "horizons": {}}
         page = site.homepage(records, now.isoformat(), forecast, [], None, history, cfg)
         self.assertIn("次の2日間のリセット関連予告", page)
@@ -414,6 +417,11 @@ class FirstPartyTests(unittest.TestCase):
         self.assertEqual(set(result["outlook"]), {"2026-11-01", "2026-11-02"})
         self.assertTrue(all(v["advance_notice"] for v in result["outlook"].values()))
         self.assertNotIn("2026-11-01", result["past_predictions"])
+        self.assertEqual(result["past_predictions"]["2026-10-31"][0]["status"], "外れ")
+        self.assertEqual(result["past_predictions"]["2026-10-31"][0]["mark"], "予想✕")
+        self.assertIn("運営者の確認による判定", result["past_predictions"]["2026-10-31"][0]["note"])
+        self.assertIn('day-mark forecast-miss-mark">予想✕</span>', page)
+        self.assertIn("10月31日の予想は外れ", page)
         self.assertIn("outlook-mark", (ROOT / "docs/assets/app.js").read_text())
         self.assertIn(".day-mark.outlook-mark", (ROOT / "docs/assets/style.css").read_text())
 
