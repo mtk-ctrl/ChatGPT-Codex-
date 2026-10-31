@@ -23,15 +23,25 @@
   "outlook_dates": [
     {
       "date": "2026-11-01",
-      "possibility": "リセットまたはチケット",
-      "basis": "28日企画のDay27（米国太平洋時間10月31日）に相当する時期。日本時間では日付がずれる可能性があります。"
+      "possibility": "リセットまたはリセットチケットの事前予告",
+      "basis": "Tibo氏のDay26投稿で次の2日間に言及。Day27（米国太平洋時間10月31日）の日本時間上の目安。形式と正確な日付・時刻は未確定。",
+      "announcement_type": "staff_advance_notice_unassigned"
     },
     {
       "date": "2026-11-02",
-      "possibility": "リセットまたはチケット",
-      "basis": "28日企画の最終Day28（米国太平洋時間11月1日）に相当する時期。日本時間では日付がずれる可能性があります。"
+      "possibility": "リセットまたはリセットチケットの事前予告",
+      "basis": "Tibo氏のDay26投稿で次の2日間に言及。Day28（米国太平洋時間11月1日）の日本時間上の目安。形式と正確な日付・時刻は未確定。",
+      "announcement_type": "staff_advance_notice_unassigned"
     }
   ],
-  "outlook_reason": "ユーザーの現時点の見通し。28日企画は米国太平洋時間10月5日〜11月1日で、終盤のDay27・28が日本時間11月1日・2日にかかるため、リセットまたはチケットの発表がある可能性を考えています。",
-  "outlook_caution": "OpenAI/Tibo氏による日程予告ではありません。Day26（米国太平洋時間10月30日）の発表は調査範囲では未確認であり、10月31日にリセットがなかったと確定できません。11月1日・2日は独立した正式な「リセット実施日予想」として的中率に計上せず、仮説・見通しとして掲載します。"
+  "outlook_reason": "Tibo氏のDay26投稿（ユーザー提供のXスクリーンショット）で『次の2日間はリセット…保存型…』と事前予告されています。28日間企画のDay27・Day28（米国太平洋時間10月31日・11月1日）が、日本時間では11月1日・2日頃に当たります。",
+  "outlook_caution": "事前予告自体はTibo氏本人の投稿で確認できます。ただし、通常のリセットとリセットチケットをどの日に行うか、対象プラン、実際の反映時刻は明言されていません。個別の原投稿URLは未取得です。未来日のリセット実施を既成事実とせず、予想の的中率にも加えません。",
+  "outlook_status": "tibo_staff_advance_notice_screenshot",
+  "outlook_evidence": {
+    "original_author": "Tibo (@thsottiaux)",
+    "captured_at_jst": "2026-10-31T14:58:00+09:00",
+    "format": "user_supplied_x_screenshot",
+    "post_url": null,
+    "sha256": "397a571e433811a5c55503108589b3792edbc404525cf8b37f0897016f329da3"
+  }
 }
