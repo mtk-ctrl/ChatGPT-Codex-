@@ -21,20 +21,23 @@ class FirstPartyTests(unittest.TestCase):
 
     def test_28_day_publication_tab_is_listed_and_html_safe(self):
         rows = json.loads((ROOT / "data/shipping-28.json").read_text(encoding="utf-8"))
-        self.assertEqual(len(rows), 26)
-        self.assertEqual([r["day"] for r in rows], list(range(1, 27)))
+        self.assertEqual(len(rows), 27)
+        self.assertEqual([r["day"] for r in rows], list(range(1, 28)))
         self.assertEqual(rows[0]["date_pt"], "2026-10-05")
-        self.assertEqual(rows[-1]["date_pt"], "2026-10-30")
+        self.assertEqual(rows[-1]["date_pt"], "2026-10-31")
         self.assertTrue(all(r["sources"] for r in rows))
         self.assertTrue(all(all(site.shipping_source(url) for url in r["sources"]) for r in rows))
         markup = site.shipping_28_view(rows)
-        self.assertEqual(markup.count('class="shipping-summary"'), 26)
+        self.assertEqual(markup.count('class="shipping-summary"'), 27)
         self.assertIn("Day 1", markup)
         self.assertIn("Day 20", markup)
         self.assertIn("Day 21", markup)
         self.assertIn("Day 24", markup)
         self.assertIn("Day 25", markup)
         self.assertIn("Day 26", markup)
+        self.assertIn("Day 27", markup)
+        self.assertIn("リセットチケット（運営者確認）", markup)
+        self.assertIn("臨時リセットはありませんでした", markup)
         self.assertIn("複数のChatGPTアカウント", markup)
         self.assertIn("次の2日間はリセット", markup)
         self.assertIn("個別URL・正確な投稿時刻は取得できていません", markup)
@@ -232,7 +235,7 @@ class FirstPartyTests(unittest.TestCase):
         self.assertEqual(event["original_url"], "https://x.com/thsottiaux/status/2114588174249071102")
         self.assertEqual(len(rows), len({r["id"] for r in rows}))
         shipping = json.loads((ROOT / "data/shipping-28.json").read_text(encoding="utf-8"))
-        self.assertEqual(shipping[-1]["day"], 26)
+        self.assertEqual(shipping[-1]["day"], 27)
         self.assertIn("Day 21", site.shipping_28_view(shipping))
 
     def test_day20_announcement_deadline_completion(self):
@@ -453,6 +456,36 @@ class FirstPartyTests(unittest.TestCase):
         self.assertEqual(len(cfg["outlook_dates"]), 2)
         self.assertTrue(all(d["announcement_type"] == "staff_advance_notice_unassigned"
                             for d in cfg["outlook_dates"]))
+
+    def test_day27_ticket_appears_without_adding_a_global_reset(self):
+        import re
+        shipping = json.loads((ROOT / "data/shipping-28.json").read_text(encoding="utf-8"))
+        observed = next(r for r in shipping if r["day"] == 27)
+        self.assertEqual(observed["date_pt"], "2026-10-31")
+        self.assertEqual(observed["evidence_type"], "site_owner_observation")
+        self.assertEqual(observed["observed_at_jst_approx"], "2026-11-01T04:00:00+09:00")
+        self.assertTrue(all(site.shipping_source(url) for url in observed["sources"]))
+        original = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
+        self.assertFalse(any(site.record_day(r) == "2026-11-01" and r["kind"] == "global" for r in original))
+        proposal = json.loads((ROOT / "data/editorial-forecast.json").read_text(encoding="utf-8"))
+        history = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))
+        now = site.parse_time("2026-11-01T07:19:00+09:00")
+        forecast = {"status": "stale", "generated_at": now.isoformat(), "horizons": {}}
+        page = site.homepage(original, now.isoformat(), forecast, [], None, history, proposal, shipping)
+        payload = re.search(r'<script id="calendar-data" type="application/json">(.*?)</script>', page, re.S)
+        self.assertIsNotNone(payload)
+        data = json.loads(payload.group(1))
+        self.assertTrue(data["outlook"]["2026-11-01"]["observed_banked"])
+        self.assertFalse(data["outlook"]["2026-11-01"]["advance_notice"])
+        self.assertTrue(data["outlook"]["2026-11-02"]["advance_notice"])
+        self.assertFalse(any(r["day"] == "2026-11-01" and r["kind"] == "global" for r in data["records"]))
+        self.assertIn('day-mark banked-mark">チケット</span>', page)
+        self.assertIn("臨時リセットはなかった", page)
+        self.assertIn("午前4時ごろ", page)
+        self.assertIn("11月2日についてはTibo氏の事前予告", page)
+        self.assertNotIn("2026-11-01", data["past_predictions"])
+        appjs = (ROOT / "docs/assets/app.js").read_text(encoding="utf-8")
+        self.assertIn("observed_banked", appjs)
 
     def test_october_25_retains_only_the_successful_prediction(self):
         entries = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))
