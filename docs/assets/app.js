@@ -103,7 +103,7 @@
         if (rows.some(row => row.kind === "global")) marks.append(element("span", "リセット", "day-mark reset-mark"));
         if (rows.some(row => row.kind === "banked")) marks.append(element("span", "チケット", "day-mark banked-mark"));
         if (key === data.predicted) marks.append(element("span", "予想中", "day-mark predicted-mark"));
-        if (outlook[key]) marks.append(element("span", outlook[key].advance_notice ? "事前予告" : "見通し", "day-mark outlook-mark"));
+        if (outlook[key]) { if (outlook[key].observed_banked) { if (!rows.some(row => row.kind === "banked")) marks.append(element("span", "チケット", "day-mark banked-mark")); } else { marks.append(element("span", outlook[key].advance_notice ? "事前予告" : "見通し", "day-mark outlook-mark")); } }
         (pastPredictions[key] || []).forEach(item => {
           const acceptedClasses = ["forecast-hit-mark", "forecast-miss-mark", "forecast-pending-mark"];
           const markClass = acceptedClasses.includes(item.mark_class) ? item.mark_class : "forecast-pending-mark";
