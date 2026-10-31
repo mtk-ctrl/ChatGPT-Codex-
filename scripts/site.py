@@ -184,7 +184,12 @@ def record_row(record):
     # Broad product tags classify the archive; they do not verify every post's eligibility.
     # Leave the exact target to the announcement text and original source.
     target = ""
-    note = f'<details class="record-more"><summary>発表内容を詳しく読む</summary><p>{e(record["note"])}</p></details>' if record.get("note") else ""
+    display_note = record.get("note", "")
+    # Keep editorial audit and retrieval limitations in the source data, not the article body.
+    display_note = display_note.replace("対象プランや実際の反映時刻は本文に記載されていません。", "")
+    display_note = re.sub(r"X原投稿は直接取得できず[^。]*。", "", display_note)
+    display_note = display_note.replace("Tibo氏のX原投稿は全文未確認。", "")
+    note = f'<details class="record-more"><summary>発表内容を詳しく読む</summary><p>{e(display_note)}</p></details>' if display_note else ""
     verification_notice = ""  # Source-audit detail belongs in data and About, not each row.
     day = record_day(record)
     stamp = day if record.get("date_precision") == "day" else record["reference_at"]
