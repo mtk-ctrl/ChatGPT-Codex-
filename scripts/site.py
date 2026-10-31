@@ -248,6 +248,76 @@ def publication_timestamp_markup(record):
     return f'<span class="prediction-publication"><time datetime="{e(value)}">{e(jst(value))}</time>（日本時間） {proof}</span>'
 
 
+def editorial_result(entry, records, health, now):
+    """Compare with the first independent, verified reset announcement after publication."""
+    if not entry.get("published_at"):
+        return "確認中", "初回のサイト公開日時を確認中です。"
+    try:
+        published = parse_time(entry["published_at"])
+        cutoff = parse_time(entry["expires_at"])
+        target = entry["date"]
+    except (ValueError, KeyError, TypeError):
+        return "確認中", "予想日と公開日時を確認中です。"
+    baseline = next((r for r in records if r.get("id") == entry.get("last_report_id")), None)
+    if baseline:
+        published = max(published, parse_time(baseline["reference_at"]) + timedelta(hours=6))
+    later = []
+    for event in records:
+        if (event.get("kind") != "global" or event.get("state") not in {"announced", "reported", "observed"}
+                or event.get("evidence") not in {"official", "staff_x"}
+                or event.get("date_precision") == "day"):
+            continue
+        try:
+            stamp = parse_time(event["reference_at"])
+        except (ValueError, KeyError, TypeError):
+            continue
+        if published < stamp <= now:
+            later.append(stamp)
+    if later:
+        first_day = min(later).astimezone(JST).date().isoformat()
+        label = f"{int(first_day[5:7])}月{int(first_day[8:])}日"
+        if first_day == target:
+            return "的中", f"次のリセット発表日（{label}）と予想日が一致しました。"
+        return "外れ", f"次のリセット発表は{label}で、予想日とは異なりました。"
+    if now < cutoff:
+        return "予想中", "予想日がまだ終了していません。"
+    try:
+        checked = parse_time(health["last_success_at"])
+    except (ValueError, KeyError, TypeError):
+        checked = None
+    if (checked and checked >= cutoff and health.get("feed") == "ok"
+            and health.get("x_status") == "checked"):
+        return "外れ", "確認できた一次情報では、予想日までに次のリセット発表はありませんでした。"
+    return "確認中", "予想日は終了しましたが、一次情報が不十分なため結果を判定できません。"
+
+
+def sync_editorial_history(history, proposal, records, health, now, active):
+    """Save every forecast at first build, then update its result without erasing evidence."""
+    items = [dict(item) for item in history]
+    if isinstance(proposal, dict) and proposal.get("forecast_id"):
+        current = next((item for item in items if item.get("forecast_id") == proposal["forecast_id"]), None)
+        if current is None:
+            current = dict(proposal)
+            items.append(current)
+        elif proposal.get("published_at") and not current.get("published_at"):
+            current["published_at"] = proposal["published_at"]
+            if proposal.get("publication_run_id"):
+                current["publication_run_id"] = proposal["publication_run_id"]
+    for item in items:
+        if item.get("outcome"):
+            continue
+        state, detail = editorial_result(item, records, health, now)
+        if state != "予想中" or item.get("outcome_status"):
+            item["outcome_status"] = state
+            item["outcome_detail"] = detail
+        if (isinstance(proposal, dict) and active is None
+                and item.get("forecast_id") == proposal.get("forecast_id")
+                and not item.get("retired_at")):
+            item["retired_at"] = now.isoformat(timespec="seconds")
+            item["retired_reason"] = "予想終了後も結果検証のため履歴に保存。"
+    return items
+
+
 def previous_editorial_predictions(history):
     """Display an immutable public audit trail of old editorial dates."""
     if not history:
