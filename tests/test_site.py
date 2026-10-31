@@ -302,6 +302,36 @@ class FirstPartyTests(unittest.TestCase):
         self.assertIn("retired_at", entry)
         self.assertIn("2026年10月31日（土）", site.previous_editorial_predictions(expired))
 
+    def test_calendar_and_history_explain_apparent_reset_forecast_conflicts(self):
+        import re
+        rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
+        history = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))
+        current = json.loads((ROOT / "data/editorial-forecast.json").read_text(encoding="utf-8"))
+        generated = current["created_at"]
+        forecast = {"status": "stale", "generated_at": generated, "horizons": {}}
+        page = site.homepage(rows, generated, forecast, [], None, history)
+        self.assertIn("予想日の10月23日にもリセット発表の記録があります", page)
+        self.assertIn("最初の次回リセット発表は10月22日でした", page)
+        self.assertIn("予想日の10月30日にはカレンダーに登録されたリセット発表がありません", page)
+        self.assertIn("外れは運営者の確認による判定", page)
+        self.assertIn('data-calendar-jump="2026-10-23"', page)
+        self.assertIn('data-calendar-jump="2026-10-30"', page)
+        self.assertIn('旧予想2', page)  # Oct 25 has both a hit and an earlier miss.
+        self.assertNotIn("2026年11月1日（日）を予想", page)
+        serialized = re.search(r'<script id="calendar-data" type="application/json">(.*?)</script>', page, re.S)
+        self.assertIsNotNone(serialized)
+        data = json.loads(serialized.group(1))
+        self.assertEqual(data["past_predictions"]["2026-10-23"][0]["status"], "外れ")
+        self.assertIn("10月22日", data["past_predictions"]["2026-10-23"][0]["note"])
+        self.assertEqual(data["past_predictions"]["2026-10-30"][0]["status"], "外れ")
+        self.assertIn("一次情報", data["past_predictions"]["2026-10-30"][0]["note"])
+        self.assertEqual(len(data["past_predictions"]["2026-10-25"]), 2)
+        self.assertNotIn("2026-11-01", data["past_predictions"])
+        js = (ROOT / "docs/assets/app.js").read_text(encoding="utf-8")
+        self.assertIn("pastPredictions", js)
+        self.assertIn("data-calendar-jump", js)
+        self.assertIn("calendar-past-predictions", js)
+
     def test_owner_miss_and_october_31_forecast_have_no_unapproved_november_prediction(self):
         entries = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))
         oct30 = next(x for x in entries if x.get("forecast_id") == "2026-10-28-forecast-30")
