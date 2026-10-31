@@ -209,6 +209,7 @@ def active_editorial_forecast(records, now, proposal):
     baseline = next((r for r in records if r.get("id") == proposal.get("last_report_id")
                      and r.get("kind") == "global" and r.get("state") in {"announced", "reported", "observed"}), None)
     if (baseline is None or now >= parse_time(proposal["expires_at"])
+            or (proposal.get("retracted_at") and now >= parse_time(proposal["retracted_at"]))
             or (proposal.get("created_at") and now < parse_time(proposal["created_at"]))):
         return None
     reference_time = parse_time(baseline["reference_at"])
@@ -397,6 +398,13 @@ def calendar_overview(records, forecast, editorial=None, previous_editorial=None
     by_day = {}
     for r in entries:
         by_day.setdefault(r['day'], []).append(r)
+    outlook = {}
+    if (previous_editorial and previous_editorial.get("retracted_at")
+            and parse_time(forecast["generated_at"]) >= parse_time(previous_editorial["retracted_at"])):
+        for row in previous_editorial.get("outlook_dates", []):
+            if isinstance(row, dict) and re.fullmatch(r"\d{4}-\d{2}-\d{2}", row.get("date", "")):
+                outlook[row["date"]] = {"possibility": row.get("possibility", "発表の可能性"),
+                                         "basis": row.get("basis", "")}
     past_predictions = {}
     for row in editorial_history or []:
         if (not row.get("date") or not row.get("published_at")
@@ -421,11 +429,13 @@ def calendar_overview(records, forecast, editorial=None, previous_editorial=None
         if key == predicted:
             title = "予想中" if editorial else "予想"
             marks.append(f'<span class="day-mark predicted-mark">{title}</span>')
+        if key in outlook:
+            marks.append('<span class="day-mark outlook-mark">見通し</span>')
         for item in past_predictions.get(key, []):
             marks.append(f'<span class="day-mark {item["mark_class"]}">{item["mark"]}</span>')
         classes = 'calendar-day' + (' is-today' if key == today.isoformat() else '')
         past_labels = "、".join(item["mark"] for item in past_predictions.get(key, []))
-        label = f'{today.year}年{today.month}月{day}日、発表記録{len(day_records)}件' + ('、予想中' if key == predicted and editorial else ('、予想日' if key == predicted else '')) + (f'、{past_labels}' if past_labels else '')
+        label = f'{today.year}年{today.month}月{day}日、発表記録{len(day_records)}件' + ('、予想中' if key == predicted and editorial else ('、予想日' if key == predicted else '')) + (f'、{past_labels}' if past_labels else '') + ('、個人の見通し（未発表）' if key in outlook else '')
         return f'<button type="button" class="{classes}" data-calendar-day="{key}" aria-label="{e(label)}" aria-pressed="{str(key == selected).lower()}"><span class="day-number">{day}</span><span class="day-marks">{"".join(marks)}</span></button>'
     grid = ''.join(cell(day) for week in calendar.Calendar(firstweekday=6).monthdayscalendar(today.year, today.month) for day in week)
     first = min(r['day'] for r in entries)[:7]
@@ -451,7 +461,7 @@ def calendar_overview(records, forecast, editorial=None, previous_editorial=None
         buttons = "".join(link(src["url"], f'{r["time"]}｜' + ("リセットの発表" if kind == "global" else "チケット配布の発表") + "（Xの投稿）") for r in sorted(posted, key=lambda item: item["time"]) for src in r["sources"] if src["url"] == r["sources"][-1]["url"])
         cards.append(f'<article class="day-record"><h4>{title}</h4><p class="day-posts">{len(posted)}件の投稿</p><p class="day-source">{buttons}</p></article>')
     details = "".join(cards) or '<p class="empty-day">この日の情報はありません。</p>'
-    payload = json.dumps({'today':today.isoformat(), 'selected':selected, 'first':first, 'last':last, 'predicted':predicted, 'records':entries, 'past_predictions':past_predictions}, ensure_ascii=False).replace('<', '\\u003c')
+    payload = json.dumps({'today':today.isoformat(), 'selected':selected, 'first':first, 'last':last, 'predicted':predicted, 'records':entries, 'past_predictions':past_predictions, 'outlook':outlook}, ensure_ascii=False).replace('<', '\\u003c')
     if forecast['status'] == 'ok':
         h24, h48 = forecast['horizons']['24'], forecast['horizons']['48']
         lower, upper = h24['observed_ratio_interval']
@@ -472,6 +482,19 @@ def calendar_overview(records, forecast, editorial=None, previous_editorial=None
 <p class="editorial-reason">{e(editorial["rationale"])}</p>
 <p class="editorial-caution">{e(editorial["caution"])}</p>
 <p class="editorial-written">予想の公開日時：{publication_timestamp_markup(editorial) or "確認中"}</p></aside>'''
+    elif outlook:
+        outlook_rows = []
+        for date_value, item in sorted(outlook.items()):
+            target_date = datetime.strptime(date_value, "%Y-%m-%d")
+            weekday = "月火水木金土日"[target_date.weekday()]
+            outlook_rows.append(f'<li><strong>{target_date.month}月{target_date.day}日（{weekday}）</strong>：{e(item["possibility"])}<p>{e(item["basis"])}</p></li>')
+        as_of = e(jst(previous_editorial["outlook_updated_at"])) if previous_editorial.get("outlook_updated_at") else "確認日時不明"
+        forecast_panel = f'''<aside class="forecast-panel forecast-outlook" aria-labelledby="forecast-title"><div class="forecast-heading"><h2 id="forecast-title">今後の見通し</h2><span>公式発表ではない予想</span></div>
+<p class="editorial-reason"><strong>10月31日について：</strong>新たなリセット発表は確認できていません。投稿の全件を取得できたわけではないため、実施がなかったと断定するものではありません。</p>
+<p class="editorial-reason">{e(previous_editorial.get("outlook_reason", ""))}</p>
+<ul class="outlook-dates">{"".join(outlook_rows)}</ul>
+<p class="editorial-caution">{e(previous_editorial.get("outlook_caution", ""))}</p>
+<p class="editorial-written">見通しの更新：{as_of}（日本時間）。以前の10月31日予想は変更前の記録として履歴に残しています。</p></aside>'''
     elif forecast["status"] == "ok":
         forecast_panel = f'''<aside class="forecast-panel" aria-labelledby="forecast-title"><div class="forecast-heading"><h2 id="forecast-title">次のリセット予測</h2><span>当サイト独自の試算</span></div><div id="forecast-current" data-generated-at="{forecast['generated_at']}">{prediction}</div><p class="forecast-updated">予測の計算日時：{e(jst(forecast["generated_at"]))}（日本時間）</p><a class="method-link" href="forecast.html">計算方法と検証について →</a><p class="forecast-disclaimer">{DISCLAIMER}</p></aside>'''
     else:
@@ -488,7 +511,7 @@ def calendar_overview(records, forecast, editorial=None, previous_editorial=None
     prediction_legend = ('<span><i class="legend-predicted"></i>予想中：次回候補</span>' if editorial
                          else '<span><i class="legend-predicted"></i>予想日</span>' if forecast["status"] == "ok" else "")
     past_statuses = {item["status"] for items in past_predictions.values() for item in items}
-    history_legend = ""
+    history_legend = '<span><i class="legend-outlook"></i>見通し：公式発表前の予想</span>' if outlook else ""
     if "的中" in past_statuses:
         history_legend += '<span><i class="legend-forecast-hit"></i>予想◯：的中</span>'
     if "外れ" in past_statuses:
