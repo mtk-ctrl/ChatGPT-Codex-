@@ -239,14 +239,13 @@
     "day": 25,
     "date_pt": "2026-10-29",
     "category": "利用枠の拡大",
-    "summary": "Pro 100・Pro 500・Business PremiumでWorkとCodexの利用枠を拡大。Pro 200では予定していた縮小を取りやめ、利用枠の少なかった契約者は従来の2倍に引き上げました。通常のリセットやリセットチケットの発表ではありません。米国太平洋時間10月29日のDay 25発表で、日本時間では10月30日1:56の投稿です。",
+    "summary": "Pro 100・Pro 200・Pro 500とBusiness Premiumの利用上限を2倍にすると発表。Pro 200の既存Work・Codex利用枠は引き下げず、dotsの拡張上限と別枠扱いも当面継続する方針です。リセットやチケットの配布ではありません。投稿は日本時間10月30日01:56。",
     "sources": [
-      "https://x.com/thsottiaux/status/2115850175868727621",
-      "https://help.openai.com/en/articles/11391654-chatgpt-business-release-notes"
+      "https://x.com/thsottiaux/status/2115850175868727621"
     ],
     "source_labels": [
-      "Tibo氏のDay 25投稿（X）",
-      "OpenAI公式の利用枠変更説明"
-    ]
+      "Day 25の発表を読む（Tibo氏のX投稿）"
+    ],
+    "verification_note": "本人投稿URL・投稿IDは確認。X原投稿ページを直接取得できなかったため、同投稿の公開テキストの転載・監視記録を複数比較して内容を検証。"
   }
 ]
