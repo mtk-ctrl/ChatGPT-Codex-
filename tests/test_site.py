@@ -302,29 +302,25 @@ class FirstPartyTests(unittest.TestCase):
         self.assertIn("retired_at", entry)
         self.assertIn("2026年10月31日（土）", site.previous_editorial_predictions(expired))
 
-    def test_owner_miss_and_revised_forecast_both_remain_auditable(self):
+    def test_owner_miss_and_october_31_forecast_have_no_unapproved_november_prediction(self):
         entries = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))
         oct30 = next(x for x in entries if x.get("forecast_id") == "2026-10-28-forecast-30")
-        nov1 = next(x for x in entries if x.get("forecast_id") == "2026-10-31-forecast-1101")
         self.assertEqual(oct30["outcome_status"], "外れ")
         self.assertEqual(oct30["outcome_evidence"], "site_owner_report_2026-10-31")
-        self.assertIn("一次情報", oct30["outcome"])
-        self.assertEqual(nov1["outcome_status"], "予想変更")
-        self.assertEqual(nov1["published_at"], "2026-10-31T09:13:04+09:00")
-        self.assertIn("10月31日", nov1["outcome"])
-        self.assertIn("2026年11月1日（日）", site.previous_editorial_predictions(entries))
-        self.assertIn("判定：<strong>外れ</strong>", site.previous_editorial_predictions(entries))
-        self.assertIn("判定：<strong>予想変更</strong>", site.previous_editorial_predictions(entries))
+        self.assertFalse(any(x.get("forecast_id") == "2026-10-31-forecast-1101" for x in entries))
+        self.assertFalse(any(x.get("date") == "2026-11-01" for x in entries))
+        html = site.previous_editorial_predictions(entries)
+        self.assertIn("判定：<strong>外れ</strong>", html)
+        self.assertNotIn("2026年11月1日", html)
         cfg = json.loads((ROOT / "data/editorial-forecast.json").read_text(encoding="utf-8"))
-        self.assertNotEqual(cfg["forecast_id"], nov1["forecast_id"])
         self.assertEqual(cfg["date"], "2026-10-31")
         self.assertNotIn("published_at", cfg)
         refreshed = site.sync_editorial_history(entries, cfg,
                    json.loads((ROOT / "data/events.json").read_text(encoding="utf-8")),
                    {"feed":"failed","x_status":"unavailable"}, site.parse_time(cfg["created_at"]), cfg)
         self.assertEqual(next(x for x in refreshed if x.get("forecast_id") == oct30["forecast_id"])["outcome_status"], "外れ")
-        self.assertEqual(next(x for x in refreshed if x.get("forecast_id") == nov1["forecast_id"])["outcome_status"], "予想変更")
         self.assertEqual(len(refreshed), len(entries)+1)
+        self.assertFalse(any(x.get("date") == "2026-11-01" for x in refreshed))
 
     def test_forecast_hit_and_miss_are_recorded_after_a_new_announcement(self):
         old = json.loads((ROOT / "data/editorial-forecast.json").read_text(encoding="utf-8"))
