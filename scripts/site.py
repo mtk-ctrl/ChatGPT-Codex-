@@ -404,7 +404,8 @@ def calendar_overview(records, forecast, editorial=None, previous_editorial=None
         for row in previous_editorial.get("outlook_dates", []):
             if isinstance(row, dict) and re.fullmatch(r"\d{4}-\d{2}-\d{2}", row.get("date", "")):
                 outlook[row["date"]] = {"possibility": row.get("possibility", "発表の可能性"),
-                                         "basis": row.get("basis", "")}
+                                         "basis": row.get("basis", ""),
+                                         "advance_notice": previous_editorial.get("outlook_status") == "tibo_staff_advance_notice_screenshot"}
     past_predictions = {}
     for row in editorial_history or []:
         if (not row.get("date") or not row.get("published_at")
@@ -430,12 +431,13 @@ def calendar_overview(records, forecast, editorial=None, previous_editorial=None
             title = "予想中" if editorial else "予想"
             marks.append(f'<span class="day-mark predicted-mark">{title}</span>')
         if key in outlook:
-            marks.append('<span class="day-mark outlook-mark">見通し</span>')
+            title = "事前予告" if outlook[key]["advance_notice"] else "見通し"
+            marks.append(f'<span class="day-mark outlook-mark">{title}</span>')
         for item in past_predictions.get(key, []):
             marks.append(f'<span class="day-mark {item["mark_class"]}">{item["mark"]}</span>')
         classes = 'calendar-day' + (' is-today' if key == today.isoformat() else '')
         past_labels = "、".join(item["mark"] for item in past_predictions.get(key, []))
-        label = f'{today.year}年{today.month}月{day}日、発表記録{len(day_records)}件' + ('、予想中' if key == predicted and editorial else ('、予想日' if key == predicted else '')) + (f'、{past_labels}' if past_labels else '') + ('、個人の見通し（未発表）' if key in outlook else '')
+        label = f'{today.year}年{today.month}月{day}日、発表記録{len(day_records)}件' + ('、予想中' if key == predicted and editorial else ('、予想日' if key == predicted else '')) + (f'、{past_labels}' if past_labels else '') + ('、Tibo氏による事前予告（具体的な形式は未定）' if outlook.get(key, {}).get("advance_notice") else ('、個人の見通し（未発表）' if key in outlook else ''))
         return f'<button type="button" class="{classes}" data-calendar-day="{key}" aria-label="{e(label)}" aria-pressed="{str(key == selected).lower()}"><span class="day-number">{day}</span><span class="day-marks">{"".join(marks)}</span></button>'
     grid = ''.join(cell(day) for week in calendar.Calendar(firstweekday=6).monthdayscalendar(today.year, today.month) for day in week)
     first = min(r['day'] for r in entries)[:7]
@@ -489,12 +491,23 @@ def calendar_overview(records, forecast, editorial=None, previous_editorial=None
             weekday = "月火水木金土日"[target_date.weekday()]
             outlook_rows.append(f'<li><strong>{target_date.month}月{target_date.day}日（{weekday}）</strong>：{e(item["possibility"])}<p>{e(item["basis"])}</p></li>')
         as_of = e(jst(previous_editorial["outlook_updated_at"])) if previous_editorial.get("outlook_updated_at") else "確認日時不明"
-        forecast_panel = f'''<aside class="forecast-panel forecast-outlook" aria-labelledby="forecast-title"><div class="forecast-heading"><h2 id="forecast-title">今後の見通し</h2><span>公式発表ではない予想</span></div>
-<p class="editorial-reason"><strong>10月31日について：</strong>新たなリセット発表は確認できていません。投稿の全件を取得できたわけではないため、実施がなかったと断定するものではありません。</p>
+        is_announced = previous_editorial.get("outlook_status") == "tibo_staff_advance_notice_screenshot"
+        heading = "次の2日間のリセット関連予告" if is_announced else "今後の見通し"
+        category = "Tibo氏の事前予告" if is_announced else "公式発表ではない予想"
+        evidence = ("<p class='editorial-caution'>Tibo氏本人のX投稿は、提供されたスクリーンショットで確認しました。"
+                    "元の個別投稿URLは未取得です。機能の詳細は"
+                    "<a href='https://help.openai.com/en/articles/20001068-using-multiple-chatgpt-accounts-on-web-and-mobile'>OpenAI公式ガイド</a>"
+                    "をご覧ください（このガイドはリセット予告の根拠ではありません）。</p>") if is_announced else ""
+        intro = ("<p class='editorial-reason'>Day26は複数アカウント切り替えの新機能を発表した日です。"
+                 "次の2日間のリセット／チケットに言及していますが、その日の種類・対象・実施時刻はまだ指定されていません。"
+                 "日本時間の11月1日・2日は日付の目安です。</p>") if is_announced else "<p class='editorial-reason'>今日のリセット実施有無を完全には確認できていません。</p>"
+        forecast_panel = f'''<aside class="forecast-panel forecast-outlook" aria-labelledby="forecast-title"><div class="forecast-heading"><h2 id="forecast-title">{heading}</h2><span>{category}</span></div>
+{intro}
 <p class="editorial-reason">{e(previous_editorial.get("outlook_reason", ""))}</p>
 <ul class="outlook-dates">{"".join(outlook_rows)}</ul>
 <p class="editorial-caution">{e(previous_editorial.get("outlook_caution", ""))}</p>
-<p class="editorial-written">見通しの更新：{as_of}（日本時間）。以前の10月31日予想は変更前の記録として履歴に残しています。</p></aside>'''
+{evidence}
+<p class="editorial-written">当初見通しの記録時刻：{as_of}（日本時間）。以前の10月31日予想は変更前の記録として履歴に残しています。</p></aside>'''
     elif forecast["status"] == "ok":
         forecast_panel = f'''<aside class="forecast-panel" aria-labelledby="forecast-title"><div class="forecast-heading"><h2 id="forecast-title">次のリセット予測</h2><span>当サイト独自の試算</span></div><div id="forecast-current" data-generated-at="{forecast['generated_at']}">{prediction}</div><p class="forecast-updated">予測の計算日時：{e(jst(forecast["generated_at"]))}（日本時間）</p><a class="method-link" href="forecast.html">計算方法と検証について →</a><p class="forecast-disclaimer">{DISCLAIMER}</p></aside>'''
     else:
@@ -511,7 +524,8 @@ def calendar_overview(records, forecast, editorial=None, previous_editorial=None
     prediction_legend = ('<span><i class="legend-predicted"></i>予想中：次回候補</span>' if editorial
                          else '<span><i class="legend-predicted"></i>予想日</span>' if forecast["status"] == "ok" else "")
     past_statuses = {item["status"] for items in past_predictions.values() for item in items}
-    history_legend = '<span><i class="legend-outlook"></i>見通し：公式発表前の予想</span>' if outlook else ""
+    history_legend = ('<span><i class="legend-outlook"></i>事前予告：日付・種類・時刻は未確定</span>' if any(x["advance_notice"] for x in outlook.values())
+                      else '<span><i class="legend-outlook"></i>見通し：公式発表前の予想</span>' if outlook else "")
     if "的中" in past_statuses:
         history_legend += '<span><i class="legend-forecast-hit"></i>予想◯：的中</span>'
     if "外れ" in past_statuses:
@@ -578,7 +592,8 @@ FORECAST_METHOD = f'''<article class="article"><h1 class="section-title">次回�
 
 def shipping_source(url):
     return bool(re.fullmatch(r"https://x\.com/(?:thsottiaux|OpenAI|ChatGPT)/status/\d{12,24}", url)
-                or url == "https://learn.chatgpt.com/docs/dots/channels")
+                or url in {"https://learn.chatgpt.com/docs/dots/channels",
+                           "https://help.openai.com/en/articles/20001068-using-multiple-chatgpt-accounts-on-web-and-mobile"})
 
 
 def shipping_28_view(rows, notices=()):
@@ -621,7 +636,7 @@ def shipping_28_view(rows, notices=()):
 <p class="article-lead">2026年10月5日から28日間、OpenAIの担当者Tibo氏がCodex・ChatGPT Workなどの新機能や改善、利用枠の臨時リセットを発表している企画です。Day 1〜{len(rows)}の内容を日付順にまとめています。</p>
 <p class="shipping-note">日付は企画上の米国太平洋時間です。日本時間では発表が翌日になることがあります。Tibo氏が実施を発表したリセットを掲載しています。「チケット」は後から使える保存型リセットです。</p>
 </div><div class="shipping-table-wrap"><table class="shipping-table">
-<thead><tr><th scope="col">何日目？</th><th scope="col">日付</th><th scope="col">種類</th><th scope="col">発表されたこと</th><th scope="col">発表者の投稿</th></tr></thead>
+<thead><tr><th scope="col">何日目？</th><th scope="col">日付</th><th scope="col">種類</th><th scope="col">発表されたこと</th><th scope="col">発表・確認先</th></tr></thead>
 <tbody>''' + "".join(table_rows) + '''</tbody></table></div>
 <p class="shipping-note">この一覧はOpenAI公式と担当者本人の投稿を基にした要約です。個々の機能の提供対象・提供時期はプランや地域などによって異なる場合があります。新たな日程の発表は確認後に追記します。</p>
 ''' + supplemental + '''<p class="article-back"><a href="./">リセットカレンダーに戻る</a></p></article>''')
