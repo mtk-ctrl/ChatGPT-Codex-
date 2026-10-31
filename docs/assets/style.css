@@ -242,7 +242,7 @@ tr[data-record]:target{background:#eef5fc}
 .legend-outlook{background:#f5f0ff;border:1px dashed #ae99d2}
 .forecast-outlook .outlook-dates{margin:10px 0;padding:0;list-style:none}
 .forecast-outlook .outlook-dates li{border-top:1px solid var(--line);padding:11px 0;font-size:13px;line-height:1.6}
-.forecast-outlook .outlook-dates li p{margin:4px 0 0;font-size:12px;color:var(--muted)}
+.forecast-outlook .outlook-dates li>span{display:block;font-size:15px;font-weight:700;margin-top:2px}.forecast-outlook .outlook-dates li p{margin:3px 0 0;font-size:12px;color:var(--muted)}
 .calendar-outlook{margin:0 0 14px;padding:10px 12px;background:#f7f2ff;border-left:3px solid #ae99d2;font-size:12px;line-height:1.7}
 .calendar-outlook h4{margin:0 0 5px;font-size:13px}
 .calendar-outlook p{margin:3px 0}
