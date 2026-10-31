@@ -94,7 +94,7 @@
         if (rows.some(row => row.kind === "banked")) marks.append(element("span", "チケット", "day-mark banked-mark"));
         if (key === data.predicted) marks.append(element("span", "予想", "day-mark predicted-mark"));
         const pastCount = pastPredictions[key]?.length || 0;
-        if (pastCount) marks.append(element("span", `過去予想${pastCount > 1 ? pastCount : ""}`, "day-mark past-prediction-mark"));
+        if (pastCount) marks.append(element("span", `旧予想${pastCount > 1 ? pastCount : ""}`, "day-mark past-prediction-mark"));
         button.append(marks);
         button.addEventListener("click", () => details(key));
         fragment.append(button);
@@ -121,7 +121,7 @@
     document.querySelectorAll("a[data-calendar-jump]").forEach(anchor => {
       anchor.addEventListener("click", event => {
         const date = anchor.dataset.calendarJump;
-        if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)) return;
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
         const targetMonth = date.slice(0, 7);
         if (!Array.from(month.options).some(option => option.value === targetMonth)) return;
         event.preventDefault();
