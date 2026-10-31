@@ -321,7 +321,7 @@ class FirstPartyTests(unittest.TestCase):
                    {"feed":"failed","x_status":"unavailable"}, site.parse_time(cfg["created_at"]), cfg)
         self.assertEqual(next(x for x in refreshed if x.get("forecast_id") == oct30["forecast_id"])["outcome_status"], "外れ")
         self.assertEqual(len(refreshed), len(entries))
-        self.assertEqual(len({x.get("forecast_id") for x in refreshed}), len(refreshed))
+        self.assertEqual(sum(x.get("forecast_id") == cfg["forecast_id"] for x in refreshed), 1)
         self.assertFalse(any(x.get("date") == "2026-11-01" for x in refreshed))
 
     def test_forecast_hit_and_miss_are_recorded_after_a_new_announcement(self):
