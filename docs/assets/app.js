@@ -8,6 +8,7 @@
     const previous = document.getElementById("calendar-prev");
     const next = document.getElementById("calendar-next");
     const records = new Map();
+    const pastPredictions = data.past_predictions || {};
     data.records.forEach(record => {
       if (!records.has(record.day)) records.set(record.day, []);
       records.get(record.day).push(record);
@@ -28,8 +29,21 @@
       if (day === data.predicted) {
         target.append(element("p", "当サイトの予想日です。", "predicted-day-note"));
       }
+      const oldForecasts = pastPredictions[day] || [];
+      if (oldForecasts.length) {
+        const summary = element("section", undefined, "calendar-past-predictions");
+        summary.append(element("h4", `以前の予想（${oldForecasts.length}件）`));
+        oldForecasts.forEach(item => {
+          const text = `${item.published}に公開・判定：${item.status}。 ${item.note}`;
+          summary.append(element("p", text, "calendar-past-prediction-item"));
+        });
+        const back = element("a", "以前の予想とその理由を見る");
+        back.href = "#previous-predictions-title";
+        summary.append(back);
+        target.append(summary);
+      }
       const rows = records.get(day) || [];
-      if (!rows.length) target.append(element("p", "この日の情報はありません。", "empty-day"));
+      if (!rows.length) target.append(element("p", "この日のリセット発表は登録されていません。発表がなかったことを意味するものではありません。", "empty-day"));
       ["global", "banked"].forEach(kind => {
         const posts = rows.filter(row => row.kind === kind);
         if (!posts.length) return;
@@ -73,12 +87,14 @@
         button.type = "button";
         button.dataset.calendarDay = key;
         button.setAttribute("aria-pressed", String(key === selected));
-        button.setAttribute("aria-label", `${year}年${number}月${date}日、発表記録${rows.length}件` + (key === data.predicted ? "、予想日" : ""));
+        button.setAttribute("aria-label", `${year}年${number}月${date}日、発表記録${rows.length}件` + (key === data.predicted ? "、予想日" : "") + (pastPredictions[key]?.length ? "、過去予想あり" : ""));
         button.append(element("span", date, "day-number"));
         const marks = element("span", undefined, "day-marks");
         if (rows.some(row => row.kind === "global")) marks.append(element("span", "リセット", "day-mark reset-mark"));
         if (rows.some(row => row.kind === "banked")) marks.append(element("span", "チケット", "day-mark banked-mark"));
         if (key === data.predicted) marks.append(element("span", "予想", "day-mark predicted-mark"));
+        const pastCount = pastPredictions[key]?.length || 0;
+        if (pastCount) marks.append(element("span", `過去予想${pastCount > 1 ? pastCount : ""}`, "day-mark past-prediction-mark"));
         button.append(marks);
         button.addEventListener("click", () => details(key));
         fragment.append(button);
@@ -102,6 +118,20 @@
     });
     render();
     details(selected);
+    document.querySelectorAll("a[data-calendar-jump]").forEach(anchor => {
+      anchor.addEventListener("click", event => {
+        const date = anchor.dataset.calendarJump;
+        if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)) return;
+        const targetMonth = date.slice(0, 7);
+        if (!Array.from(month.options).some(option => option.value === targetMonth)) return;
+        event.preventDefault();
+        month.value = targetMonth;
+        selected = date;
+        render();
+        details(date);
+        document.getElementById("calendar-title").scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
     const forecastPanel = document.querySelector(".forecast-panel");
     if (forecastPanel) {
       const expire = () => {
