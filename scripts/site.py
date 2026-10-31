@@ -318,20 +318,23 @@ def sync_editorial_history(history, proposal, records, health, now, active):
     return items
 
 
-def previous_editorial_predictions(history):
+def previous_editorial_predictions(history, current_forecast_id=None):
     """Display an immutable public audit trail of old editorial dates."""
     if not history:
         return ""
     items = []
-    for record in sorted(history, key=lambda r: r.get("published_at", ""), reverse=True):
-        if not record.get("published_at") or not record.get("date"):
+    for record in sorted(history, key=lambda r: r.get("published_at") or r.get("created_at", ""), reverse=True):
+        if not record.get("date") or (current_forecast_id and record.get("forecast_id") == current_forecast_id):
             continue
         date = datetime.strptime(record["date"], "%Y-%m-%d")
         weekday = "月火水木金土日"[date.weekday()]
         rationale = f'<details class="previous-prediction-reason"><summary>予想した理由</summary><p>{e(record["rationale"])}</p></details>' if record.get("rationale") else ""
-        outcome = f'<p>事後確認：{e(record["outcome"])}</p>' if record.get("outcome") else (f'<p>結果確認中：{e(record["retired_reason"])}</p>' if record.get("retired_reason") else "")
+        label = "事後確認" if record.get("outcome") else record.get("outcome_status", "確認中")
+        detail = record.get("outcome") or record.get("outcome_detail") or record.get("retired_reason") or "一次情報を確認中です。"
+        outcome = f'<p>判定：<strong>{e(label)}</strong> — {e(detail)}</p>'
+        publication = publication_timestamp_markup(record) or "公開日時を確認中"
         items.append(f'''<li><strong>{date.year}年{date.month}月{date.day}日（{weekday}）を予想</strong>
-<p>サイト公開：{publication_timestamp_markup(record)}</p>{outcome}{rationale}</li>''')
+<p>サイト公開：{publication}</p>{outcome}{rationale}</li>''')
     if not items:
         return ""
     return f'''<section class="previous-predictions" aria-labelledby="previous-predictions-title"><h2 id="previous-predictions-title">以前の予想とその結果</h2>
@@ -467,7 +470,7 @@ def homepage(records, updated, forecast, forecast_history, editorial=None, edito
         rows.append(record_row(record))
     evidence_tabs = "".join(f'<button type="button" data-evidence-option="{key}" aria-pressed="{str(key == "all").lower()}">{label}</button>' for key, label in [("all", "すべて"), ("official", "公式サイト"), ("staff_x", "Xの投稿")])
     return f'''{calendar_overview(records, forecast, editorial, previous_editorial)}
-{previous_editorial_predictions(editorial_history)}
+{previous_editorial_predictions(editorial_history, editorial.get("forecast_id") if editorial else None)}
 {forecast_results(forecast_history)}
 <section id="history" class="history-section"><div class="section-heading"><h2 class="section-title">これまでのリセット情報</h2><p>{len(records)}件</p></div>
 <form id="filters" aria-label="履歴の絞り込み"><input type="hidden" id="evidence-filter" value="all"><div class="filter-primary"><div class="evidence-tabs" role="group" aria-label="発表元で絞り込む">{evidence_tabs}</div><label class="search-label"><span class="sr-only">キーワード</span><input id="search-filter" type="search" placeholder="キーワードで検索" autocomplete="off"></label></div><div class="filter-secondary"><label for="kind-filter">種類</label><select id="kind-filter"><option value="all">すべて</option><option value="global">臨時リセット</option><option value="banked">リセットチケット</option></select><label for="month-filter">年月</label><select id="month-filter"><option value="all">すべての月</option>{options}</select><button class="reset-filter" type="reset">条件を解除</button></div></form>
@@ -567,19 +570,9 @@ def build():
     proposal = read_json(DATA / "editorial-forecast.json", None)
     editorial = active_editorial_forecast(records, now, proposal)
     editorial_history = read_json(DATA / "editorial-forecast-history.json", [])
-    # Expiry must not erase a prediction from the public audit trail.
-    if (isinstance(proposal, dict) and proposal.get("published_at") and proposal.get("date")
-            and editorial is None and not any(
-                entry.get("forecast_id") == proposal.get("forecast_id")
-                and entry.get("published_at") == proposal.get("published_at")
-                for entry in editorial_history)):
-        archived = dict(proposal)
-        archived["retired_at"] = updated
-        archived["retired_reason"] = ("表示期限が終了しました。次のリセット発表の有無は一次情報を確認して判定します。"
-                                     if proposal.get("expires_at") and now >= parse_time(proposal["expires_at"])
-                                     else "新しいリセット発表が保存されたため、次回予想としての掲載を終了しました。")
-        editorial_history.append(archived)
-        write_json(DATA / "editorial-forecast-history.json", editorial_history)
+    # Snapshot a forecast even while active. Expiry or replacement never deletes its audit trail.
+    editorial_history = sync_editorial_history(editorial_history, proposal, records, health, now, editorial)
+    write_json(DATA / "editorial-forecast-history.json", editorial_history)
     history = update_history(read_json(DATA / "forecast-history.json", []), forecast, records, now, health.get("last_success_at"))
     write_json(DATA / "forecast-history.json", history)
     OUT.mkdir(parents=True, exist_ok=True)
