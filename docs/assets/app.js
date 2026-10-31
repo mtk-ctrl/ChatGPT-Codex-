@@ -52,7 +52,7 @@
         target.append(summary);
       }
       const rows = records.get(day) || [];
-      if (!rows.length && !outlook[day]?.observed_banked) target.append(element("p", outlook[day] ? "" : "この日の発表記録はありません。", "empty-day"));
+      if (!rows.length && !outlook[day]) target.append(element("p", "この日の発表記録はありません。", "empty-day"));
       ["global", "banked"].forEach(kind => {
         const posts = rows.filter(row => row.kind === kind);
         if (!posts.length) return;
