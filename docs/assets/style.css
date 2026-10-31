@@ -237,6 +237,21 @@ tr[data-record]:target{background:#eef5fc}
 .editorial-written{font-size:11px;color:var(--muted)}
 @media(max-width:700px){.editorial-date{font-size:29px}.editorial-reason{font-size:13px}.editorial-basis,.editorial-caution{font-size:12px}}
 
+/* Forecast outcomes are distinct from confirmed reset announcements.
+   Shape + glyph + text remain legible without relying on color alone. */
+.day-mark.forecast-hit-mark{color:#17663d;background:#e9f6ee;border-color:#63a781;font-weight:700}
+.day-mark.forecast-miss-mark{color:#973e35;background:#fff0ee;border-color:#c78780;font-weight:700}
+.day-mark.forecast-pending-mark{color:#565d66;background:#f0f2f5;border-color:#a9b0ba;font-weight:650}
+.legend-forecast-hit{background:#e9f6ee;border:1px solid #63a781}
+.legend-forecast-miss{background:#fff0ee;border:1px solid #c78780}
+.legend-forecast-pending{background:#f0f2f5;border:1px solid #a9b0ba}
+@media(max-width:700px){
+  .calendar-day .day-marks{gap:2px}
+  .calendar-day .day-mark.forecast-hit-mark,
+  .calendar-day .day-mark.forecast-miss-mark,
+  .calendar-day .day-mark.forecast-pending-mark{font-size:9px;padding:0 2px}
+}
+
 /* Reconcile dated reset announcements with older next-reset predictions. */
 .past-prediction-mark{border-color:#8297ae;color:#34536e;background:#eef3f8;font-size:10px;padding:0 3px}
 .legend-past-prediction{background:#eef3f8;border:1px solid #8297ae}
