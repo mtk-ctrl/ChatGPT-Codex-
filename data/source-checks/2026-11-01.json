@@ -1,0 +1,36 @@
+{
+  "date_jst": "2026-11-01",
+  "day27": {
+    "project_day": 27,
+    "project_date_pt": "2026-10-31",
+    "observation_type": "site_owner_firsthand_message",
+    "observed_at_jst_approx": "2026-11-01T04:00:00+09:00",
+    "banked_reset_ticket_distributed": true,
+    "global_reset_not_observed_at_distribution": true,
+    "timestamp_precision": "approximately one hour; not an exact event timestamp",
+    "scope": "site owner's confirmation, not independent proof for every user/account",
+    "tibo_day27_original_post_url": null,
+    "tibo_day27_text_verified": false,
+    "explanation_source": "https://help.openai.com/ja-jp/articles/20001498-how-resets-work-in-codex",
+    "explanation_source_scope": "Describes distinction between stored reset tickets and automatic global resets; does not verify Nov1 ticket distribution",
+    "status": "owner_observed_day27_ticket_no_global_at_that_time"
+  },
+  "outlook": {
+    "prior_notice": "Tibo's Day26 screenshot provided by site owner on Oct31 mentions forthcoming 2-day resets/tickets",
+    "dates_jst": [
+      "2026-11-01",
+      "2026-11-02"
+    ],
+    "nov1": "ticket observed around 04:00 JST, no automatic reset observed at same time",
+    "nov2": "advance notice remains; actual occurrence not yet confirmed",
+    "counted_as_global_reset": false,
+    "counted_as_forecast_hit": false
+  },
+  "implementation": {
+    "source_of_day27": "data/shipping-28.json",
+    "separate_from_official_reset_archive": "data/events.json",
+    "calendar_source": "scripts/site.py shipping owner-observation overlay",
+    "dynamic_ui": "docs/assets/app.js",
+    "tests": "tests/test_site.py"
+  }
+}
