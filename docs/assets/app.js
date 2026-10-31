@@ -34,7 +34,7 @@
         const summary = element("section", undefined, "calendar-past-predictions");
         summary.append(element("h4", `以前の予想（${oldForecasts.length}件）`));
         oldForecasts.forEach(item => {
-          const text = `${item.published}に公開・判定：${item.status}。 ${item.note}`;
+          const text = `${item.published}に公開・${item.mark || "予想？"}（${item.status}）。 ${item.note}`;
           summary.append(element("p", text, "calendar-past-prediction-item"));
         });
         const back = element("a", "以前の予想とその理由を見る");
@@ -87,14 +87,18 @@
         button.type = "button";
         button.dataset.calendarDay = key;
         button.setAttribute("aria-pressed", String(key === selected));
-        button.setAttribute("aria-label", `${year}年${number}月${date}日、発表記録${rows.length}件` + (key === data.predicted ? "、予想日" : "") + (pastPredictions[key]?.length ? "、過去予想あり" : ""));
+        const historyLabels = (pastPredictions[key] || []).map(item => item.mark).join("、");
+        button.setAttribute("aria-label", `${year}年${number}月${date}日、発表記録${rows.length}件` + (key === data.predicted ? "、予想中" : "") + (historyLabels ? "、" + historyLabels : ""));
         button.append(element("span", date, "day-number"));
         const marks = element("span", undefined, "day-marks");
         if (rows.some(row => row.kind === "global")) marks.append(element("span", "リセット", "day-mark reset-mark"));
         if (rows.some(row => row.kind === "banked")) marks.append(element("span", "チケット", "day-mark banked-mark"));
-        if (key === data.predicted) marks.append(element("span", "予想", "day-mark predicted-mark"));
-        const pastCount = pastPredictions[key]?.length || 0;
-        if (pastCount) marks.append(element("span", `旧予想${pastCount > 1 ? pastCount : ""}`, "day-mark past-prediction-mark"));
+        if (key === data.predicted) marks.append(element("span", "予想中", "day-mark predicted-mark"));
+        (pastPredictions[key] || []).forEach(item => {
+          const acceptedClasses = ["forecast-hit-mark", "forecast-miss-mark", "forecast-pending-mark"];
+          const markClass = acceptedClasses.includes(item.mark_class) ? item.mark_class : "forecast-pending-mark";
+          marks.append(element("span", item.mark || "予想？", "day-mark " + markClass));
+        });
         button.append(marks);
         button.addEventListener("click", () => details(key));
         fragment.append(button);
