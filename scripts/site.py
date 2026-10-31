@@ -438,7 +438,7 @@ def calendar_overview(records, forecast, editorial=None, previous_editorial=None
             marks.append('<span class="day-mark predicted-mark">予想</span>')
         if key in past_predictions:
             count = len(past_predictions[key])
-            marks.append(f'<span class="day-mark past-prediction-mark">過去予想{count if count > 1 else ""}</span>')
+            marks.append(f'<span class="day-mark past-prediction-mark">旧予想{count if count > 1 else ""}</span>')
         classes = 'calendar-day' + (' is-today' if key == today.isoformat() else '')
         label = f'{today.year}年{today.month}月{day}日、発表記録{len(day_records)}件' + ('、予想日' if key == predicted else '')
         return f'<button type="button" class="{classes}" data-calendar-day="{key}" aria-label="{e(label)}" aria-pressed="{str(key == selected).lower()}"><span class="day-number">{day}</span><span class="day-marks">{"".join(marks)}</span></button>'
@@ -501,7 +501,7 @@ def calendar_overview(records, forecast, editorial=None, previous_editorial=None
 <p class="editorial-caution">当サイトの予想はOpenAIの発表予定ではありません。一次情報を確認してから更新します。</p></aside>'''
     layout_class = "calendar-layout" if forecast_panel else "calendar-layout calendar-layout--full"
     prediction_legend = '<span><i class="legend-predicted"></i>予想日</span>' if editorial or forecast["status"] == "ok" else ""
-    history_legend = '<span><i class="legend-past-prediction"></i>過去予想</span>' if past_predictions else ""
+    history_legend = '<span><i class="legend-past-prediction"></i>旧予想</span>' if past_predictions else ""
     return f'''<div class="{layout_class}"><section class="calendar-section" aria-labelledby="calendar-title"><div class="calendar-section-heading"><h2 id="calendar-title">リセットカレンダー</h2></div><div class="calendar-controls"><div><button id="calendar-prev" type="button" aria-label="前の月">‹</button><label class="sr-only" for="calendar-month">カレンダーの年月</label><select id="calendar-month">{''.join(month_options)}</select><button id="calendar-next" type="button" aria-label="次の月">›</button></div><button id="calendar-today" type="button">今月</button></div><div class="calendar-weekdays" aria-hidden="true"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div><div id="calendar-grid" class="calendar-grid" role="group" aria-label="{today.year}年{today.month}月">{grid}</div><div class="calendar-legend"><span><i class="legend-reset"></i>リセット</span><span><i class="legend-banked"></i>リセットチケット</span>{prediction_legend}{history_legend}</div><p class="calendar-status-explainer">カレンダーの「リセット」は確認済みの発表日です。「過去予想」の的中・外れは、予想を公開した後の最初の次回リセット発表日と比較しています。発表記録のない日も「実施なし」とは断定できません。</p><section class="selected-day" aria-live="polite" aria-atomic="true"><h3 id="selected-date">{int(selected[5:7])}月{int(selected[8:])}日の情報</h3><div id="selected-records">{details}</div></section><noscript><p>月の切り替えにはJavaScriptが必要です。全履歴は下の一覧から確認できます。</p></noscript></section>
 {forecast_panel}</div><script id="calendar-data" type="application/json">{payload}</script>'''
 
