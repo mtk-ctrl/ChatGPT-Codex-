@@ -34,9 +34,8 @@
         const note = element("section", undefined, "calendar-outlook");
         const announced = outlook[day].advance_notice === true;
         const observedBanked = outlook[day].observed_banked === true;
-        note.append(element("h4", observedBanked ? "リセットチケット配布（運営者の確認）" : announced ? "Tibo氏の事前予告（日時・種類は未確定）" : "今後の見通し"));
-        note.append(element("p", outlook[day].possibility + "。 " + outlook[day].basis));
-        note.append(element("p", observedBanked ? "当日のTibo氏の個別投稿は未照合です。リセットチケットは配布されても利用枠が自動回復するものではありません。" : announced ? "本人のX投稿のスクリーンショットで事前予告を確認。11月2日の実施内容はまだ確定していません。" : "OpenAIの予定ではなく、サイトの推測です。"));
+        note.append(element("h4", observedBanked ? "リセットチケット配布" : announced ? "リセット関連の予告" : "今後の見通し"));
+        note.append(element("p", outlook[day].basis));
         target.append(note);
       }
       const oldForecasts = pastPredictions[day] || [];
@@ -53,7 +52,7 @@
         target.append(summary);
       }
       const rows = records.get(day) || [];
-      if (!rows.length) target.append(element("p", outlook[day]?.observed_banked ? "公式の臨時リセット発表は別途登録されていません。11月1日はチケット配布の運営者確認です。" : "この日のリセット発表は登録されていません。発表がなかったことを意味するものではありません。", "empty-day"));
+      if (!rows.length && !outlook[day]?.observed_banked) target.append(element("p", outlook[day] ? "" : "この日の発表記録はありません。", "empty-day"));
       ["global", "banked"].forEach(kind => {
         const posts = rows.filter(row => row.kind === kind);
         if (!posts.length) return;
@@ -98,7 +97,7 @@
         button.dataset.calendarDay = key;
         button.setAttribute("aria-pressed", String(key === selected));
         const historyLabels = (pastPredictions[key] || []).map(item => item.mark).join("、");
-        button.setAttribute("aria-label", `${year}年${number}月${date}日、発表記録${rows.length}件` + (key === data.predicted ? "、予想中" : "") + (historyLabels ? "、" + historyLabels : "") + (outlook[key] ? (outlook[key].advance_notice ? "、Tibo氏の事前予告" : "、今後の見通し") : ""));
+        button.setAttribute("aria-label", `${year}年${number}月${date}日、発表記録${rows.length}件` + (key === data.predicted ? "、予想中" : "") + (historyLabels ? "、" + historyLabels : "") + (outlook[key] ? (outlook[key].observed_banked ? "、リセットチケット配布" : outlook[key].advance_notice ? "、Tibo氏の予告" : "、今後の見通し") : ""));
         button.append(element("span", date, "day-number"));
         const marks = element("span", undefined, "day-marks");
         if (rows.some(row => row.kind === "global")) marks.append(element("span", "リセット", "day-mark reset-mark"));
