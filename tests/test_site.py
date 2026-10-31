@@ -422,6 +422,14 @@ class FirstPartyTests(unittest.TestCase):
         self.assertIn("運営者の確認による判定", result["past_predictions"]["2026-10-31"][0]["note"])
         self.assertIn('day-mark forecast-miss-mark">予想✕</span>', page)
         self.assertIn("10月31日の予想は外れ", page)
+        self.assertIn("判定：<strong>外れ</strong>", page)
+        self.assertIn("20:13", page)
+        updated = site.sync_editorial_history(history, cfg, records,
+                    {"feed": "failed", "x_status": "unavailable", "last_success_at": None},
+                    now, None)
+        oct31 = next(x for x in updated if x["date"] == "2026-10-31")
+        self.assertEqual(oct31["outcome_status"], "外れ")
+        self.assertEqual(oct31["outcome_evidence"], "site_owner_report_2026-10-31")
         self.assertIn("outlook-mark", (ROOT / "docs/assets/app.js").read_text())
         self.assertIn(".day-mark.outlook-mark", (ROOT / "docs/assets/style.css").read_text())
 
