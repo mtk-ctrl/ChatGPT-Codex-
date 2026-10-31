@@ -381,6 +381,34 @@ class FirstPartyTests(unittest.TestCase):
         self.assertIn(".day-mark.forecast-hit-mark", style)
         self.assertIn(".day-mark.forecast-miss-mark", style)
 
+    def test_tentative_november_outlook_is_not_counted_as_a_reset_prediction(self):
+        import re
+        cfg = json.loads((ROOT / "data/editorial-forecast.json").read_text())
+        records = json.loads((ROOT / "data/events.json").read_text())
+        history = json.loads((ROOT / "data/editorial-forecast-history.json").read_text())
+        now = site.parse_time("2026-10-31T15:00:00+09:00")
+        self.assertIsNone(site.active_editorial_forecast(records, now, cfg))
+        self.assertEqual(cfg["date"], "2026-10-31")
+        self.assertEqual([x["date"] for x in cfg["outlook_dates"]], ["2026-11-01", "2026-11-02"])
+        self.assertTrue(all(r.get("date") not in {"2026-11-01", "2026-11-02"} for r in history))
+        archived = next(r for r in history if r.get("forecast_id") == cfg["forecast_id"])
+        self.assertEqual(archived["outcome_status"], "予想変更")
+        forecast = {"status": "stale", "generated_at": now.isoformat(), "horizons": {}}
+        page = site.homepage(records, now.isoformat(), forecast, [], None, history, cfg)
+        self.assertIn("今後の見通し", page)
+        self.assertIn("公式発表ではない予想", page)
+        self.assertIn("リセットまたはチケット", page)
+        self.assertNotIn('data-editorial-expires-at="2026-11-01T00:00:00+09:00"', page)
+        self.assertNotIn("2026年11月1日（日）を予想", page)
+        payload = re.search(r'<script id="calendar-data" type="application/json">(.*?)</script>', page, re.S)
+        self.assertIsNotNone(payload)
+        result = json.loads(payload.group(1))
+        self.assertIsNone(result["predicted"])
+        self.assertEqual(set(result["outlook"]), {"2026-11-01", "2026-11-02"})
+        self.assertNotIn("2026-11-01", result["past_predictions"])
+        self.assertIn("outlook-mark", (ROOT / "docs/assets/app.js").read_text())
+        self.assertIn(".day-mark.outlook-mark", (ROOT / "docs/assets/style.css").read_text())
+
     def test_october_25_retains_only_the_successful_prediction(self):
         entries = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))
         predicted = [r for r in entries if r.get("date") == "2026-10-25"]
