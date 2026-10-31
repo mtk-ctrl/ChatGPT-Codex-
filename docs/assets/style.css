@@ -237,6 +237,16 @@ tr[data-record]:target{background:#eef5fc}
 .editorial-written{font-size:11px;color:var(--muted)}
 @media(max-width:700px){.editorial-date{font-size:29px}.editorial-reason{font-size:13px}.editorial-basis,.editorial-caution{font-size:12px}}
 
+/* Reconcile dated reset announcements with older next-reset predictions. */
+.past-prediction-mark{border-color:#8297ae;color:#34536e;background:#eef3f8;font-size:10px;padding:0 3px}
+.legend-past-prediction{background:#eef3f8;border:1px solid #8297ae}
+.calendar-past-predictions{margin:0 0 14px;padding:10px 12px;background:#f4f7fb;border-left:3px solid #708aa7;font-size:12px;line-height:1.7}
+.calendar-past-predictions h4{margin:0 0 6px;font-size:13px}
+.calendar-past-prediction-item{margin:7px 0}
+.calendar-past-predictions a,.prediction-calendar-link{font-size:12px;display:inline-block;margin-top:6px}
+.past-prediction-calendar-note{margin:8px 0 0;padding-left:10px;border-left:3px solid #a4b5c8;color:#385169;font-size:12px;line-height:1.8}
+@media(max-width:700px){.past-prediction-mark{font-size:9px;padding:0 2px}.calendar-past-predictions{padding:9px}.past-prediction-calendar-note{font-size:11px}}
+
 /* Permanent, verifiable publication timestamps for editorial predictions. */
 .prediction-publication{font-size:inherit;line-height:1.7}
 .prediction-publication a{display:inline-block;margin-left:6px;white-space:nowrap}
