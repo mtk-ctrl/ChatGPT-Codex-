@@ -9,6 +9,7 @@
     const next = document.getElementById("calendar-next");
     const records = new Map();
     const pastPredictions = data.past_predictions || {};
+    const outlook = data.outlook || {};
     data.records.forEach(record => {
       if (!records.has(record.day)) records.set(record.day, []);
       records.get(record.day).push(record);
@@ -28,6 +29,13 @@
       target.replaceChildren();
       if (day === data.predicted) {
         target.append(element("p", "当サイトの予想日です。", "predicted-day-note"));
+      }
+      if (outlook[day]) {
+        const note = element("section", undefined, "calendar-outlook");
+        note.append(element("h4", "今後の見通し（まだ発表されていません）"));
+        note.append(element("p", outlook[day].possibility + "の可能性。 " + outlook[day].basis));
+        note.append(element("p", "OpenAIの予定ではなく、サイトの推測です。"));
+        target.append(note);
       }
       const oldForecasts = pastPredictions[day] || [];
       if (oldForecasts.length) {
@@ -88,12 +96,13 @@
         button.dataset.calendarDay = key;
         button.setAttribute("aria-pressed", String(key === selected));
         const historyLabels = (pastPredictions[key] || []).map(item => item.mark).join("、");
-        button.setAttribute("aria-label", `${year}年${number}月${date}日、発表記録${rows.length}件` + (key === data.predicted ? "、予想中" : "") + (historyLabels ? "、" + historyLabels : ""));
+        button.setAttribute("aria-label", `${year}年${number}月${date}日、発表記録${rows.length}件` + (key === data.predicted ? "、予想中" : "") + (historyLabels ? "、" + historyLabels : "") + (outlook[key] ? "、今後の見通し" : ""));
         button.append(element("span", date, "day-number"));
         const marks = element("span", undefined, "day-marks");
         if (rows.some(row => row.kind === "global")) marks.append(element("span", "リセット", "day-mark reset-mark"));
         if (rows.some(row => row.kind === "banked")) marks.append(element("span", "チケット", "day-mark banked-mark"));
         if (key === data.predicted) marks.append(element("span", "予想中", "day-mark predicted-mark"));
+        if (outlook[key]) marks.append(element("span", "見通し", "day-mark outlook-mark"));
         (pastPredictions[key] || []).forEach(item => {
           const acceptedClasses = ["forecast-hit-mark", "forecast-miss-mark", "forecast-pending-mark"];
           const markClass = acceptedClasses.includes(item.mark_class) ? item.mark_class : "forecast-pending-mark";
