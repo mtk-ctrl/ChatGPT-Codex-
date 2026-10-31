@@ -1,0 +1,52 @@
+{
+  "checked_at": "2026-10-31T14:56:00+09:00",
+  "checked_scope": "10月29日Day25のTibo氏本人投稿と、その後のDay26以降のリセット・チケット発表（完全なタイムライン取得ではない）。",
+  "method": "X本人の投稿URL・IDを特定。X原投稿と公式oEmbedの直接取得は拒否され、複数の公開引用および一次投稿を引用したアーカイブで文章を照合。OpenAI公式の一次情報収集は別途失敗。検索結果に見当たらないことを『実施なし』と断定しない。",
+  "sources": [
+    {
+      "url": "https://x.com/thsottiaux/status/2115850175868727621",
+      "posted_at_utc": "2026-10-29T16:56:07Z",
+      "posted_at_jst": "2026-10-30T01:56:07+09:00",
+      "status": "original_post_url_confirmed_reproduced_text_crosschecked",
+      "classification": "day_25_usage_limits_increase_not_reset",
+      "summary": "Pro100/200/500とBusiness Premiumの利用上限引上げ。Pro200の縮小を取りやめ、dots拡張上限も継続。新規のリセットやチケット配布発表ではない。",
+      "corroboration_urls": [
+        "https://teapaw.org/thsottiaux/status/2115850175868727621",
+        "https://limitdigest.com/resets/codex/log/"
+      ]
+    },
+    {
+      "url": "https://x.com/thsottiaux/status/2115851621137784832",
+      "posted_at_utc": "2026-10-29T17:01:51Z",
+      "status": "public_quote_crosschecked",
+      "classification": "day25_followup",
+      "summary": "利用枠拡大の発表に続く「The Token Company」への言及。追加のリセット確約ではない。"
+    }
+  ],
+  "day26": {
+    "date_pt": "2026-10-30",
+    "status": "not_independently_confirmed",
+    "note": "Day26の公式発表を投稿一覧全量から検証できていない。未発表やリセットなしと断定しない。"
+  },
+  "outlook": {
+    "status": "owner_hypothesis_not_official",
+    "as_of_jst": "2026-10-31T14:56:00+09:00",
+    "today": "日本時間10/31は新たなリセットを確認できず。ただし終了・未実施確定ではない。",
+    "candidate_days_jst": [
+      "2026-11-01",
+      "2026-11-02"
+    ],
+    "candidate_types": [
+      "global_reset",
+      "banked_reset"
+    ],
+    "reason": "米国太平洋時間のDay27=10/31、Day28=11/1が日本時間11/1〜2にもまたがる。28日間のルール上、改善が代わりになる可能性も残る。"
+  },
+  "reset_records_added": 0,
+  "shipping_rows_added": 1,
+  "limitations": [
+    "Xの原投稿本文は直接取得できなかった",
+    "一次情報収集data/health.jsonのfeed=failedかつx_status=unavailable",
+    "掲載見通しはOpenAI公式日程ではない"
+  ]
+}
