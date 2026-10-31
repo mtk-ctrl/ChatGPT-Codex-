@@ -158,3 +158,8 @@ X公式oEmbedでTibo氏本人のDay24投稿（2115622002581188681）を確認し
 - ユーザーの明確な訂正で、10/25の2件の公開予想履歴から**10/24 06:52公開の的中1件だけ**を残した。10/23 07:07公開の同日付旧「外れ」記録は公開履歴から削除。ユーザー指示による個別例外であり、他の日付の失敗予想を消す一般方針ではない。
 - 生成器scripts/site.py／操作用docs/assets/app.js／表示docs/assets/style.css／tests/test_site.pyを更新。予想をカレンダーから確認できるよう日付選択に旧予想判定を表示し、予想履歴からその日へ移動するリンクを設けた。
 - GitHub Actions [41150989998](https://github.com/mtk-ctrl/ChatGPT-Codex-/actions/runs/41150989998) でテストとPages Publishがsuccess（2026-10-31 09:35:59 JST）。GitHub mainのdocs/index.htmlは10/25予想1件・的中・10/23の説明付き。公開URLを外部端末から直接読み込む検証は未実施。
+
+## 2026年10月31日：カレンダーに予想◯・予想✕を表示
+- 初期HTML・月切替JavaScriptの双方で、10/25・10/28を「予想◯」、10/23・10/27・10/30を「予想✕」、未確認の予想を「予想？」、10/31の現行予想を「予想中」と表示する。「リセット」とは異なる印として同じ日付に併記する。日付タップで予想結果と理由を確認可能。
+- `scripts/site.py`の`forecast_badge`から固定の表示ラベル／CSS分類を生成し、HTMLとJavaScriptに渡す。`docs/assets/app.js`は同じ表示データを利用し、`docs/assets/style.css`は記号と文字に加え色も使ってスマートフォンでも区別できるようにする。
+- `tests/test_site.py`に的中・外れ・未判定・現行予想、カレンダーと履歴の対応、10/25が重複しないことを検証するテストを追加。GitHub Actions [41156705079](https://github.com/mtk-ctrl/ChatGPT-Codex-/actions/runs/41156705079) にてテストとPages公開が2026-10-31 10:43:40 JSTに成功。生成`docs/index.html`の実数は「予想◯」2、「予想✕」3、現行「予想中」1、未承認11/1は0。外部ブラウザからの実表示は未確認。
