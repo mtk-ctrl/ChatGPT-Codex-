@@ -404,6 +404,7 @@ class FirstPartyTests(unittest.TestCase):
         self.assertIn("Tibo氏の事前予告", page)
         self.assertIn("リセットまたはリセットチケット", page)
         self.assertIn("個別投稿URLは未取得", page)
+        self.assertIn("提供されたスクリーンショットで確認しました", page)
         self.assertNotIn('data-editorial-expires-at="2026-11-01T00:00:00+09:00"', page)
         self.assertNotIn("2026年11月1日（日）を予想", page)
         payload = re.search(r'<script id="calendar-data" type="application/json">(.*?)</script>', page, re.S)
