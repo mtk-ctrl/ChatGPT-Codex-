@@ -126,12 +126,14 @@ class FirstPartyTests(unittest.TestCase):
             with self.subTest(status=forecast["status"]):
                 calendar = site.calendar_overview(rows, forecast)
                 homepage = site.homepage(rows, "2026-10-20T12:00:00Z", forecast, [])
-                self.assertIn("calendar-layout--full", calendar)
+                self.assertIn("forecast-unavailable", calendar)
+                self.assertIn("次のリセット予想", homepage)
                 self.assertNotIn('class="forecast-panel"', calendar)
                 self.assertNotIn("次のリセット予測", homepage)
                 self.assertNotIn("予測と結果", homepage)
                 self.assertNotIn("data-health-url", homepage)
-                self.assertNotIn("自動確認が一時的にできません", homepage)
+                self.assertNotIn("予想日</span>", calendar)
+                self.assertIn("新しい予想日を掲載していません", homepage)
                 self.assertNotIn("予測の計算方法", site.shell("test", "test", "index", "text", "2026-10-20T12:00:00Z", show_forecast=False))
         self.assertEqual(site.forecast_results([]), "")
         self.assertEqual(site.forecast_results([{"outcomes": {}}]), "")
@@ -265,6 +267,18 @@ class FirstPartyTests(unittest.TestCase):
         newer = {**baseline, "id": "new-reset:global", "reference_at": moment.isoformat(), "state": "announced"}
         self.assertIsNone(site.active_editorial_forecast([*rows, newer], moment, config))
 
+    def test_expired_october_30_prediction_has_a_visible_status(self):
+        rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
+        previous = json.loads((ROOT / "data/editorial-forecast.json").read_text(encoding="utf-8"))
+        now = site.parse_time("2026-10-31T00:00:00+09:00")
+        forecast = {"status": "stale", "generated_at": now.isoformat(), "horizons": {}}
+        self.assertIsNone(site.active_editorial_forecast(rows, now, previous))
+        page = site.calendar_overview(rows, forecast, previous_editorial=previous)
+        self.assertIn("次のリセット予想", page)
+        self.assertIn("前回の予想：2026年10月30日", page)
+        self.assertIn("新しい予想日を掲載していません", page)
+        self.assertNotIn("予想日</span>", page)
+
     def test_archived_october_23_prediction_shows_original_publication_time(self):
         history = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))
         archived = site.previous_editorial_predictions(history)
@@ -299,7 +313,7 @@ class FirstPartyTests(unittest.TestCase):
         self.assertTrue(all(r["state"] == "announced" for r in day18))
         self.assertTrue(all(site.record_day(r) == "2026-10-23" for r in day18))
         history = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))
-        self.assertEqual({r["date"] for r in history}, {"2026-10-23", "2026-10-25", "2026-10-27", "2026-10-28"})
+        self.assertTrue({"2026-10-23", "2026-10-25", "2026-10-27", "2026-10-28"}.issubset({r["date"] for r in history}))
         output = site.previous_editorial_predictions(history)
         self.assertIn("2026/10/23 07:07", output)
         self.assertIn("2026/10/20 23:17", output)

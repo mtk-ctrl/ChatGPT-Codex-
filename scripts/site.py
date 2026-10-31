@@ -259,7 +259,7 @@ def previous_editorial_predictions(history):
         date = datetime.strptime(record["date"], "%Y-%m-%d")
         weekday = "月火水木金土日"[date.weekday()]
         rationale = f'<details class="previous-prediction-reason"><summary>予想した理由</summary><p>{e(record["rationale"])}</p></details>' if record.get("rationale") else ""
-        outcome = f'<p>事後確認：{e(record["outcome"])}</p>' if record.get("outcome") else ""
+        outcome = f'<p>事後確認：{e(record["outcome"])}</p>' if record.get("outcome") else (f'<p>結果確認中：{e(record["retired_reason"])}</p>' if record.get("retired_reason") else "")
         items.append(f'''<li><strong>{date.year}年{date.month}月{date.day}日（{weekday}）を予想</strong>
 <p>サイト公開：{publication_timestamp_markup(record)}</p>{outcome}{rationale}</li>''')
     if not items:
@@ -269,7 +269,7 @@ def previous_editorial_predictions(history):
 <ol>{"".join(items)}</ol></section>'''
 
 
-def calendar_overview(records, forecast, editorial=None):
+def calendar_overview(records, forecast, editorial=None, previous_editorial=None):
     records = [r for r in records if r["kind"] in {"global", "banked"}]
     today = parse_time(forecast['generated_at']).astimezone(JST).date()
     entries = []
@@ -350,9 +350,17 @@ def calendar_overview(records, forecast, editorial=None):
     elif forecast["status"] == "ok":
         forecast_panel = f'''<aside class="forecast-panel" aria-labelledby="forecast-title"><div class="forecast-heading"><h2 id="forecast-title">次のリセット予測</h2><span>当サイト独自の試算</span></div><div id="forecast-current" data-generated-at="{forecast['generated_at']}">{prediction}</div><p class="forecast-updated">予測の計算日時：{e(jst(forecast["generated_at"]))}（日本時間）</p><a class="method-link" href="forecast.html">計算方法と検証について →</a><p class="forecast-disclaimer">{DISCLAIMER}</p></aside>'''
     else:
-        forecast_panel = ""
+        reason = ("一次情報の自動確認ができていないため" if forecast.get("status") == "stale"
+                  else "予想に使える確認済みの履歴が十分でないため")
+        previous_label = ""
+        if previous_editorial and previous_editorial.get("date"):
+            date = datetime.strptime(previous_editorial["date"], "%Y-%m-%d")
+            previous_label = f'<p class="editorial-reason">前回の予想：{date.year}年{date.month}月{date.day}日。予想期限を過ぎたため、次回予想としての表示は終了しました。公開時の記録は下の「以前の予想とその結果」に残しています。</p>'
+        forecast_panel = f'''<aside class="forecast-panel forecast-unavailable" aria-labelledby="forecast-title"><div class="forecast-heading"><h2 id="forecast-title">次のリセット予想</h2><span>更新を確認中</span></div>
+<p class="editorial-reason">{reason}、新しい予想日を掲載していません。未確認を「リセットなし」とは判断していません。</p>{previous_label}
+<p class="editorial-caution">当サイトの予想はOpenAIの発表予定ではありません。一次情報を確認してから更新します。</p></aside>'''
     layout_class = "calendar-layout" if forecast_panel else "calendar-layout calendar-layout--full"
-    prediction_legend = '<span><i class="legend-predicted"></i>予想日</span>' if forecast_panel else ""
+    prediction_legend = '<span><i class="legend-predicted"></i>予想日</span>' if editorial or forecast["status"] == "ok" else ""
     return f'''<div class="{layout_class}"><section class="calendar-section" aria-labelledby="calendar-title"><div class="calendar-section-heading"><h2 id="calendar-title">リセットカレンダー</h2></div><div class="calendar-controls"><div><button id="calendar-prev" type="button" aria-label="前の月">‹</button><label class="sr-only" for="calendar-month">カレンダーの年月</label><select id="calendar-month">{''.join(month_options)}</select><button id="calendar-next" type="button" aria-label="次の月">›</button></div><button id="calendar-today" type="button">今月</button></div><div class="calendar-weekdays" aria-hidden="true"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div><div id="calendar-grid" class="calendar-grid" role="group" aria-label="{today.year}年{today.month}月">{grid}</div><div class="calendar-legend"><span><i class="legend-reset"></i>リセット</span><span><i class="legend-banked"></i>リセットチケット</span>{prediction_legend}</div><p class="calendar-status-explainer">※リセット実施の発表があった日を、日本時間で表示しています。</p><section class="selected-day" aria-live="polite" aria-atomic="true"><h3 id="selected-date">{int(selected[5:7])}月{int(selected[8:])}日の情報</h3><div id="selected-records">{details}</div></section><noscript><p>月の切り替えにはJavaScriptが必要です。全履歴は下の一覧から確認できます。</p></noscript></section>
 {forecast_panel}</div><script id="calendar-data" type="application/json">{payload}</script>'''
 
@@ -375,7 +383,7 @@ def forecast_results(history):
     return f'<section class="forecast-results" aria-labelledby="forecast-results-title"><div class="section-heading"><h2 id="forecast-results-title">予測と結果</h2><p>{status}</p></div><p class="results-description">予測を公開したあと、24時間・48時間以内に次のリセット報告があったかを確認します。公開済みの予測値はあとから変更しません。</p>{body}<p class="results-note">直近7日分を掲載。判定待ち・取得遅延を含みます。履歴の追加・訂正により結果が変わる場合があります。<a href="https://github.com/{REPO}/blob/main/data/forecast-history.json">すべての予測記録</a></p></section>'
 
 
-def homepage(records, updated, forecast, forecast_history, editorial=None, editorial_history=None):
+def homepage(records, updated, forecast, forecast_history, editorial=None, editorial_history=None, previous_editorial=None):
     records = [r for r in records if r["kind"] in {"global", "banked"}]
     months = sorted({record_day(r)[:7] for r in records}, reverse=True)
     options = "".join(f'<option value="{m}">{m[:4]}年{int(m[5:])}月</option>' for m in months)
@@ -388,7 +396,7 @@ def homepage(records, updated, forecast, forecast_history, editorial=None, edito
             current_month = month
         rows.append(record_row(record))
     evidence_tabs = "".join(f'<button type="button" data-evidence-option="{key}" aria-pressed="{str(key == "all").lower()}">{label}</button>' for key, label in [("all", "すべて"), ("official", "公式サイト"), ("staff_x", "Xの投稿")])
-    return f'''{calendar_overview(records, forecast, editorial)}
+    return f'''{calendar_overview(records, forecast, editorial, previous_editorial)}
 {previous_editorial_predictions(editorial_history)}
 {forecast_results(forecast_history)}
 <section id="history" class="history-section"><div class="section-heading"><h2 class="section-title">これまでのリセット情報</h2><p>{len(records)}件</p></div>
@@ -486,8 +494,22 @@ def build():
     fresh = (health.get("feed") == "ok" and health.get("last_success_at")
              and timedelta(0) <= now - parse_time(health["last_success_at"]) <= timedelta(hours=24))
     forecast = predict(records, now, bool(fresh and health.get("x_status") == "checked"))
-    editorial = active_editorial_forecast(records, now, read_json(DATA / "editorial-forecast.json", None))
+    proposal = read_json(DATA / "editorial-forecast.json", None)
+    editorial = active_editorial_forecast(records, now, proposal)
     editorial_history = read_json(DATA / "editorial-forecast-history.json", [])
+    # Expiry must not erase a prediction from the public audit trail.
+    if (isinstance(proposal, dict) and proposal.get("published_at") and proposal.get("date")
+            and editorial is None and not any(
+                entry.get("forecast_id") == proposal.get("forecast_id")
+                and entry.get("published_at") == proposal.get("published_at")
+                for entry in editorial_history)):
+        archived = dict(proposal)
+        archived["retired_at"] = updated
+        archived["retired_reason"] = ("表示期限が終了しました。次のリセット発表の有無は一次情報を確認して判定します。"
+                                     if proposal.get("expires_at") and now >= parse_time(proposal["expires_at"])
+                                     else "新しいリセット発表が保存されたため、次回予想としての掲載を終了しました。")
+        editorial_history.append(archived)
+        write_json(DATA / "editorial-forecast-history.json", editorial_history)
     history = update_history(read_json(DATA / "forecast-history.json", []), forecast, records, now, health.get("last_success_at"))
     write_json(DATA / "forecast-history.json", history)
     OUT.mkdir(parents=True, exist_ok=True)
@@ -495,7 +517,7 @@ def build():
     shipping_end = max((row["day"] for row in shipping), default=0)
     notices = read_json(DATA / "shipping-notices.json", [])
     pages = {
-        "index": ("ChatGPT リセット履歴｜Codex・Workの利用枠リセット日と次回予想", "ChatGPT Work・Codexの利用枠リセット履歴をカレンダーで確認。OpenAIの発表やTibo氏の投稿をもとに、これまでのリセット日・次回予想・リセットチケットの情報をまとめています。", homepage(records, updated, forecast, history, editorial, editorial_history)),
+        "index": ("ChatGPT リセット履歴｜Codex・Workの利用枠リセット日と次回予想", "ChatGPT Work・Codexの利用枠リセット履歴をカレンダーで確認。OpenAIの発表やTibo氏の投稿をもとに、これまでのリセット日・次回予想・リセットチケットの情報をまとめています。", homepage(records, updated, forecast, history, editorial, editorial_history, proposal)),
         "ship28": ("OpenAIの28日間企画｜Codex・Workの新機能・リセット一覧", f"OpenAI担当者の28日間企画。Day 1〜{shipping_end}のCodex・ChatGPT Workの新機能・速度改善・利用枠リセットを日別に紹介。Tibo氏とOpenAI公式の発表へのリンク付き。", shipping_28_view(shipping, notices)),
         "guide": ("リセットの種類｜ChatGPT リセット履歴", "通常の利用枠の回復と、臨時リセット・リセットチケットの違いを説明します。", GUIDE),
         "forecast": ("予測の計算方法｜ChatGPT リセット履歴", "独自予測の計算式、集計対象、検証方法と注意事項を掲載しています。", FORECAST_METHOD),

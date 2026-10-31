@@ -55,7 +55,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/events.json data/health.json data/forecast-history.json docs
+          git add data/events.json data/health.json data/forecast-history.json data/editorial-forecast-history.json docs
           if ! git diff --cached --quiet; then
             git commit -m "chore: update reset records and collector health [skip ci]"
             git push
