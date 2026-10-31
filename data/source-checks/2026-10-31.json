@@ -1,6 +1,6 @@
 {
   "checked_at": "2026-10-31T14:56:00+09:00",
-  "checked_scope": "10月29日Day25のTibo氏本人投稿と、その後のDay26以降のリセット・チケット発表（完全なタイムライン取得ではない）。",
+  "checked_scope": "10月29日Day25のTibo氏本人投稿と、その後のDay26以降のリセット・チケット発表（完全なタイムライン取得ではない）。 追加：ユーザー提供X画面でDay26原文の事前予告を直接視認。",
   "method": "X本人の投稿URL・IDを特定。X原投稿と公式oEmbedの直接取得は拒否され、複数の公開引用および一次投稿を引用したアーカイブで文章を照合。OpenAI公式の一次情報収集は別途失敗。検索結果に見当たらないことを『実施なし』と断定しない。",
   "sources": [
     {
@@ -25,11 +25,18 @@
   ],
   "day26": {
     "date_pt": "2026-10-30",
-    "status": "not_independently_confirmed",
-    "note": "Day26の公式発表を投稿一覧全量から検証できていない。未発表やリセットなしと断定しない。"
+    "status": "tibo_original_x_post_verified_by_user_supplied_screenshot",
+    "screenshot_captured_at_jst": "2026-10-31T14:58:00+09:00",
+    "screenshot_sha256": "397a571e433811a5c55503108589b3792edbc404525cf8b37f0897016f329da3",
+    "original_post_url": null,
+    "post_time": "画面の13分前表示から14:45 JST頃と推測可能だが、正確な時刻は未取得",
+    "original_excerpt": "Day 26/ You can now easily switch between multiple accounts on mobile, and coming soon to desktop too. Next two days will be resets... banked... do with this what you may 👀.",
+    "summary": "Day26はスマホ複数ChatGPTアカウント切替を案内。次の2日間にはリセットと保存型リセットに関する事前予告。どちらの日がどちらの形式か、対象プラン、正確な実施時刻は不明。",
+    "feature_corroboration_url": "https://help.openai.com/en/articles/20001068-using-multiple-chatgpt-accounts-on-web-and-mobile",
+    "evidence_scope": "ユーザーが提示したTibo氏のX画面スクリーンショット。認証表示と本人の投稿本文を目視確認。外部X投稿URL・全文の直接取得・投稿時刻の正確な検証は未了。"
   },
   "outlook": {
-    "status": "owner_hypothesis_not_official",
+    "status": "tibo_staff_advance_notice_day26_screenshot",
     "as_of_jst": "2026-10-31T14:56:00+09:00",
     "today": "日本時間10/31は新たなリセットを確認できず。ただし終了・未実施確定ではない。",
     "candidate_days_jst": [
@@ -37,16 +44,17 @@
       "2026-11-02"
     ],
     "candidate_types": [
-      "global_reset",
-      "banked_reset"
+      "unassigned_reset_or_banked_reset"
     ],
-    "reason": "米国太平洋時間のDay27=10/31、Day28=11/1が日本時間11/1〜2にもまたがる。28日間のルール上、改善が代わりになる可能性も残る。"
+    "reason": "Day26のTibo氏本人投稿（ユーザーが提供したX画面）の『Next two days will be resets... banked...』。米国PT Day27=10/31、Day28=11/1、日本時間に概ね11/1・11/2にかかる。ただし形式の割当・時刻は未発表。",
+    "source_status": "tibo_verified_in_uploaded_screenshot_post_url_unavailable"
   },
   "reset_records_added": 0,
-  "shipping_rows_added": 1,
+  "shipping_rows_added": 2,
   "limitations": [
     "Xの原投稿本文は直接取得できなかった",
     "一次情報収集data/health.jsonのfeed=failedかつx_status=unavailable",
-    "掲載見通しはOpenAI公式日程ではない"
+    "Day26はユーザー提供の本人Xスクリーンショットで確認。元の個別投稿URL未取得",
+    "『次の2日間』の対象は企画上のPT日付。JSTの日付・種別・実施時刻までは確約されていない"
   ]
 }
