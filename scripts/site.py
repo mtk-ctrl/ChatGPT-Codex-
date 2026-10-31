@@ -329,7 +329,7 @@ def previous_editorial_predictions(history, current_forecast_id=None):
         date = datetime.strptime(record["date"], "%Y-%m-%d")
         weekday = "月火水木金土日"[date.weekday()]
         rationale = f'<details class="previous-prediction-reason"><summary>予想した理由</summary><p>{e(record["rationale"])}</p></details>' if record.get("rationale") else ""
-        label = "事後確認" if record.get("outcome") else record.get("outcome_status", "確認中")
+        label = record.get("outcome_status", "事後確認" if record.get("outcome") else "確認中")
         detail = record.get("outcome") or record.get("outcome_detail") or record.get("retired_reason") or "一次情報を確認中です。"
         outcome = f'<p>判定：<strong>{e(label)}</strong> — {e(detail)}</p>'
         publication = publication_timestamp_markup(record) or "公開日時を確認中"
