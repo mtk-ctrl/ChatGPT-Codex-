@@ -111,7 +111,21 @@
         const expired = editorialExpiry
           ? Date.now() >= new Date(editorialExpiry).getTime()
           : age > 24 * 60 * 60 * 1000 || age < -5 * 60 * 1000;
-        forecastPanel.hidden = expired;
+        // Keep expired editorial forecasts visible until the next build archives them.
+        // The site must never quietly erase a prediction or its result.
+        if (expired && editorialExpiry) {
+          forecastPanel.hidden = false;
+          const heading = forecastPanel.querySelector("#forecast-title");
+          if (heading) heading.textContent = "前回の予想（結果を確認中）";
+          if (!forecastPanel.querySelector(".prediction-expired-note")) {
+            const note = document.createElement("p");
+            note.className = "prediction-expired-note";
+            note.textContent = "予想日は終了しました。この予想を記録として残し、的中・不的中を検証します。";
+            forecastPanel.append(note);
+          }
+        } else {
+          forecastPanel.hidden = expired;
+        }
         if (expired && data.predicted) {
           data.predicted = null;
           render();
