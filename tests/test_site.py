@@ -24,7 +24,7 @@ class FirstPartyTests(unittest.TestCase):
         self.assertEqual(len(rows), 25)
         self.assertEqual([r["day"] for r in rows], list(range(1, 26)))
         self.assertEqual(rows[0]["date_pt"], "2026-10-05")
-        self.assertEqual(rows[-1]["date_pt"], "2026-10-28")
+        self.assertEqual(rows[-1]["date_pt"], "2026-10-29")
         self.assertTrue(all(r["sources"] for r in rows))
         self.assertTrue(all(all(site.shipping_source(url) for url in r["sources"]) for r in rows))
         markup = site.shipping_28_view(rows)
