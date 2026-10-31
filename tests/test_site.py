@@ -314,7 +314,8 @@ class FirstPartyTests(unittest.TestCase):
         self.assertNotIn("2026年11月1日", html)
         cfg = json.loads((ROOT / "data/editorial-forecast.json").read_text(encoding="utf-8"))
         self.assertEqual(cfg["date"], "2026-10-31")
-        self.assertNotIn("published_at", cfg)
+        self.assertEqual(cfg["published_at"], "2026-10-31T09:19:47+09:00")
+        self.assertEqual(cfg["publication_run_id"], 41149540862)
         refreshed = site.sync_editorial_history(entries, cfg,
                    json.loads((ROOT / "data/events.json").read_text(encoding="utf-8")),
                    {"feed":"failed","x_status":"unavailable"}, site.parse_time(cfg["created_at"]), cfg)
