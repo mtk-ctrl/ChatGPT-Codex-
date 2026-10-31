@@ -601,10 +601,11 @@ def shipping_28_view(rows, notices=()):
             raise ValueError("Source labels must match sources")
         links = " ".join(link(url, label) for url, label in zip(sources, labels))
         date_display = f"{date_pt.month}/{date_pt.day}"
+        verification = f'<p class="shipping-verification-note">{e(record["verification_note"])}</p>' if record.get("verification_note") else ""
         table_rows.append(f'<tr id="day-{day}"><th scope="row">Day {day}</th>'
                           f'<td class="shipping-date" data-label="日付">{date_display}</td>'
                           f'<td class="shipping-type" data-label="区分">{e(record["category"])}</td>'
-                          f'<td class="shipping-summary" data-label="発表内容">{e(record["summary"])}</td>'
+                          f'<td class="shipping-summary" data-label="発表内容">{e(record["summary"])}{verification}</td>'
                           f'<td class="shipping-sources" data-label="発表者の投稿">{links}</td></tr>')
     updates = []
     for notice in sorted(notices, key=lambda item: parse_time(item["published_at"]), reverse=True):
