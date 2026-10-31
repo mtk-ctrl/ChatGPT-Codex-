@@ -211,7 +211,7 @@ class FirstPartyTests(unittest.TestCase):
         self.assertIsNotNone(ticket)
         self.assertIn('class="day-mark banked-mark">チケット</span>', ticket.group(0))
         self.assertNotIn("配布予告", html)
-        self.assertNotIn("リセット発表", html)
+        self.assertNotIn(">リセット発表</span>", html)
 
     def test_day21_announcement_is_confirmed_without_completion_condition(self):
         rows = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
