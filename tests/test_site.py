@@ -443,6 +443,8 @@ class ResetEditorialPolicyTests(unittest.TestCase):
         index = (ROOT / 'docs/index.html').read_text()
         self.assertIn('2026年10月31日（土）', index)
         self.assertIn('"predicted": "2026-10-31"', index)
+        self.assertNotIn('2026年11月1日（日）を予想', index)
+        self.assertNotIn('2026-10-31-forecast-1101', index)
         self.assertNotIn('新モデル提供', index)
         shipping = (ROOT / 'docs/ship28.html').read_text()
         self.assertIn('Day 22', shipping)
