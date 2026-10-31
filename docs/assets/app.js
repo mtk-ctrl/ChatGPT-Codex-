@@ -53,7 +53,7 @@
         target.append(summary);
       }
       const rows = records.get(day) || [];
-      if (!rows.length) target.append(element("p", "この日のリセット発表は登録されていません。発表がなかったことを意味するものではありません。", "empty-day"));
+      if (!rows.length) target.append(element("p", outlook[day]?.observed_banked ? "公式の臨時リセット発表は別途登録されていません。11月1日はチケット配布の運営者確認です。" : "この日のリセット発表は登録されていません。発表がなかったことを意味するものではありません。", "empty-day"));
       ["global", "banked"].forEach(kind => {
         const posts = rows.filter(row => row.kind === kind);
         if (!posts.length) return;
