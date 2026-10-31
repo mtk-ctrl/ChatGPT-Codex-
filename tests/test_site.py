@@ -320,7 +320,8 @@ class FirstPartyTests(unittest.TestCase):
                    json.loads((ROOT / "data/events.json").read_text(encoding="utf-8")),
                    {"feed":"failed","x_status":"unavailable"}, site.parse_time(cfg["created_at"]), cfg)
         self.assertEqual(next(x for x in refreshed if x.get("forecast_id") == oct30["forecast_id"])["outcome_status"], "外れ")
-        self.assertEqual(len(refreshed), len(entries)+1)
+        self.assertEqual(len(refreshed), len(entries))
+        self.assertEqual(len({x.get("forecast_id") for x in refreshed}), len(refreshed))
         self.assertFalse(any(x.get("date") == "2026-11-01" for x in refreshed))
 
     def test_forecast_hit_and_miss_are_recorded_after_a_new_announcement(self):
