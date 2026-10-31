@@ -33,9 +33,10 @@
       if (outlook[day]) {
         const note = element("section", undefined, "calendar-outlook");
         const announced = outlook[day].advance_notice === true;
-        note.append(element("h4", announced ? "Tibo氏の事前予告（日時・種類は未確定）" : "今後の見通し"));
+        const observedBanked = outlook[day].observed_banked === true;
+        note.append(element("h4", observedBanked ? "リセットチケット配布（運営者の確認）" : announced ? "Tibo氏の事前予告（日時・種類は未確定）" : "今後の見通し"));
         note.append(element("p", outlook[day].possibility + "。 " + outlook[day].basis));
-        note.append(element("p", announced ? "本人のX投稿のスクリーンショットで確認。どちらの日が通常のリセット・チケットかは未発表です。" : "OpenAIの予定ではなく、サイトの推測です。"));
+        note.append(element("p", observedBanked ? "当日のTibo氏の個別投稿は未照合です。リセットチケットは配布されても利用枠が自動回復するものではありません。" : announced ? "本人のX投稿のスクリーンショットで事前予告を確認。11月2日の実施内容はまだ確定していません。" : "OpenAIの予定ではなく、サイトの推測です。"));
         target.append(note);
       }
       const oldForecasts = pastPredictions[day] || [];
