@@ -263,5 +263,20 @@
     "evidence_type": "user_supplied_x_screenshot",
     "original_post_url": null,
     "screenshot_sha256": "397a571e433811a5c55503108589b3792edbc404525cf8b37f0897016f329da3"
+  },
+  {
+    "day": 27,
+    "date_pt": "2026-10-31",
+    "category": "リセットチケット（運営者確認）",
+    "summary": "日本時間11月1日午前4時ごろ、リセットチケットが配布されたことをサイト運営者が確認。利用枠をその場で回復する臨時リセットはありませんでした。配布の正確な時刻・対象範囲は独立には確認できていません。",
+    "sources": [
+      "https://help.openai.com/ja-jp/articles/20001498-how-resets-work-in-codex"
+    ],
+    "source_labels": [
+      "リセットチケットと臨時リセットの違い（OpenAI公式）"
+    ],
+    "evidence_type": "site_owner_observation",
+    "observed_at_jst_approx": "2026-11-01T04:00:00+09:00",
+    "verification_note": "11月1日午前4時ごろの配布と臨時リセットなしは、サイト運営者の確認による情報です。OpenAI公式ガイドは仕組みの説明であり、当日の配布を告知する資料ではありません。Day27のTibo氏本人の個別投稿は未照合です。"
   }
 ]
