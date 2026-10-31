@@ -318,7 +318,58 @@ def sync_editorial_history(history, proposal, records, health, now, active):
     return items
 
 
-def previous_editorial_predictions(history, current_forecast_id=None):
+def first_forecast_reset_date(prediction, records):
+    """First separately announced reset after this forecast was made public."""
+    if not prediction.get("published_at"):
+        return None
+    try:
+        earliest = parse_time(prediction["published_at"])
+    except (ValueError, TypeError):
+        return None
+    baseline = next((r for r in records if r.get("id") == prediction.get("last_report_id")), None)
+    if baseline:
+        earliest = max(earliest, parse_time(baseline["reference_at"]) + timedelta(hours=6))
+    dates = []
+    for item in records:
+        if (item.get("kind") != "global" or item.get("state") not in {"announced", "reported", "observed"}
+                or item.get("evidence") not in {"official", "staff_x"} or item.get("date_precision") == "day"):
+            continue
+        try:
+            when = parse_time(item["reference_at"])
+        except (ValueError, TypeError, KeyError):
+            continue
+        if when > earliest:
+            dates.append(when)
+    return min(dates).astimezone(JST).date().isoformat() if dates else None
+
+
+def forecast_calendar_explanation(prediction, records):
+    """Explain why a calendar reset badge and next-reset forecast verdict can differ."""
+    if records is None:
+        return ""
+    day = prediction.get("date")
+    if not day:
+        return ""
+    actual_on_date = any(r.get("kind") == "global" and record_day(r) == day for r in records)
+    short = f"{int(day[5:7])}月{int(day[8:])}日"
+    first_day = first_forecast_reset_date(prediction, records)
+    status = prediction.get("outcome_status")
+    if actual_on_date and status == "外れ" and first_day and first_day < day:
+        first_short = f"{int(first_day[5:7])}月{int(first_day[8:])}日"
+        return (f"予想日の{short}にもリセット発表の記録があります。ただし予想公開後、"
+                f"最初の次回リセット発表は{first_short}でした。"
+                "「次の1回」の日付予想としては外れです。")
+    if actual_on_date:
+        return f"予想日の{short}にリセット発表の記録があります。予想の的中判定は公開後最初の次回発表と比較します。"
+    if prediction.get("outcome_evidence", "").startswith("site_owner_report_"):
+        return (f"予想日の{short}にはカレンダーに登録されたリセット発表がありません。"
+                "外れは運営者の確認による判定で、一次情報との照合は未了です。"
+                "発表記録の空欄だけで実施がなかったと断定できません。")
+    return (f"予想日の{short}にはカレンダーに登録されたリセット発表がありません。"
+            "未取得の発表がある可能性があり、空欄は実施なしの証明ではありません。")
+
+
+def previous_editorial_predictions(history, current_forecast_id=None, records=None):
     """Display an immutable public audit trail of old editorial dates."""
     if not history:
         return ""
@@ -333,16 +384,20 @@ def previous_editorial_predictions(history, current_forecast_id=None):
         detail = record.get("outcome") or record.get("outcome_detail") or record.get("retired_reason") or "一次情報を確認中です。"
         outcome = f'<p>判定：<strong>{e(label)}</strong> — {e(detail)}</p>'
         publication = publication_timestamp_markup(record) or "公開日時を確認中"
+        explanation = forecast_calendar_explanation(record, records)
+        calendar_note = f'<p class="past-prediction-calendar-note"><strong>カレンダーとの関係：</strong>{e(explanation)}</p>' if explanation else ""
+        calendar_link = (f'<a class="prediction-calendar-link" href="#calendar-title" data-calendar-jump="{e(record["date"])}">'
+                         f'{date.month}月{date.day}日のカレンダーを確認する</a>') if explanation else ""
         items.append(f'''<li><strong>{date.year}年{date.month}月{date.day}日（{weekday}）を予想</strong>
-<p>サイト公開：{publication}</p>{outcome}{rationale}</li>''')
+<p>サイト公開：{publication}</p>{outcome}{calendar_note}{calendar_link}{rationale}</li>''')
     if not items:
         return ""
     return f'''<section class="previous-predictions" aria-labelledby="previous-predictions-title"><h2 id="previous-predictions-title">以前の予想とその結果</h2>
-<p class="previous-predictions-intro">予想した日と公開した時刻を記録しています。</p>
+<p class="previous-predictions-intro">予想は、公開後に最初に発表された「次のリセット」の日付を当てるものです。予想日に別のリセット発表があっても、それ以前に次のリセットが発表されていれば「外れ」です。カレンダーには確認できた発表日を記録しています。</p>
 <ol>{"".join(items)}</ol></section>'''
 
 
-def calendar_overview(records, forecast, editorial=None, previous_editorial=None):
+def calendar_overview(records, forecast, editorial=None, previous_editorial=None, editorial_history=None):
     records = [r for r in records if r["kind"] in {"global", "banked"}]
     today = parse_time(forecast['generated_at']).astimezone(JST).date()
     entries = []
@@ -360,6 +415,15 @@ def calendar_overview(records, forecast, editorial=None, previous_editorial=None
     by_day = {}
     for r in entries:
         by_day.setdefault(r['day'], []).append(r)
+    past_predictions = {}
+    for row in editorial_history or []:
+        if (not row.get("date") or not row.get("published_at")
+                or (editorial and row.get("forecast_id") == editorial.get("forecast_id"))):
+            continue
+        item = {"status": row.get("outcome_status", "確認中"),
+                "published": jst(row["published_at"]),
+                "note": forecast_calendar_explanation(row, records)}
+        past_predictions.setdefault(row["date"], []).append(item)
     def cell(day):
         if not day:
             return '<div class="calendar-empty" aria-hidden="true"></div>'
@@ -372,6 +436,9 @@ def calendar_overview(records, forecast, editorial=None, previous_editorial=None
             marks.append('<span class="day-mark banked-mark">チケット</span>')
         if key == predicted:
             marks.append('<span class="day-mark predicted-mark">予想</span>')
+        if key in past_predictions:
+            count = len(past_predictions[key])
+            marks.append(f'<span class="day-mark past-prediction-mark">過去予想{count if count > 1 else ""}</span>')
         classes = 'calendar-day' + (' is-today' if key == today.isoformat() else '')
         label = f'{today.year}年{today.month}月{day}日、発表記録{len(day_records)}件' + ('、予想日' if key == predicted else '')
         return f'<button type="button" class="{classes}" data-calendar-day="{key}" aria-label="{e(label)}" aria-pressed="{str(key == selected).lower()}"><span class="day-number">{day}</span><span class="day-marks">{"".join(marks)}</span></button>'
@@ -399,7 +466,7 @@ def calendar_overview(records, forecast, editorial=None, previous_editorial=None
         buttons = "".join(link(src["url"], f'{r["time"]}｜' + ("リセットの発表" if kind == "global" else "チケット配布の発表") + "（Xの投稿）") for r in sorted(posted, key=lambda item: item["time"]) for src in r["sources"] if src["url"] == r["sources"][-1]["url"])
         cards.append(f'<article class="day-record"><h4>{title}</h4><p class="day-posts">{len(posted)}件の投稿</p><p class="day-source">{buttons}</p></article>')
     details = "".join(cards) or '<p class="empty-day">この日の情報はありません。</p>'
-    payload = json.dumps({'today':today.isoformat(), 'selected':selected, 'first':first, 'last':last, 'predicted':predicted, 'records':entries}, ensure_ascii=False).replace('<', '\\u003c')
+    payload = json.dumps({'today':today.isoformat(), 'selected':selected, 'first':first, 'last':last, 'predicted':predicted, 'records':entries, 'past_predictions':past_predictions}, ensure_ascii=False).replace('<', '\\u003c')
     if forecast['status'] == 'ok':
         h24, h48 = forecast['horizons']['24'], forecast['horizons']['48']
         lower, upper = h24['observed_ratio_interval']
@@ -434,7 +501,8 @@ def calendar_overview(records, forecast, editorial=None, previous_editorial=None
 <p class="editorial-caution">当サイトの予想はOpenAIの発表予定ではありません。一次情報を確認してから更新します。</p></aside>'''
     layout_class = "calendar-layout" if forecast_panel else "calendar-layout calendar-layout--full"
     prediction_legend = '<span><i class="legend-predicted"></i>予想日</span>' if editorial or forecast["status"] == "ok" else ""
-    return f'''<div class="{layout_class}"><section class="calendar-section" aria-labelledby="calendar-title"><div class="calendar-section-heading"><h2 id="calendar-title">リセットカレンダー</h2></div><div class="calendar-controls"><div><button id="calendar-prev" type="button" aria-label="前の月">‹</button><label class="sr-only" for="calendar-month">カレンダーの年月</label><select id="calendar-month">{''.join(month_options)}</select><button id="calendar-next" type="button" aria-label="次の月">›</button></div><button id="calendar-today" type="button">今月</button></div><div class="calendar-weekdays" aria-hidden="true"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div><div id="calendar-grid" class="calendar-grid" role="group" aria-label="{today.year}年{today.month}月">{grid}</div><div class="calendar-legend"><span><i class="legend-reset"></i>リセット</span><span><i class="legend-banked"></i>リセットチケット</span>{prediction_legend}</div><p class="calendar-status-explainer">※リセット実施の発表があった日を、日本時間で表示しています。</p><section class="selected-day" aria-live="polite" aria-atomic="true"><h3 id="selected-date">{int(selected[5:7])}月{int(selected[8:])}日の情報</h3><div id="selected-records">{details}</div></section><noscript><p>月の切り替えにはJavaScriptが必要です。全履歴は下の一覧から確認できます。</p></noscript></section>
+    history_legend = '<span><i class="legend-past-prediction"></i>過去予想</span>' if past_predictions else ""
+    return f'''<div class="{layout_class}"><section class="calendar-section" aria-labelledby="calendar-title"><div class="calendar-section-heading"><h2 id="calendar-title">リセットカレンダー</h2></div><div class="calendar-controls"><div><button id="calendar-prev" type="button" aria-label="前の月">‹</button><label class="sr-only" for="calendar-month">カレンダーの年月</label><select id="calendar-month">{''.join(month_options)}</select><button id="calendar-next" type="button" aria-label="次の月">›</button></div><button id="calendar-today" type="button">今月</button></div><div class="calendar-weekdays" aria-hidden="true"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div><div id="calendar-grid" class="calendar-grid" role="group" aria-label="{today.year}年{today.month}月">{grid}</div><div class="calendar-legend"><span><i class="legend-reset"></i>リセット</span><span><i class="legend-banked"></i>リセットチケット</span>{prediction_legend}{history_legend}</div><p class="calendar-status-explainer">カレンダーの「リセット」は確認済みの発表日です。「過去予想」の的中・外れは、予想を公開した後の最初の次回リセット発表日と比較しています。発表記録のない日も「実施なし」とは断定できません。</p><section class="selected-day" aria-live="polite" aria-atomic="true"><h3 id="selected-date">{int(selected[5:7])}月{int(selected[8:])}日の情報</h3><div id="selected-records">{details}</div></section><noscript><p>月の切り替えにはJavaScriptが必要です。全履歴は下の一覧から確認できます。</p></noscript></section>
 {forecast_panel}</div><script id="calendar-data" type="application/json">{payload}</script>'''
 
 
@@ -469,8 +537,8 @@ def homepage(records, updated, forecast, forecast_history, editorial=None, edito
             current_month = month
         rows.append(record_row(record))
     evidence_tabs = "".join(f'<button type="button" data-evidence-option="{key}" aria-pressed="{str(key == "all").lower()}">{label}</button>' for key, label in [("all", "すべて"), ("official", "公式サイト"), ("staff_x", "Xの投稿")])
-    return f'''{calendar_overview(records, forecast, editorial, previous_editorial)}
-{previous_editorial_predictions(editorial_history, editorial.get("forecast_id") if editorial else None)}
+    return f'''{calendar_overview(records, forecast, editorial, previous_editorial, editorial_history)}
+{previous_editorial_predictions(editorial_history, editorial.get("forecast_id") if editorial else None, records)}
 {forecast_results(forecast_history)}
 <section id="history" class="history-section"><div class="section-heading"><h2 class="section-title">これまでのリセット情報</h2><p>{len(records)}件</p></div>
 <form id="filters" aria-label="履歴の絞り込み"><input type="hidden" id="evidence-filter" value="all"><div class="filter-primary"><div class="evidence-tabs" role="group" aria-label="発表元で絞り込む">{evidence_tabs}</div><label class="search-label"><span class="sr-only">キーワード</span><input id="search-filter" type="search" placeholder="キーワードで検索" autocomplete="off"></label></div><div class="filter-secondary"><label for="kind-filter">種類</label><select id="kind-filter"><option value="all">すべて</option><option value="global">臨時リセット</option><option value="banked">リセットチケット</option></select><label for="month-filter">年月</label><select id="month-filter"><option value="all">すべての月</option>{options}</select><button class="reset-filter" type="reset">条件を解除</button></div></form>
