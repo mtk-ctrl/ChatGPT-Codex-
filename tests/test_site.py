@@ -21,14 +21,14 @@ class FirstPartyTests(unittest.TestCase):
 
     def test_28_day_publication_tab_is_listed_and_html_safe(self):
         rows = json.loads((ROOT / "data/shipping-28.json").read_text(encoding="utf-8"))
-        self.assertEqual(len(rows), 27)
-        self.assertEqual([r["day"] for r in rows], list(range(1, 28)))
+        self.assertEqual(len(rows), 28)
+        self.assertEqual([r["day"] for r in rows], list(range(1, 29)))
         self.assertEqual(rows[0]["date_pt"], "2026-10-05")
-        self.assertEqual(rows[-1]["date_pt"], "2026-10-31")
+        self.assertEqual(rows[-1]["date_pt"], "2026-11-01")
         self.assertTrue(all(r["sources"] for r in rows))
         self.assertTrue(all(all(site.shipping_source(url) for url in r["sources"]) for r in rows))
         markup = site.shipping_28_view(rows)
-        self.assertEqual(markup.count('class="shipping-summary"'), 27)
+        self.assertEqual(markup.count('class="shipping-summary"'), 28)
         self.assertIn("Day 1", markup)
         self.assertIn("Day 20", markup)
         self.assertIn("Day 21", markup)
@@ -36,6 +36,7 @@ class FirstPartyTests(unittest.TestCase):
         self.assertIn("Day 25", markup)
         self.assertIn("Day 26", markup)
         self.assertIn("Day 27", markup)
+        self.assertIn("Day 28", markup)
         self.assertIn("リセットチケット（運営者確認）", markup)
         self.assertIn("臨時リセットはありませんでした", markup)
         self.assertIn("複数のChatGPTアカウント", markup)
@@ -236,7 +237,7 @@ class FirstPartyTests(unittest.TestCase):
         self.assertEqual(event["original_url"], "https://x.com/thsottiaux/status/2114588174249071102")
         self.assertEqual(len(rows), len({r["id"] for r in rows}))
         shipping = json.loads((ROOT / "data/shipping-28.json").read_text(encoding="utf-8"))
-        self.assertEqual(shipping[-1]["day"], 27)
+        self.assertEqual(shipping[-1]["day"], 28)
         self.assertIn("Day 21", site.shipping_28_view(shipping))
 
     def test_day20_announcement_deadline_completion(self):
@@ -487,6 +488,35 @@ class FirstPartyTests(unittest.TestCase):
         self.assertNotIn("2026-11-01", data["past_predictions"])
         appjs = (ROOT / "docs/assets/app.js").read_text(encoding="utf-8")
         self.assertIn("observed_banked", appjs)
+
+    def test_day28_second_ticket_without_global_reset(self):
+        import re
+        shipping = json.loads((ROOT / "data/shipping-28.json").read_text(encoding="utf-8"))
+        day28 = next(r for r in shipping if r["day"] == 28)
+        self.assertEqual(day28["date_pt"], "2026-11-01")
+        self.assertEqual(day28["observed_at_jst_approx"], "2026-11-02T07:00:00+09:00")
+        self.assertEqual(day28["display_time_jst"], "午前7時")
+        self.assertEqual(day28["evidence_type"], "site_owner_observation")
+        original = json.loads((ROOT / "data/events.json").read_text(encoding="utf-8"))
+        self.assertFalse(any(site.record_day(r) == "2026-11-02" and r["kind"] == "global" for r in original))
+        cfg = json.loads((ROOT / "data/editorial-forecast.json").read_text(encoding="utf-8"))
+        history = json.loads((ROOT / "data/editorial-forecast-history.json").read_text(encoding="utf-8"))
+        now = site.parse_time("2026-11-02T07:25:00+09:00")
+        forecast = {"status": "stale", "generated_at": now.isoformat(), "horizons": {}}
+        page = site.homepage(original, now.isoformat(), forecast, [], None, history, cfg, shipping)
+        self.assertIn("11月1日（日）", page)
+        self.assertIn("11月2日（月）", page)
+        self.assertIn("午前4時ごろ", page)
+        self.assertIn("午前7時", page)
+        self.assertNotIn("リセット関連の予告", re.search(r'<aside class="forecast-panel forecast-outlook".*?</aside>', page, re.S).group(0))
+        data = json.loads(re.search(r'<script id="calendar-data" type="application/json">(.*?)</script>', page, re.S).group(1))
+        self.assertTrue(data["outlook"]["2026-11-01"]["observed_banked"])
+        self.assertTrue(data["outlook"]["2026-11-02"]["observed_banked"])
+        self.assertIn("午前7時", data["outlook"]["2026-11-02"]["basis"])
+        self.assertNotIn("午前4時ごろ", data["outlook"]["2026-11-02"]["basis"])
+        self.assertFalse(any(r["day"] == "2026-11-02" and r["kind"] == "global" for r in data["records"]))
+        self.assertNotIn("2026-11-02", data["past_predictions"])
+        self.assertIn('day-mark banked-mark">チケット</span>', page)
 
     def test_reader_facing_outlook_is_short_and_sources_live_on_about(self):
         import re
