@@ -429,7 +429,7 @@ def calendar_overview(records, forecast, editorial=None, previous_editorial=None
         observed_day = when.astimezone(JST).date().isoformat()
         outlook[observed_day] = {
             "possibility": "リセットチケット配布",
-            "basis": "午前4時ごろ（日本時間）。臨時リセットなし。",
+            "basis": f"{shipping.get('display_time_jst', '午前4時ごろ')}（日本時間）。臨時リセットなし。",
             "advance_notice": False, "observed_banked": True,
             "evidence": "site_owner_observation",
         }
