@@ -277,6 +277,23 @@
     ],
     "evidence_type": "site_owner_observation",
     "observed_at_jst_approx": "2026-11-01T04:00:00+09:00",
-    "verification_note": "11月1日午前4時ごろの配布と臨時リセットなしは、サイト運営者の確認による情報です。OpenAI公式ガイドは仕組みの説明であり、当日の配布を告知する資料ではありません。Day27のTibo氏本人の個別投稿は未照合です。"
+    "verification_note": "11月1日午前4時ごろの配布と臨時リセットなしは、サイト運営者の確認による情報です。OpenAI公式ガイドは仕組みの説明であり、当日の配布を告知する資料ではありません。Day27のTibo氏本人の個別投稿は未照合です。",
+    "display_time_jst": "午前4時ごろ"
+  },
+  {
+    "day": 28,
+    "date_pt": "2026-11-01",
+    "category": "リセットチケット（運営者確認）",
+    "summary": "11月2日午前7時（日本時間）、リセットチケットを配布。臨時リセットはありませんでした。",
+    "sources": [
+      "https://help.openai.com/ja-jp/articles/20001498-how-resets-work-in-codex"
+    ],
+    "source_labels": [
+      "リセットチケットの仕組み（OpenAI公式）"
+    ],
+    "evidence_type": "site_owner_observation",
+    "observed_at_jst_approx": "2026-11-02T07:00:00+09:00",
+    "display_time_jst": "午前7時",
+    "verification_note": "サイト運営者が11月2日午前7時の配布と、臨時リセットがなかったことを報告。原文の「12/2」は現在日付（11/2）から11/2の入力違いと解釈。チケットの種類・配布対象・Tibo氏当日投稿との独立照合は未実施。公式ガイドは仕組みの資料であり、当日の配布を裏付けるものではない。"
   }
 ]
