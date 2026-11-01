@@ -1,0 +1,27 @@
+{
+  "report_date_jst": "2026-11-02",
+  "report_original_text": "日本時間12/2朝7時にリセットチケットが配布されてました。サイトを更新しておいてください。リセットはありませんでした",
+  "interpreted_date_jst": "2026-11-02",
+  "date_interpretation_reason": "User's 12/2 is future relative to current local date 2026-11-02 07:25 JST. Interpreted as typo for 11/2; surfaced this assumption to the user before edits.",
+  "observation": {
+    "source": "site_owner_firsthand_message",
+    "date_jst": "2026-11-02",
+    "time_jst": "07:00",
+    "precision": "reported hour",
+    "banked_ticket_distributed": true,
+    "global_reset_occurred_at_reported_time": false,
+    "day_in_28_day_series": 28,
+    "campaign_date_pt": "2026-11-01",
+    "tibo_day28_post_directly_verified": false,
+    "official_guide_link": "https://help.openai.com/ja-jp/articles/20001498-how-resets-work-in-codex",
+    "official_guide_scope": "Describes reset tickets only; not evidence of Nov 2 distribution"
+  },
+  "publishing": {
+    "record_in": "data/shipping-28.json",
+    "calendar_derived_from": "scripts/site.py shipping observation overlay",
+    "global_reset_archive": "data/events.json unchanged",
+    "forecast_outcomes": "unchanged",
+    "day27": "preserved 2026-11-01 at approximately 04:00 JST"
+  },
+  "source_research": "As of Nov2 07:25 JST, fast public search did not surface a directly verifiable Tibo Day28 original post; third-party trackers are not treated as independent official proof of distribution."
+}
