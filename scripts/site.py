@@ -531,7 +531,7 @@ def calendar_overview(records, forecast, editorial=None, previous_editorial=None
             target_date = datetime.strptime(date_value, "%Y-%m-%d")
             weekday = "月火水木金土日"[target_date.weekday()]
             if item.get("observed_banked"):
-                title, detail = "リセットチケット配布", "午前4時ごろ（日本時間）。臨時リセットなし"
+                title, detail = "リセットチケット配布", item["basis"].rstrip("。")
             elif item.get("advance_notice"):
                 title, detail = "リセット関連の予告", "Tibo氏がリセット・チケットの企画を予告"
             else:
