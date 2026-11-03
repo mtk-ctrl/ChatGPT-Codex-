@@ -61,5 +61,5 @@
 ## 6. 任意の補助資料
 
 - [Addnessの運用Goal](https://www.addness.com/goals/c4d6a2c0-1a42-4094-92c4-61a426e8c796)：決定・検証・次の一手のメモ。これがなくてもGitHubから運用を再開できる構成とする。
-- [Google DriveのAI共通ルーター](https://drive.google.com/file/d/1gX2jUHmryGAt-807aHN_z3EXxAyhbNZF/view)：ChatGPT・Claudeで共通の横断入口。**Driveに接続できないAIでも、このリポジトリのAGENTS.mdとREADMEだけで作業できるようにする**。
+- Google Driveの `00_AI運用基盤/00_AI共通ルーター.md`（名前が「日付_旧_」で始まらない現行版）：ChatGPT・Claudeで共通の横断入口。**Driveに接続できないAIでも、このリポジトリのAGENTS.mdとREADMEだけで作業できるようにする**。
 - [旧README](archive/README_before_reorganization_2026-11-03.md)、[旧AGENTS](archive/AGENTS_before_reorganization_2026-11-03.md)：日付別の原文を保存。Gitのコミット履歴も残す。

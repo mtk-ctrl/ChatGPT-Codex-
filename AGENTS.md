@@ -1,6 +1,6 @@
 # リセットサイト：AI・人間に共通の現行作業ルール
 
-横断的な正本・判断記録・複数AIの同時作業は、[Google Drive「00_AI共通ルーター.md」第5・6節](https://drive.google.com/file/d/1gX2jUHmryGAt-807aHN_z3EXxAyhbNZF/view)を参照する。
+横断的な正本・判断記録・複数AIの同時作業は、Google Driveの `00_AI運用基盤/00_AI共通ルーター.md`（名前が「日付_旧_」で始まらない現行版）第5・6節を参照する。
 
 更新日：2026-11-03。**ChatGPT以外のAIにも適用する。** 詳しい方法は [handbook/00_START_HERE.md](handbook/00_START_HERE.md) を入口とし、作業内容に応じて専門資料を読む。
 
