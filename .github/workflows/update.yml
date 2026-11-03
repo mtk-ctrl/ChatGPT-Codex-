@@ -7,6 +7,9 @@ on:
   push:
     branches: [main]
     paths:
+      - 'README.md'
+      - 'AGENTS.md'
+      - 'handbook/**'
       - 'scripts/**'
       - 'tests/**'
       - 'counter-ingest/**'
