@@ -68,7 +68,7 @@ python3 scripts/site.py build
 ## 5. GitHub Pages公開
 
 1. 認証されたGitHubアカウントで許可された変更をmainへ保存。
-2. コード・データの変更ではActionsが自動起動する。**README、AGENTS、handbookだけを変更したときは自動起動しない**ので手動実行する。
+2. コード・データに加え、**README・AGENTS・handbookの変更もActionsの自動起動対象**（2026/11/3以降）。実際の起動を確認。起動しなければ手動実行する。
 3. リポジトリのActions → 「Collect reset records and publish」→ Run workflow（main）。CLIが使えれば以下も可。
 
 ~~~sh
@@ -87,6 +87,7 @@ gh run list --repo mtk-ctrl/ChatGPT-Codex- --limit 5
 |---|---|---|
 | 新しいリセットが載らない | data/health.json、X本人投稿 | 取得制限か本当の未更新かを分離。一次情報を確かめ手動記録 |
 | GitHub Actions failure | 該当runの失敗ステップのログ | コード、JSON、テスト期待値を直し再テスト |
+| 保存時のgit pushが拒否される | 同時編集でmainが前進したか | fetch・rebaseで最大3回再試行。rebase競合時は強制pushせず差分を確認し解決 |
 | GitHubには変更済みだが公開が古い | Pages Publish結果、docsの生成HTML | ビルド・Publishを再検証。ブラウザキャッシュとソース未更新を区別 |
 | カレンダーと日付タップの内容が違う | scripts/site.py、docs/assets/app.js | 静的HTMLとJSの両方を同一データで更新 |
 | 予想履歴が変わった | editorial-forecast-history.json、Actionsの自動コミット | Git差分・初回Publish証跡・ユーザー判断と照合。恣意的に消さない |
