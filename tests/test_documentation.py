@@ -46,6 +46,15 @@ class HandbookIntegrityTests(unittest.TestCase):
                 with self.subTest(source=filename, target=target):
                     self.assertTrue(target_path.exists(), "Broken local Markdown link")
 
+    def test_handbook_edits_trigger_ci_and_publishing_pushes_are_safe(self):
+        workflow = (ROOT / ".github/workflows/update.yml").read_text(encoding="utf-8")
+        for name in ("'README.md'", "'AGENTS.md'", "'handbook/**'", "'tests/**'"):
+            with self.subTest(path=name):
+                self.assertIn(name, workflow)
+        self.assertIn("git fetch origin main", workflow)
+        self.assertIn("git rebase origin/main", workflow)
+        self.assertNotIn("git push --force", workflow)
+
     def test_transfer_does_not_depend_on_chat_memory(self):
         start = (ROOT / "handbook/00_START_HERE.md").read_text()
         handoff = (ROOT / "handbook/50_AI_HANDOFF.md").read_text()
