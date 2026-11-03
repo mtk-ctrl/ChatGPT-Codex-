@@ -44,7 +44,7 @@ node --test tests/test_counter.mjs tests/test_stats.mjs
 python3 scripts/site.py build
 ~~~
 
-作業後はGitHubに保存し、GitHub Actionsで確認する。コード・データのpushは自動起動対象だが、handbookやREADMEの編集だけではジョブが起動しない。
+作業後はGitHubに保存し、GitHub Actionsで確認する。コード・データに加え、README・AGENTS・handbookの編集も自動起動対象（2026/11/3以降）。実際のrunを確認する。
 
 ~~~sh
 gh workflow run update.yml --repo mtk-ctrl/ChatGPT-Codex- --ref main
