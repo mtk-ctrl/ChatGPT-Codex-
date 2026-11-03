@@ -61,7 +61,24 @@ jobs:
           git add data/events.json data/health.json data/forecast-history.json data/editorial-forecast-history.json docs
           if ! git diff --cached --quiet; then
             git commit -m "chore: update reset records and collector health [skip ci]"
-            git push
+            # A source-document edit may have advanced main while this run built.
+            # Never force-push; rebase the generated commit onto current main.
+            for attempt in 1 2 3; do
+              if git push origin HEAD:main; then
+                break
+              fi
+              echo "Main advanced during build; fetching latest main (attempt $attempt)"
+              git fetch origin main
+              if ! git rebase origin/main; then
+                git rebase --abort || true
+                echo "::error::Generated output conflicts with a newer main commit."
+                exit 1
+              fi
+              if [ "$attempt" -eq 3 ]; then
+                echo "::error::Could not push generated output after three attempts."
+                exit 1
+              fi
+            done
           fi
       - name: Summarize collection and first-time publishing setup
         run: |
