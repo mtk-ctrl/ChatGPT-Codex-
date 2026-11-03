@@ -36,11 +36,11 @@
 ## GitHub Actionsの実際の条件
 
 - 2時間ごと（cron: 17 */2 * * *、UTC）、手動起動、mainへの一部ファイルのpushで実行。
-- push対象は scripts/**、tests/**、counter-ingest/**、data/**、docs/assets/** とworkflow本体。**handbook/、README、AGENTSの変更のみでは自動実行されない。** 文書更新後は手動起動する。
+- push対象は README.md、AGENTS.md、handbook/**、scripts/**、tests/**、counter-ingest/**、data/**、docs/assets/** とworkflow本体。**文書変更でも自動実行される**。実際のActions結果を確認する。
 - Python unittest と Nodeの計測用テストを実行した後、一次情報取得、HTML生成、生成物コミット、Pagesアップロード、Publishを行う。
 - 一次情報への接続失敗は処理を継続し、既存履歴を保持する。したがって **Actions success と情報取得成功は別**。必ず data/health.json の feed、x_status、last_success_at を確認する。
 - 公開リポジトリとして無料運用する設計。privateになった場合は更新ジョブを抑制する安全策がある。
-- Pages Publish成功を確認して公開と報告。コミットだけで「更新済み」とは言わない。
+- Pages Publish成功を確認して公開と報告。コミットだけで「更新済み」とは言わない。生成物の保存時にmainが前進した場合はfetch/rebaseで最大3回再試行し、強制pushはしない。
 
 ## 時刻と真偽の意味
 
