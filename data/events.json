@@ -1,5 +1,26 @@
 [
   {
+    "id": "2120999993079451919:banked",
+    "post_id": "2120999993079451919",
+    "kind": "banked",
+    "state": "announced",
+    "reference_at": "2026-11-12T21:59:39.281Z",
+    "date_precision": "minute",
+    "time_basis": "X投稿IDから算出した投稿時刻（実際のチケット反映時刻ではない）",
+    "time_officially_verified": false,
+    "evidence": "staff_x",
+    "verification_method": "X原投稿の検索結果表示（本文抜粋）。Tibo氏の投稿本文と投稿日（Nov 12）を確認。原投稿ページの全文取得は不可",
+    "verified_at": "2026-11-22",
+    "products": [
+      "codex",
+      "chatgpt_work"
+    ],
+    "note": "Tibo氏が「リセットチケットを有効化した。まもなく全員のアカウントに届く」と発表しました。",
+    "original_url": "https://x.com/thsottiaux/status/2120999993079451919",
+    "official_confirmation": null,
+    "reason_tags": []
+  },
+  {
     "id": "2115330127886463244:global",
     "post_id": "2115330127886463244",
     "kind": "global",

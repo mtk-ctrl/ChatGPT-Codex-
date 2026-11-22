@@ -1,0 +1,24 @@
+{
+  "report_date_jst": "2026-11-22",
+  "request": "tiboのXを調査して、ChatGPTリセットサイト以降のリセットがあれば更新して",
+  "baseline": "サイト記録の最新は、通常リセット＝10/28（Day23）、チケット＝11/2 07時（Day28・運営者確認）。",
+  "method": "Tibo氏(@thsottiaux)のX投稿をWeb検索で確認（x.comの直接取得はrobots制限）。第三者トラッカー(resetbeacon.com, tiboreset.com)は投稿を探す手がかりとしてのみ使用し、掲載の根拠はX原投稿の本文表示とした。",
+  "found": [
+    {
+      "post_url": "https://x.com/thsottiaux/status/2120999993079451919",
+      "post_time_utc": "2026-11-12T21:59:39Z",
+      "post_time_jst": "2026-11-13T06:59:39+09:00",
+      "time_basis": "投稿IDから算出（snowflake）",
+      "text_excerpt": "We shipped some good updates to dots today and the banked reset has been activated and should land in everyones accounts sometime soon!",
+      "classification": "banked（リセットチケット配布）",
+      "recorded_in": "data/events.json"
+    }
+  ],
+  "not_recorded": [
+    {"post_url": "https://x.com/thsottiaux/status/2120410480204525936", "reason": "11/11 06:57(米国時間)の『木曜はバンクドリセットに良い日かも』という示唆。実施の発表ではないため記録しない。"},
+    {"note": "11/7・11/10の投稿はトラッカー上で利用枠の説明（リセット実施ではない）。原投稿は未照合のため記録しない。"}
+  ],
+  "global_reset_after_2026-10-28": "二つの追跡サイト(resetbeacon.com 11/22 01:07 PST確認、tiboreset.com)とも、10/28以降の通常（臨時）リセットは記録なし。11/13〜11/22の新規リセットも見当たらない。X本人の全投稿を直接走査したわけではないため『なし』の断定ではない。",
+  "side_findings": "Day26〜28のTibo氏本人投稿のURLがトラッカーから判明（Day26 2116405414921384099 / Banked 1/2 2116692529970311254 / Day28 Banked 2/2 2117035794678546764）。現行の掲載は変更していない。",
+  "publishing": "自動収集ワークフローは本人指示で停止中。公開にはワークフロー実行が必要で、本人の明示指示を待つ。"
+}
