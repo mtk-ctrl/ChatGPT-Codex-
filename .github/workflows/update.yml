@@ -109,6 +109,10 @@ jobs:
         with:
           path: docs
           retention-days: 1
+      - name: Wait for the uploaded site artifact to become listable
+        # 2026-11-22: deploy-pages listed 0 artifacts right after a successful upload
+        # (GitHub-side lag). Give the artifact API time to catch up before Publish.
+        run: sleep 45
       - name: Publish
         id: deployment
         uses: actions/deploy-pages@v4
