@@ -15,6 +15,20 @@
       records.get(record.day).push(record);
     });
     let selected = data.selected;
+    // ページ生成後に日がたっても、閲覧した日（日本時間）を「今日」にする。
+    // 生成日時は更新が止まると古いままになるため、表示側で必ず補正する。
+    try {
+      const viewedToday = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(new Date());
+      const viewedMonth = viewedToday.slice(0, 7);
+      if (/^\d{4}-\d{2}-\d{2}$/.test(viewedToday) && viewedToday !== data.today && Array.from(month.options).some(option => option.value === viewedMonth)) {
+        const generatedToday = data.today;
+        data.today = viewedToday;
+        month.value = viewedMonth;
+        if (selected === generatedToday || !selected.startsWith(viewedMonth)) selected = viewedToday;
+      }
+    } catch (error) {
+      /* 日付の補正に失敗しても、生成時点の表示をそのまま使う */
+    }
     const element = (tag, text, className) => {
       const node = document.createElement(tag);
       if (text !== undefined) node.textContent = text;

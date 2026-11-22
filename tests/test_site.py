@@ -436,6 +436,12 @@ class FirstPartyTests(unittest.TestCase):
         self.assertEqual(oct31["outcome_status"], "外れ")
         self.assertEqual(oct31["outcome_evidence"], "site_owner_report_2026-10-31")
         self.assertIn("outlook-mark", (ROOT / "docs/assets/app.js").read_text())
+
+    def test_calendar_today_follows_viewing_date_in_japan(self):
+        # 回帰：公開後にページ生成日時が古くなっても、カレンダーの「今日」は閲覧日(日本時間)にする
+        js = (ROOT / "docs/assets/app.js").read_text(encoding="utf-8")
+        self.assertIn('timeZone: "Asia/Tokyo"', js)
+        self.assertIn("data.today = viewedToday", js)
         self.assertIn(".day-mark.outlook-mark", (ROOT / "docs/assets/style.css").read_text())
 
     def test_day26_post_screenshot_is_not_mistaken_for_missing_or_an_unverified_reset(self):
