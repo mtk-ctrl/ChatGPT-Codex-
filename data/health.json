@@ -1,15 +1,12 @@
 {
-  "checked_at": "2026-11-03T08:51:12Z",
-  "last_success_at": null,
-  "feed": "failed",
-  "official_page": "unavailable",
-  "x_status": "unavailable",
-  "message": "一次資料を確認できません。確認済みの過去データのみ表示中。",
+  "checked_at": "2026-11-22T10:06:39Z",
+  "last_success_at": "2026-11-22T10:06:39Z",
+  "feed": "ok",
+  "official_page": "verified",
+  "x_status": "checked",
+  "message": "OpenAI公式情報を確認。X直接取得の可否は別途表示。",
   "source_policy": "OpenAI official and original staff X",
-  "official_errors": [
-    "help.openai.com:RuntimeError",
-    "help-lb.openai.com:RuntimeError"
-  ],
+  "official_source_checked": "https://help.openai.com/en/articles/20001516-managing-usage-with-gpt-6-astra-in-work-and-codex",
   "new_x_records": 0,
-  "record_count": 74
+  "record_count": 75
 }
